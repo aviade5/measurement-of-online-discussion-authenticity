@@ -1,0 +1,333 @@
+from __future__ import print_function
+from webbrowser import open_new_tab
+from scipy.misc import imread
+import csv
+import logging
+from preprocessing_tools.abstract_executor import AbstractExecutor
+import pandas as pd
+
+class TopicDistrobutionVisualizationGenerator(AbstractExecutor):
+    def __init__(self, db):
+        AbstractExecutor.__init__(self, db)
+        self._read_predictions_from_db = self._config_parser.eval(self.__class__.__name__, "read_predictions_from_db")
+        self.prediction_csv_path = self._config_parser.eval(self.__class__.__name__, "prediction_csv_path")
+        self._viz_output_path = self._config_parser.eval(self.__class__.__name__, "output_dir")
+        self._buckets = self._config_parser.eval(self.__class__.__name__, "buckets")
+        self._include_unlabeled_predictions = self._config_parser.eval(self.__class__.__name__, "include_unlabeled_predictions")
+        self._include_labeled_authors_in_visualization = self._config_parser.eval(self.__class__.__name__, "include_labeled_authors_in_visualization")
+        self._optional_classes = self._config_parser.eval(self.__class__.__name__, "optional_classes")
+
+    def setUp(self):
+        pass
+
+    def execute(self,window_start):
+        self.create_topic_data_list()
+
+    def red_to_green_colors(self, number_of_colors):
+        red = 255
+        green = 0
+        step_size = 255/number_of_colors
+        color_list = []
+        while green < 255:
+            green += step_size
+            red -= step_size
+            if green > 255:
+                green = 255
+            if red < 0:
+                red = 0
+            color_list.append('#%02x%02x%02x' % (red,green,0))
+        return color_list
+
+    def create_dataset_for_chart(self,rings_data_list_dict):
+        html = """datasets: [
+            %s
+        ]
+        """
+        data_set = ""
+        for ring_data in rings_data_list_dict['datasets']:
+            temp = """
+                {
+                    data: %s,
+                    backgroundColor: %s,
+                },
+                """
+            data_set = data_set + temp % (str(ring_data['data']),str(ring_data['backgroundColor']))
+        html = html % data_set
+        return html
+
+    def create_charts_script(self,topics_and_data):
+        i=1
+        script = ""
+        for topic in topics_and_data:
+            config = """var config%s = {
+                            type: 'doughnut',
+                            data: {
+                                %s
+                                ,
+                                labels:
+                                %s
+                            },
+                            options: {
+                                responsive: true,
+                                title: {
+                                    display: true,
+                                    text: %s
+                                },
+                                 legend: {
+                                    display: false,
+                                }
+                            }
+                        };
+                        """
+            top = '"Topic :'+topic[0]+'"'
+            script += config % (str(i),self.create_dataset_for_chart(topic[1]),str(topic[2]),top)
+            i+=1
+        script += "\nwindow.onload = function (){\n"
+        for j in range(1,len(topics_and_data)+1):
+            temp ="""
+                var ctx%s = document.getElementById("chart-area%s");
+                var myDoughnutChart = new Chart(ctx%s, config%s);
+            """
+            script += temp %(str(j),str(j),str(j),str(j))
+        script += "}"
+        return script
+
+    def create_body_section(self,number_of_topicts):
+        script = """<body>
+        """
+        for i in range(1,number_of_topicts+1):
+            temp = """
+                    <div id="canvas-holder%s" style="width:%s">
+                        <canvas id="chart-area%s" width="100px" height="100px" />
+                    </div>
+                    """
+            script += temp % (str(i),'20%',str(i))
+        script += "</body>"
+        return script
+
+    def creat_html_file(self,topic_and_data):
+        file_name = "test2"
+        filename = self._viz_output_path + file_name + '.html'
+        f = open(filename, 'w')
+        wrapper = """ <!DOCTYPE HTML>
+            <html>
+            <head>
+                %s
+                <script type="text/javascript">
+                    %s
+                </script>
+                <script src="Chart.js"></script>
+                <title>CanvasJS Example</title>
+            </head>
+            <body>
+                %s
+            </body>
+            </html>
+           """
+
+        self._db.create_topic_terms_view()
+        css = self.create_wordcloud_for_charts(topic_and_data)
+        data_sets = self.create_charts_script(topic_and_data)
+        whole = wrapper % (css,data_sets,self.create_body_section(len(topic_and_data)))
+        f.write(whole)
+        f.close()
+        open_new_tab(filename)
+
+
+    def create_topic_data_list(self):
+        try:
+            print("Generate visualization")
+            topic_data_list =[]
+            topic_to_author_type_num_of_posts_mapping , topic_num_of_authors_distribution_dict= self.generate_datasets_for_visualization()
+            topic_keys = topic_to_author_type_num_of_posts_mapping.keys()
+            for topic in topic_to_author_type_num_of_posts_mapping:
+                # for prediction in topic:
+                #     if (int(prediction[0]) == topic):
+                #         buckets[prediction[1]] = int(prediction[2])
+                for key in self._buckets:
+                    if key not in topic_to_author_type_num_of_posts_mapping[topic]:
+                        topic_to_author_type_num_of_posts_mapping[topic][key] = 0
+                    if key not in topic_num_of_authors_distribution_dict[topic]:
+                        topic_num_of_authors_distribution_dict[topic][key] = 0
+
+                keys = topic_to_author_type_num_of_posts_mapping[topic].keys()
+                sorted_keys = sorted(keys,reverse=True)
+                labeles = sorted_keys
+                number_of_posts_in_topic_distribution_dataset = []
+                for key in sorted_keys:
+                    number_of_posts_in_topic_distribution_dataset.append((topic_to_author_type_num_of_posts_mapping[topic])[key])
+                number_of_authors_in_topic_distribution_dataset = []
+                for key in sorted_keys:
+                    number_of_authors_in_topic_distribution_dataset.append((topic_num_of_authors_distribution_dict[topic])[key])
+                data = {}
+                color_list = self.red_to_green_colors(10)
+                back_ground_color_authors = []
+                back_ground_color_posts = []
+
+                data['datasets'] = [
+                    {'data': number_of_posts_in_topic_distribution_dataset, 'backgroundColor': color_list},
+                    {'data': number_of_authors_in_topic_distribution_dataset, 'backgroundColor': color_list}
+                    ]
+                topic_data_list.append((str(topic),data ,labeles))
+            self.creat_html_file(topic_data_list)
+        except IOError as error:
+            print("IOError:" + repr(error))
+
+        pass
+
+
+
+    def create_topic_wordcloud_img(self,topic,frec):
+        # Create wordcloud img for the topic using words frequencies e.g:
+        #frec = [('hi', 0.01), ('bye', 0.5), ('wow', 0.3), ('dfg', 0.1), ('efef', 0.9)]
+
+        import wordcloud
+
+        wordcloud = wordcloud.WordCloud(prefer_horizontal=1, ranks_only=True, background_color='white',mask=imread('topic_distribution_visualization/red-circle.png')).fit_words(frec)
+        picture_path = '%stopic_wordcloud/topic%s.png' % (self._viz_output_path,topic)
+        wordcloud.to_file(picture_path)
+        pass
+
+    def create_wordcloud_for_charts(self, topic_and_data):
+        # create the css section for the visualization of each graph
+
+        css = """<style>
+                    body > div {
+                    display: inline-block;
+                    }
+        """
+        i=1
+        topic_word_probability_dict = self._db.get_words_with_highest_probability()
+        for topic in topic_and_data:
+            self.create_topic_wordcloud_img(topic[0],topic_word_probability_dict[topic[0]])
+            temp = """
+                    #canvas-holder%s {
+                        background-image: url("topic_wordcloud/topic%s.png");
+                        background-size: 45%s 45%s;
+                        background-position: 50%s 60%s;
+                        background-repeat: no-repeat;
+                    }
+
+            """
+            css += temp % (str(i),str(i),'%','%','%','%')
+            i+=1
+        css += "</style>"
+        return css
+
+    def generate_datasets_for_visualization(self):
+        if not self._db.is_post_topic_mapping_table_exist() or not self._db.is_topics_table_exist():
+            logging.error("TABLES: post_topic_mapping_table or topics tables DON'T EXIST. APP CONNOT RUN! ABORTING...")
+            raise IOError("TABLES: post_topic_mapping_table or topics tables DON'T EXIST. APP CONNOT RUN! ABORTING...")
+
+        author_classification = self.load_authors_classification()
+        topic_to_author_type_mapping, topic_authors_distribution_dict = self.generate_topic_to_author_type_mapping(author_classification)
+        return topic_to_author_type_mapping , topic_authors_distribution_dict
+
+
+    def load_authors_classification(self):
+        '''
+        :return: a mapping of author_name -> author badness score (1 = 100% bad, 0 = 100% good)
+        '''
+        author_classification = {}
+        if self._read_predictions_from_db == True and self._include_unlabeled_predictions:
+            author_classification = self._fill_author_classification_from_table()
+        elif self._include_unlabeled_predictions: # read from CSV file
+            author_classification = self._fill_author_classification_from_csv_file()
+
+        if self._include_labeled_authors_in_visualization:
+            labeled_authors = self._db.get_labeled_authors_by_domain(self._domain)
+            reversed_optional_classes_dict = {value: key for key, value in self._optional_classes.iteritems()}
+            bad_type_class_name = reversed_optional_classes_dict[1]
+            for labeled_author in labeled_authors:
+                author_name = labeled_author[0]
+                author_type = labeled_author[1]
+                if author_type == bad_type_class_name:
+                    prediction = 0
+                else:
+                    prediction = 1
+                self._fill_author_classification(author_name, author_type, prediction, author_classification)
+
+        return author_classification
+
+    def generate_topic_to_author_type_mapping(self, author_classification):
+        '''
+        :return: a mapping of <topic_id> -> <author type> -> <number of posts posted by authors of this type in this topic>
+        '''
+        topic_post_distribution = {}
+        topic_authors_distribution_dict = {}
+        topic_to_author_mapping = self._db.get_topic_to_author_mapping()
+        j=1
+        for topic_id in topic_to_author_mapping:
+            msg = "\nTopic [{}/{}]".format(str(j),str(len(topic_to_author_mapping)))
+            print(msg)
+            j+=1
+            # topic_name = 'topic' + str(topic_id)
+            if topic_id not in topic_post_distribution:
+                topic_post_distribution[topic_id] = {}
+            if topic_id not in topic_authors_distribution_dict:
+                topic_authors_distribution_dict[topic_id] = {}
+            i =1
+            for author in topic_to_author_mapping[topic_id]:
+                msg = "\rMapping Author: [{}/{}]".format(str(i), str(len(topic_to_author_mapping[topic_id])))
+                print(msg, end="")
+                i+=1
+                category = self.get_author_category(author, author_classification)
+                if category is None:
+                    continue
+                if category not in topic_post_distribution[topic_id]:
+                    topic_post_distribution[topic_id][category] = 0
+                if category not in topic_authors_distribution_dict[topic_id]:
+                    topic_authors_distribution_dict[topic_id][category] = 0
+
+                topic_post_distribution[topic_id][category] += topic_to_author_mapping[topic_id][author]
+                topic_authors_distribution_dict[topic_id][category] +=1
+        return topic_post_distribution, topic_authors_distribution_dict
+
+    def get_bucket(self, prediction):
+        for bucket in self._buckets:
+            if prediction < float(bucket):
+                return float(bucket)
+        return float(1)
+
+    def get_author_category(self, author, author_classification):
+        if author in author_classification:
+            category = author_classification[author]
+        else:
+                category = None
+        return category
+
+    def _fill_author_classification(self, author_name, predicted, prediction, author_classification):
+        if ("good_actor" in predicted and prediction >= 0.5):
+            prediction = 1 - prediction
+        if ("bad_actor" in predicted and prediction <= 0.5):
+            prediction = 1 - prediction
+        author_classification[author_name] = self.get_bucket(prediction)
+
+    def _fill_author_classification_from_table(self):
+        author_classification = {}
+        is_predictions_table_exist = self._db.is_table_exist('unlabeled_predictions')
+        if is_predictions_table_exist == False:
+            message = "TABLE: unlabeled_predictions DON'T EXIST. APP CONNOT RUN! ABORTING..."
+            logging.error(message)
+            raise IOError(message)
+        cursor = self._db.get_unlabeled_predictions()
+        unlabeled_predictions_generator = self._db.result_iter(cursor)
+        for tuple in unlabeled_predictions_generator:
+            author_name = tuple[0]
+            predicted = tuple[1]
+            prediction = tuple[2]
+            self._fill_author_classification(author_name, predicted, prediction, author_classification)
+
+        return author_classification
+
+    def _fill_author_classification_from_csv_file(self):
+        author_classification = {}
+        print("Load authors predications CSV")
+        with open(self.prediction_csv_path) as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                author_name = row['author_screen_name']
+                predicted = row['predicted']
+                prediction = float(row['prediction'])
+                self._fill_author_classification(author_name, predicted, prediction, author_classification)
+        return author_classification
