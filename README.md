@@ -18,6 +18,7 @@ BibTex:
 2. Aviad Elyashar, Jorge Bendahan, and Rami Puzis. "Has the Online Discussion Been Manipulated? Quantifying Online Discussion Authenticity within Online Social Media"
 
 BibTex:
+
 @article{elyashar2017online,
   title={Has the Online Discussion Been Manipulated? Quantifying Online Discussion Authenticity within Online Social Media},
   author={Elyashar, Aviad and Bendahan, Jorge and Puzis, Rami},
@@ -28,6 +29,7 @@ BibTex:
 3. Aviad Elyashar, Jorge Bendahan, and Rami Puzis. "Is the News Deceptive? Fake News Detection using Topic Authenticity"
 
 BibTex:
+
 @inproceedings{elyashar2017news,
  author={Elyashar, Aviad and Bendahan, Jorge and Puzis, Rami},
  title     = {Is the News Deceptive? Fake News Detection using Topic Authenticity},  
