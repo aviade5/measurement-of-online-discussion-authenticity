@@ -324,9 +324,9 @@ class MissingDataComplementor(Method_Executor):
                 # logging.info("Retrived timeline lenght: " + str(len(timeline)))
                 if timeline is not None:
                     for post in timeline:
-                        tweet_post_twitter_id = str(post._id)
+                        tweet_post_twitter_id = str(post.id)
                         tweet_url = generate_tweet_url(tweet_post_twitter_id, author_name)
-                        tweet_creation_time = post._created_at
+                        tweet_creation_time = post.created_at
                         tweet_str_publication_date = extract_tweet_publiction_date(tweet_creation_time)
                         tweet_guid = compute_post_guid(post_url=tweet_url, author_name=author_name,
                                                        str_publication_date=tweet_str_publication_date)
@@ -335,7 +335,7 @@ class MissingDataComplementor(Method_Executor):
                         posts_counter = posts_counter + 1
                         tweet_author_guid = compute_author_guid_by_author_name(author_name)
                         tweet_author_guid = cleanForAuthor(tweet_author_guid)
-                        tweet_content = post._text
+                        tweet_content = post.text
                         post = self._db.create_post_from_tweet_data(post, self._domain)
                         posts.append(post)
             except Exception as e:

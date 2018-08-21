@@ -21,7 +21,6 @@ class TestLDATopicModel(TestCase):
     def tearDown(self):
         self._lda.tearDown()
         self._importer.tearDown()
-        self._db.tearDown()
         self._db.session.close()
 
     def testDoubleExecute(self):

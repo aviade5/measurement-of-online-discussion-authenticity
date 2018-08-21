@@ -13,14 +13,14 @@ class MissingDataComplemntorTests(TestCase):
         self._minimal_num_of_posts = self.config.eval("MissingDataComplementor", "minimal_num_of_posts")
         self._missing_data_complemntor = MissingDataComplementor(self._db)
 
-        self._author_guid1 = u'05cd2e04ffaf3c5dabd03d13b63afab6'
+        self._author_guid1 = u'64205a8170453edc8cf5a9f316116573'
         author = Author()
-        author.name = u'TechmarketNG'
+        author.name = u'BillGates'
         author.domain = u'Microblog'
         author.protected = 0
         author.author_guid = self._author_guid1
-        author.author_screen_name = u'TechmarketNG'
-        author.author_full_name = u'Techmarket'
+        author.author_screen_name = u'BillGates'
+        author.author_full_name = u'Bill Gates'
         author.statuses_count = 10
         author.author_osn_id = 149159975
         author.followers_count = 12
@@ -32,7 +32,7 @@ class MissingDataComplemntorTests(TestCase):
         for i in range(10):
             post = Post()
             post.post_id = u'TestPost' + str(i)
-            post.author = u'TechmarketNG'
+            post.author = u'BillGates'
             post.guid = u'TestPost' + str(i)
             post.url = u'TestPost' + str(i)
             tempDate = u'2016-05-05 00:00:00'
@@ -259,4 +259,3 @@ class MissingDataComplemntorTests(TestCase):
         self.assertEqual(author.author_sub_type, "private")
         self.assertEqual(author.author_type, "good_actor")
         self._db.session.close()
-

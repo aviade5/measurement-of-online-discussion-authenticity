@@ -2,7 +2,6 @@
 # Created by Aviad on 28-May-16 7:31 PM.
 #
 from __future__ import print_function
-
 from commons.commons import *
 from commons.consts import *
 from commons.method_executor import Method_Executor

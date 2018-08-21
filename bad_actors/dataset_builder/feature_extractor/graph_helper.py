@@ -60,12 +60,11 @@ class GraphHelper:
 
     def _add_node_to_graph(self, source_author_guid, graph, authors_dict):
         if not graph.has_node(source_author_guid):
-            # author_type = authors_dict[source_author_guid][1]
-            # author_sub_type = authors_dict[source_author_guid][2]
             author_classes_tuple = authors_dict[source_author_guid]
             i = 0
             property_dict = {}
             for targeted_class in self._targeted_classes:
                 property_dict[targeted_class] = author_classes_tuple[i]
                 i = i + 1
-            graph.add_node(source_author_guid, property_dict)
+            assert isinstance(graph, nx.Graph)
+            graph.add_node(source_author_guid, **property_dict)

@@ -1,8 +1,9 @@
 # Created by aviade
 # Time: 29/03/2016 16:53
 from configuration.config_class import getConfig
-from vendors.twitter import Api
+# from vendors.twitter import Api
 from commons.commons import *
+import twitter
 
 
 class TwitterApiRequester:
@@ -21,7 +22,7 @@ class TwitterApiRequester:
 
     def create_twitter_api(self, consumer_key, consumer_secret, access_token_key, access_token_secret):
         try:
-            self.api = Api(consumer_key=consumer_key,
+            self.api = twitter.Api(consumer_key=consumer_key,
                                    consumer_secret=consumer_secret,
                                    access_token_key=access_token_key,
                                    access_token_secret=access_token_secret)
@@ -152,8 +153,10 @@ class TwitterApiRequester:
         return tweets
 
     def get_tweet_by_post_id(self, post_id):
-        return self.api.GetTweetById(post_id)
+        return self.get_tweets_by_post_ids([post_id])[0]
 
+    def get_tweets_by_post_ids(self, post_ids):
+        return self.api.GetStatuses(post_ids)
 
     def get_user_by_screen_name(self, screen_name):
         print("------Get user by screen name: " + screen_name)
@@ -185,14 +188,25 @@ class TwitterApiRequester:
         print("---GetSleepTime /users/lookup ---")
         logging.info("---GetSleepTime /users/lookup ---")
 
-        seconds_to_wait = self.api.GetSleepTime('/users/lookup')
-        print("Seconds to wait for GetSleepTime('/users/lookup') is: " + str(seconds_to_wait))
+        seconds_to_wait_object = self.api.CheckRateLimit('/users/lookup')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
+        print("Seconds to wait for CheckRateLimit('/users/lookup') is: " + str(seconds_to_wait))
+        return seconds_to_wait
+
+    def get_sleep_time_for_get_tweets_by_tweet_ids_request(self):
+        print("---GetSleepTime /statuses/lookup ---")
+        logging.info("---GetSleepTime statuses/lookup ---")
+
+        seconds_to_wait_object = self.api.CheckRateLimit('/statuses/lookup')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
+        print("Seconds to wait for GetSleepTime('/statuses/lookup') is: " + str(seconds_to_wait))
         return seconds_to_wait
 
     def get_sleep_time_for_timeline(self):
         logging.info("---GetSleepTime /statuses/user_timeline ---")
 
-        seconds_to_wait = self.api.GetSleepTime('/statuses/user_timeline')
+        seconds_to_wait_object = self.api.CheckRateLimit('/statuses/user_timeline')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
         logging.info("Seconds to wait for GetSleepTime('/statuses/user_timeline') is: " + str(seconds_to_wait))
         return seconds_to_wait
 
@@ -201,32 +215,46 @@ class TwitterApiRequester:
         print("---GetSleepTime /followers/ids ---")
         logging.info("---GetSleepTime /followers/ids ---")
 
-        seconds_to_wait = self.api.GetSleepTime('/followers/ids')
+        seconds_to_wait_object = self.api.CheckRateLimit('/statuses/retweeters/ids')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
         print("Seconds to wait are: " + str(seconds_to_wait))
         logging.info("Seconds to wait for GetSleepTime('/followers/ids') are: " + str(seconds_to_wait))
+        return seconds_to_wait
+
+    def get_seconds_to_wait(self, seconds_to_wait_object):
+        if seconds_to_wait_object.remaining > 0:
+            seconds_to_wait = 0
+        else:
+            epoch_timestamp = seconds_to_wait_object.reset
+            current_timestamp = time.time()
+            seconds_to_wait = int(epoch_timestamp - current_timestamp + 5)
         return seconds_to_wait
 
     def get_sleep_time_for_get_friend_ids_request(self):
         print("---GetSleepTime /friends/ids ---")
         logging.info("---GetSleepTime /friends/ids ---")
 
-        seconds_to_wait = self.api.GetSleepTime('/friends/ids')
+        seconds_to_wait_object = self.api.CheckRateLimit('/users/lookup')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
         print("Seconds to wait are: " + str(seconds_to_wait))
         logging.info("Seconds to wait for GetSleepTime('/friends/ids') are: " + str(seconds_to_wait))
         return seconds_to_wait
 
     def get_sleep_time_for_get_retweeter_ids_request(self):
-        seconds_to_wait = self.api.GetSleepTime('/retweeters/ids')
+        seconds_to_wait_object = self.api.CheckRateLimit('/statuses/retweeters/ids')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
         print("Seconds to wait are: " + str(seconds_to_wait))
         return seconds_to_wait
 
     def get_sleep_time_for_twitter_status_id(self):
-        seconds_to_wait = self.api.GetSleepTime('/statuses/show/:id')
+        seconds_to_wait_object = self.api.CheckRateLimit('/statuses/show/:id')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
         print("Seconds to wait are: " + str(seconds_to_wait))
         return seconds_to_wait
 
     def get_sleep_time_for_twitter_timeline_request(self):
-        seconds_to_wait = self.api.GetSleepTime('/statuses/user_timeline')
+        seconds_to_wait_object = self.api.CheckRateLimit('/statuses/user_timeline')
+        seconds_to_wait = self.get_seconds_to_wait(seconds_to_wait_object)
         print("Seconds to wait are: " + str(seconds_to_wait))
         return seconds_to_wait
 
@@ -241,7 +269,6 @@ class TwitterApiRequester:
     def init_num_of_get_retweeter_ids_requests(self):
         self.api.num_of_get_retweeter_ids_requests = 0
         print("Number of GetFollowerIds requests is: " + str(self.api.num_of_get_retweeter_ids_requests))
-
 
     def get_num_of_rate_limit_status_requests(self):
         return self.api.get_num_of_rate_limit_status()

@@ -20,14 +20,10 @@ from bad_actors_collector.unit_tests.bad_actor_collector_unittests import TestBa
 from dataset_builder.unit_tests.dataset_builder_unittests import DatasetBuilderTest
 from dataset_builder.unit_tests.feature_extractor_unittests import FeatureExtractorTest
 from missing_data_complementor.unit_tests.test_missingDataComplementor import MissingDataComplemntorTests
-from timeline_overlap_visualization.test_timelineOverlapVisualizationGenerator import TestTimelineOverlapVisualizationGenerator
 from twitter_crawler.unittests.twitter_crawler_tests import TwitterCrawlerTests
-
 from preprocessing_tools.unit_tests.test_app_Importer import TestAppImporter
 from preprocessing_tools.unit_tests.test_rank_app_importer import TestRankAppImporter
-
 from dataset_builder.lda_topic_model_test import TestLDATopicModel
-
 from preprocessing_tools.tsv_importer import TestCSVDataImport
 
 if __name__ == "__main__":

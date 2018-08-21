@@ -43,7 +43,7 @@ class Twitter_Rest_Api(AbstractExecutor):
         self._total_author_connections = []
 
         print("Creating TwitterApiRequester")
-        self._twitter_api_requester = TwitterApiRequester(self._working_app_number)
+        self._twitter_api_requester = TwitterApiRequester()
 
         # self._find_source_twitter_id()
 

@@ -17,8 +17,6 @@ class TestRankAppImporter(TestCase):
 
     def tearDown(self):
         self._db.session.close()
-        self._db.deleteDB()
-        self._db.session.close()
 
     def test_read_from_folders(self):
         self.rank_app_importer._listdic = []

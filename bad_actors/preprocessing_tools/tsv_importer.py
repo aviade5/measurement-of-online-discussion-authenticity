@@ -150,15 +150,13 @@ import unittest
 
 class TestCSVDataImport(unittest.TestCase):
     def setUp(self):
-
         self._db = DB()
         self._db.setUp()
         self._fdlObject = TsvImporter(self._db)
         self._fdlObject.setUp()
 
     def tearDown(self):
-        #pass
-        self._db.tearDown()
+        self._db.session.close()
 
 
     def testRowExist(self):
