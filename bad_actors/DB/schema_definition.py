@@ -1,7 +1,7 @@
 # Created by aviade
 # Time: 31/03/2016 09:15
 from __future__ import print_function
-
+from collections import defaultdict
 import re
 from datetime import datetime
 
@@ -724,6 +724,13 @@ class DB():
     if window_start and window_end is not given search in all DB
     """
 
+    def get_author_guid_post_dict(self):
+        author_guid_posts_dict = defaultdict(list)
+        posts = self.get_posts()
+        for post in posts:
+            author_guid_posts_dict[post.author_guid].append(post)
+        return author_guid_posts_dict
+
     def isPostExist(self, url, window_start=None, window_end=None):
 
         if window_start is None or window_end is None:
@@ -1183,6 +1190,14 @@ class DB():
         q = text("select * from posts where content is not NULL and (:window_start <= date and date <= :window_end)")
         references = []
         res = self.session.execute(q, params=dict(window_start=window_start, window_end=window_end))
+        posts = [post.values() for post in res]
+        return posts
+
+    def getPostsListWithoutEmptyRowsByDomain(self, domain):
+
+        q = text("select * from posts where content is not NULL and domain = :domain")
+        references = []
+        res = self.session.execute(q, params=dict(domain=domain))
         posts = [post.values() for post in res]
         return posts
 
@@ -2848,9 +2863,31 @@ class DB():
 
 
     def insert_into_author_toppic_mappings(self, mappings):
-        for author_mapping in mappings:
-            self.insert_into_author_toppic_mapping(author_mapping)
+        query = """
+                INSERT INTO author_topic_mapping 
+                VALUES {0};
+            """
+        values = []
+        for author_guid, author_mapping in mappings:
+            # self.insert_into_author_toppic_mapping(author_mapping)
+            author_mapping = ','.join([str(m) for m in author_mapping])
+            values.append("('{0}', {1})".format(author_guid, author_mapping))
+        values_str = ','.join(values)
+        query = query.format(values_str)
+        query = text(query)
+        self.session.execute(query)
         self.session.commit()
+
+    def insert_into_author_toppic_mapping(self, author_guid, author_mapping):
+        query = """
+                    INSERT INTO author_topic_mapping 
+                    VALUES ('{0}',{1});
+                """
+        author_mapping = ','.join([str(m) for m in author_mapping])
+
+        query = query.format(author_guid, author_mapping)
+        query = text(query)
+        self.session.execute(query)
 
     def delete_terms(self):
         self.session.query(Term).delete()
@@ -2862,7 +2899,7 @@ class DB():
 
     def delete_author_topic_mapping(self):
         query = """
-                DELETE FROM author_topic_mapping
+                DROP TABLE IF EXISTS author_topic_mapping;
                 """
         query = text(query)
         self.session.execute(query)

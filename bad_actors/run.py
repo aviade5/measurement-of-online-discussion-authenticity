@@ -13,7 +13,7 @@ from DB.schema_definition import DB
 from bad_actors_collector.bad_actors_collector import BadActorsCollector
 from configuration.config_class import getConfig
 from data_exporter.data_exporter import DataExporter
-from dataset_builder import lda_topic_model
+from dataset_builder.lda_topic_model import LDATopicModel
 from dataset_builder.bag_of_words_graph_builder import GraphBuilder_Bag_Of_Words
 from dataset_builder.citation_graph_builder import GraphBuilder_Citation
 from dataset_builder.cocitation_graph_builder import GraphBuilder_CoCitation
@@ -56,8 +56,8 @@ modules_dict["Twitter_Crawler"] = Twitter_Crawler
 modules_dict["MissingDataComplementor"] = MissingDataComplementor
 modules_dict["Load_Datasets"] = Load_Datasets
 modules_dict["Preprocessor"] = Preprocessor
+modules_dict["LDATopicModel"] = LDATopicModel
 modules_dict["TopicDistributionBuilder"] = TopicDistributionBuilder
-modules_dict["LDATopicModel"] = lda_topic_model
 modules_dict["PostCitationCreator"] = PostCitationCreator
 modules_dict["GraphBuilder_Bag_Of_Words"] = GraphBuilder_Bag_Of_Words
 modules_dict["GraphBuilder_CoCitation"] = GraphBuilder_CoCitation
