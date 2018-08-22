@@ -78,7 +78,7 @@ class TestBadActorCollector(unittest.TestCase):
         self.db.session.close()
 
     def test_mark_missing_bad_retweeters_retrieved_from_vico(self):
-        self._bad_actor_collector.mark_missing_bad_retweeters_retrieved_from_vico()
+        self._bad_actor_collector.mark_missing_bad_retweeters()
         test = False
         author = self.db.get_author_by_author_guid(self._author_guid1)[0]
         if(author.mark_missing_bad_actor_retweeters_insertion_date != None and author.author_type == Author_Type.BAD_ACTOR):

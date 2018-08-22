@@ -692,21 +692,18 @@ class DB():
         return posts_by_user
 
     def _create_user_posts_dictinary(self, posts):
-        posts_by_user = {}
+        posts_by_user = defaultdict(list)
         counter = 0
         for current_post in posts:
             counter += 1
-            if counter % 100 == 0:
+            if counter % 5000 == 0:
                 msg = "\r Creating post objects " + str(counter)
                 print(msg, end="")
             str_date = current_post[1]
             date_obj = datetime.datetime.strptime(str_date, '%Y-%m-%d %H:%M:%S')
             post = Struct(author_guid=current_post[0], date=date_obj, content=current_post[2])
 
-            if post.author_guid not in posts_by_user.keys():
-                posts_by_user[str(post.author_guid)] = [post]
-            else:
-                posts_by_user[str(post.author_guid)].append(post)
+            posts_by_user[str(post.author_guid)].append(post)
         return posts_by_user
 
     def get_single_post_per_author_topic_mapping(self):
