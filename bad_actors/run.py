@@ -13,6 +13,8 @@ from DB.schema_definition import DB
 from bad_actors_collector.bad_actors_collector import BadActorsCollector
 from configuration.config_class import getConfig
 from data_exporter.data_exporter import DataExporter
+from dataset_builder.image_downloader.image_downloader import Image_Downloader
+from dataset_builder.image_recognition.image_tags_extractor import Image_Tags_Extractor
 from dataset_builder.lda_topic_model import LDATopicModel
 from dataset_builder.bag_of_words_graph_builder import GraphBuilder_Bag_Of_Words
 from dataset_builder.citation_graph_builder import GraphBuilder_Citation
@@ -22,6 +24,8 @@ from dataset_builder.feature_extractor.feature_extractor import FeatureExtractor
 from dataset_builder.feature_similarity_graph_builder import GraphBuilder_Feature_Similarity
 from dataset_builder.topic_distribution_builder import TopicDistributionBuilder
 from dataset_builder.topics_graph_builder import GraphBuilder_Topic
+from dataset_builder.word_embedding.gensim_word_embedding_trainer import GensimWordEmbeddingsModelTrainer
+from dataset_builder.word_embedding.glove_word_embedding_model_creator import GloveWordEmbeddingModelCreator
 from experimental_environment.experimental_environment import ExperimentalEnvironment
 from experimental_environment.kernel_performance_evaluator import Kernel_Performance_Evaluator
 from experimental_environment.knnwithlinkprediction import KNNWithLinkPrediction
@@ -32,6 +36,7 @@ from missing_data_complementor.missing_data_complementor import MissingDataCompl
 from preprocessing_tools.create_authors_table import CreateAuthorTables
 from preprocessing_tools.csv_importer import CsvImporter
 from preprocessing_tools.data_preprocessor import Preprocessor
+from preprocessing_tools.gdlet_news_importer.gdlet_news_importer import GDLET_News_Importer
 from preprocessing_tools.json_importer.json_importer import JSON_Importer
 from preprocessing_tools.post_citation_creator import PostCitationCreator
 from preprocessing_tools.rank_app_importer import RankAppImporter
@@ -51,12 +56,17 @@ modules_dict["CreateAuthorTables"] = CreateAuthorTables
 modules_dict["RankAppImporter"] = RankAppImporter
 modules_dict["JSON_Importer"] = JSON_Importer
 modules_dict["CsvImporter"] = CsvImporter
-
+modules_dict["GDLET_News_Importer"] = GDLET_News_Importer
 modules_dict["Twitter_Crawler"] = Twitter_Crawler
 modules_dict["MissingDataComplementor"] = MissingDataComplementor
 modules_dict["Load_Datasets"] = Load_Datasets
+modules_dict["Image_Tags_Extractor"] = Image_Tags_Extractor
+modules_dict["Image_Downloader"] = Image_Downloader
 modules_dict["Preprocessor"] = Preprocessor
 modules_dict["LDATopicModel"] = LDATopicModel
+modules_dict["GloveWordEmbeddingModelCreator"] = GloveWordEmbeddingModelCreator
+modules_dict["GensimWordEmbeddingsModelTrainer"] = GensimWordEmbeddingsModelTrainer
+
 modules_dict["TopicDistributionBuilder"] = TopicDistributionBuilder
 modules_dict["PostCitationCreator"] = PostCitationCreator
 modules_dict["GraphBuilder_Bag_Of_Words"] = GraphBuilder_Bag_Of_Words

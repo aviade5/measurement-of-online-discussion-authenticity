@@ -1,8 +1,8 @@
 # Created by aviade
 # Time: 31/03/2016 09:15
 from __future__ import print_function
+
 from collections import defaultdict
-import re
 from datetime import datetime
 
 from sqlalchemy import Boolean, Integer, Unicode, FLOAT
@@ -10,14 +10,15 @@ from sqlalchemy import Column, func, and_, or_, not_
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, aliased
 from sqlalchemy.sql import text
 from sqlalchemy.sql.schema import ForeignKey
-
+import pandas as pd
 from commons.commons import *
 from commons.consts import DB_Insertion_Type, Author_Type, Author_Connection_Type
 from commons.consts import Domains
 from configuration.config_class import getConfig
+
 
 Base = declarative_base()
 
@@ -387,6 +388,24 @@ class Topic(Base):
     topic_id = Column(Integer, primary_key=True)
     term_id = Column(Integer, ForeignKey("terms.term_id"), primary_key=True)
     probability = Column(FLOAT, default=None)
+
+class Image_Tags(Base):
+    __tablename__ = 'image_tags'
+
+    post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
+    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
+    media_path = Column(Unicode, default=None)
+    tags = Column(Unicode, default=None)
+
+    def __repr__(self):
+        return "<Image_Tags(post_id='%s', author_guid='%s', media_path='%s', tags='%s')>" % (
+            self.post_id, self.author_guid, self.media_path, self.tags)
+
+class Claim_Tweet_Connection(Base):
+    __tablename__ = "claim_tweet_connection"
+
+    claim_id = Column(Unicode, primary_key=True)  # PolitiFact post
+    post_id = Column(Unicode, primary_key=True)  # crawled tweet by
 
 
 class DB():
@@ -1066,6 +1085,218 @@ class DB():
         if len(result) > 0:
             return result
         return None
+
+    def get_author_dictionary(self):
+        authors = self.session.query(Author).all()
+        author_id_author_dict = defaultdict()
+        for author in authors:
+            author_guid = author.author_guid
+            author_id_author_dict[author_guid] = author
+        return author_id_author_dict
+
+    def get_post_dictionary(self):
+        posts = self.session.query(Post).all()
+        post_id_post_dict = defaultdict()
+        for post in posts:
+            post_id = post.post_id
+            post_id_post_dict[post_id] = post
+        return post_id_post_dict
+
+    def get_table_by_name(self, table_name):
+        for var in globals():
+            class_obj = globals()[var]
+            try:
+                if issubclass(class_obj, Base) and class_obj. __tablename__ == table_name:
+                    return class_obj
+            except:
+                pass
+        return None
+
+    def get_elements_by_args(self, args):
+        source_table = args['source']['table_name']
+        source_id = args['source']['id']
+        source_where_clauses = []
+        if 'where_clauses' in args['source']:
+            source_where_clauses = args['source']['where_clauses']
+
+        connection_table_name = args['connection']['table_name']
+        connection_source_id = args['connection']['source_id']
+        connection_targeted_id = args['connection']['target_id']
+        connection_where_clauses = []
+        if 'where_clauses' in args['connection']:
+            connection_where_clauses = args['connection']['where_clauses']
+
+        destination_table_name = args['destination']['table_name']
+        destination_id = args['destination']['id']
+        destination_where_clauses = []
+        if 'where_clauses' in args['destination']:
+            destination_where_clauses = args['destination']['where_clauses']
+
+        source_table = aliased(self.get_table_by_name(source_table), name="source")
+        connection_table = self.get_table_by_name(connection_table_name)
+        destination_table = aliased(self.get_table_by_name(destination_table_name), name="dest")
+        connection_conditions = self._get_connection_conditions(connection_where_clauses, destination_table,
+                                                                source_table)
+
+
+        source_conditions = self._get_conditions_from_where_cluases(source_table, source_where_clauses)
+        destination_conditions = self._get_conditions_from_where_cluases(destination_table, destination_where_clauses)
+        conditions = source_conditions + destination_conditions + connection_conditions
+        source_id_attr = getattr(source_table, source_id)
+        connection_source_attr = getattr(connection_table, connection_source_id)
+        connection_target_attr = getattr(connection_table, connection_targeted_id)
+        destination_id_attr = getattr(destination_table, destination_id)
+
+        table_elements = self.session.query(connection_source_attr, destination_table)\
+            .join(source_table, connection_source_attr == source_id_attr)\
+            .join(destination_table, connection_target_attr == destination_id_attr)\
+            .filter(and_(condition for condition in conditions)).yield_per(100).enable_eagerloads(False)
+
+        return table_elements
+
+    def _get_connection_conditions(self, connection_where_clauses, destination_table, source_table):
+        connection_conditions = []
+        for where_clause in connection_where_clauses:
+            val1 = where_clause["val1"]
+            val2 = where_clause["val2"]
+            val1_attr = self._get_table_attr_by_prefix(destination_table, source_table, val1)
+            val2_attr = self._get_table_attr_by_prefix(destination_table, source_table, val2)
+            op_name = where_clause["op"]
+            if op_name == "timeinterval":
+                delta = where_clause["delta"]
+                binary_exp1 = func.datetime(val1_attr, "-{0} day".format(delta)) <= val2_attr
+                binary_exp2 = func.datetime(val1_attr, "+{0} day".format(delta)) >= val2_attr
+                connection_conditions.append(binary_exp1)
+                connection_conditions.append(binary_exp2)
+
+            elif op_name == "before":
+                delta = where_clause["delta"]
+                binary_exp1 = func.datetime(val1_attr, "-{0} day".format(delta)) <= val2_attr
+                binary_exp2 = val1_attr > val2_attr
+                connection_conditions.append(binary_exp1)
+                connection_conditions.append(binary_exp2)
+            elif op_name == "after":
+                delta = where_clause["delta"]
+                binary_exp1 = val1_attr <= val2_attr
+                binary_exp2 = func.datetime(val1_attr, "+{0} day".format(delta)) >= val2_attr
+                connection_conditions.append(binary_exp1)
+                connection_conditions.append(binary_exp2)
+            else:
+
+                binary_exp = val1_attr.op(op_name)(val2_attr)
+                connection_conditions.append(binary_exp)
+        return connection_conditions
+
+    def _get_table_attr_by_prefix(self, destination_table, source_table, val1):
+        if "source" in val1:
+            val1_attr = getattr(source_table, val1.replace('source.', ''))
+        elif "dest" in val1:
+            val1_attr = getattr(destination_table, val1.replace('dest.', ''))
+        else:
+            val1_attr = val1
+        return val1_attr
+
+    def get_table_elements_by_ids(self, table_name, id_field, ids, where_cluases=[]):
+        table_elements = self.get_table_elements_by_where_cluases(table_name, where_cluases)
+        ids_set = set(ids)
+        table_elements = [element for element in table_elements if getattr(element, id_field) in ids_set]
+        return table_elements
+
+    def get_table_elements_by_where_cluases(self, table_name, where_cluases):
+        table = self.get_table_by_name(table_name)
+        conditions = self._get_conditions_from_where_cluases(table, where_cluases)
+        table_elements = self.session.query(table).filter(and_(condition for condition in conditions)).all()
+        return table_elements
+
+    def _get_conditions_from_where_cluases(self, table, where_cluases):
+        conditions = []
+        for where_clause_dict in where_cluases:
+            field_name = where_clause_dict['field_name']
+            value = where_clause_dict['value']
+            op_name = '='
+            if 'op' in where_clause_dict:
+                op_name = where_clause_dict['op']
+            try:
+                table_attr = getattr(table, field_name)
+                binary_exp = table_attr.op(op_name)(value)
+            except:
+                table_attr = field_name
+                binary_exp = field_name == value
+            conditions.append(binary_exp)
+        return conditions
+
+    def get_table_dictionary(self, table_name):
+        table = self.get_table_by_name(table_name)
+        posts = self.session.query(table).all()
+        post_id_post_dict = {}
+        for post in posts:
+            post_id = post.post_id
+            post_id_post_dict[post_id] = post
+        return post_id_post_dict
+
+    def get_word_vector_dictionary(self, table_name):
+        query = """
+                SELECT *
+                FROM {0}
+                """.format(table_name)
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+
+        word_vector_dict = defaultdict()
+        for tuple in tuples:
+            word = tuple[0]
+            vector = tuple[1:]
+            word_vector_dict[word] = vector
+        return word_vector_dict
+
+    def add_claim_connections(self, claim_connections):
+        i = 1
+        for claim in claim_connections:
+            if (i % 100 == 0):
+                msg = "\r Insert claim_connection to DB: [{}".format(i) + "/" + str(len(claim_connections)) + ']'
+                print(msg, end="")
+            i += 1
+            self.session.merge(claim)
+        msg = "\r Insert claim_connection to DB: [{}".format(i) + "/" + str(len(claim_connections)) + ']'
+        print(msg)
+        self.commit()
+
+    def get_claim_tweet_connections(self):
+        q = """
+            SELECT *
+            FROM claim_tweet_connection            
+            """
+        query = text(q)
+        result = self.session.execute(query)
+        return list(result)
+
+    def get_records_by_id_targeted_field_and_table_name(self, id_field, targeted_field_name, table_name, where_clauses):
+        query = """
+                SELECT {0}, {1}
+                FROM {2}
+                """.format(id_field, targeted_field_name, table_name)
+
+        is_first_condition = False
+        for where_clause_dict in where_clauses:
+            field_name = where_clause_dict['field_name']
+            value = where_clause_dict['value']
+            if is_first_condition == False:
+                condition_clause = """
+                                    WHERE {0} = {1}
+                                    """.format(field_name, value)
+                is_first_condition = True
+            else:
+                condition_clause = """
+                                    AND {0} = {1}
+                                    """.format(field_name, value)
+            query += condition_clause
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+        return tuples
 
     def get_author_features_labeled_authors_only(self):
         query = text('select author_features.*  \
@@ -2431,7 +2662,7 @@ class DB():
 
     def insert_or_update_authors_from_posts(self, domain, author_classify_dict, author_prop_dict):
         authors_to_update = []
-        posts = self.session.query(Post).filter(Post.domain == domain).all()
+        posts = self.session.query(Post).filter(and_(Post.domain == domain, Post.author_guid == '')).all()
         logging.info("Insert or update_authors from app importer")
         logging.info("total Posts: " + str(len(posts)))
         i = 1
@@ -2826,9 +3057,13 @@ class DB():
         self.session.merge(topic_mapping)
 
     def addPostTopicMappings(self, post_topic_mappings):
-        for topic_mapping in post_topic_mappings:
+        for i, topic_mapping in enumerate(post_topic_mappings):
             self.addPostTopicMapping(topic_mapping)
+            if i % 100 == 0 or i >= len(post_topic_mappings) - 1:
+                msg = "\rAdd post topic mappings {0}/{1}".format(str(i + 1), str(len(post_topic_mappings)))
+                print(msg, end='')
         self.session.commit()
+        print()
 
     def add_terms(self, terms):
         for term in terms:
@@ -2861,22 +3096,22 @@ class DB():
         query = text(query)
         self.session.execute(query)
 
-
     def insert_into_author_toppic_mappings(self, mappings):
-        query = """
-                INSERT INTO author_topic_mapping 
-                VALUES {0};
-            """
-        values = []
-        for author_guid, author_mapping in mappings:
-            # self.insert_into_author_toppic_mapping(author_mapping)
-            author_mapping = ','.join([str(m) for m in author_mapping])
-            values.append("('{0}', {1})".format(author_guid, author_mapping))
-        values_str = ','.join(values)
-        query = query.format(values_str)
-        query = text(query)
-        self.session.execute(query)
-        self.session.commit()
+        if len(mappings) > 0:
+            query = """
+                    INSERT INTO author_topic_mapping 
+                    VALUES {0};
+                """
+            values = []
+            for author_guid, author_mapping in mappings:
+                # self.insert_into_author_toppic_mapping(author_mapping)
+                author_mapping = ','.join([str(m) for m in author_mapping])
+                values.append("('{0}', {1})".format(author_guid, author_mapping))
+            values_str = ','.join(values)
+            query = query.format(values_str)
+            query = text(query)
+            self.session.execute(query)
+            self.session.commit()
 
     def insert_into_author_toppic_mapping(self, author_guid, author_mapping):
         query = """
@@ -3042,3 +3277,172 @@ class DB():
             return result[0]
         if field_id == "author_guid":
             return id_val
+
+    def convert_tweets_to_posts_and_authors(self, tweets, domain):
+        posts = []
+        authors = []
+        for tweet in tweets:
+            post, author = self._convert_tweet_to_post_and_author(tweet, domain)
+            posts.append(post)
+            authors.append(author)
+
+        posts = list(set(posts))
+        authors = list(set(authors))
+        return posts, authors
+
+    def _convert_tweet_to_post_and_author(self, tweet, domain):
+        post = self._convert_tweet_to_post(tweet, domain)
+        author = self._convert_tweet_to_author(tweet, domain)
+
+        return post, author
+
+    def _convert_tweet_to_post(self, tweet, domain):
+        post = Post()
+
+        tweet_id = tweet.id
+        post.post_osn_id = tweet_id
+        post.retweet_count = tweet.retweet_count
+        post.favorite_count = tweet.favorite_count
+        post.content = tweet.text
+        created_at = tweet.created_at
+        post.created_at = created_at
+
+        user = tweet.user
+        screen_name = user.screen_name
+        post.author = screen_name
+
+        url = "https://twitter.com/" + screen_name + "/" + str(tweet_id)
+        post.url = url
+        tweet_str_publication_date = unicode(extract_tweet_publiction_date(created_at))
+
+        tweet_creation_date = str_to_date(tweet_str_publication_date)
+        post.date = tweet_creation_date
+        post.domain = domain
+
+        post_guid = compute_post_guid(url, screen_name, tweet_str_publication_date)
+        post.post_id = post_guid
+        post.guid = post_guid
+
+        author_guid = compute_author_guid_by_author_name(screen_name)
+        post.author_guid = author_guid
+        return post
+
+    def _convert_tweet_to_author(self, tweet, domain):
+
+        author = Author()
+
+        user = tweet.user
+        screen_name = user.screen_name
+        author_guid = compute_author_guid_by_author_name(screen_name)
+
+        author.author_guid = author_guid
+        author.name = screen_name
+        author.author_screen_name = screen_name
+        author.created_at = user.created_at
+        author.description = user.description
+        author.favourites_count = user.favourites_count
+        author.followers_count = user.followers_count
+        author.friends_count = user.friends_count
+        author.statuses_count = user.statuses_count
+
+        author.geo_enabled = user.geo_enabled
+
+        user_id = user.id
+        author.author_osn_id = user_id
+        author.language = user.lang
+        author.listed_count = user.listed_count
+        author.profile_background_color = user.profile_background_color
+        author.profile_image_url = user.profile_background_image_url
+        author.profile_background_tile = user.profile_background_tile
+        author.profile_banner_url = user.profile_banner_url
+        author.profile_link_color = user.profile_link_color
+
+        author.profile_sidebar_fill_color = user.profile_sidebar_fill_color
+        author.profile_text_color = user.profile_text_color
+        author.location = user.location
+        author.protected = user.protected
+        author.domain = domain
+
+        return author
+
+    def get_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type):
+        query = self._get_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name, word_embedding_type)
+        result = self.session.execute(query, params=dict(table_name=table_name, targeted_field_name=targeted_field_name,
+                                                         word_embedding_type=word_embedding_type))
+        return self._create_author_guid_word_embedding_vector_dict_by_query(result)
+
+    def get_random_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type, num_of_random_authors_for_graph):
+        query = self._get_random_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name,
+                                                                               word_embedding_type, num_of_random_authors_for_graph)
+        result = self.session.execute(query, params=dict(table_name=table_name, targeted_field_name=targeted_field_name,
+                                                         word_embedding_type=word_embedding_type, num_of_random_authors_for_graph=num_of_random_authors_for_graph))
+        return self._create_author_guid_word_embedding_vector_dict_by_query(result)
+
+    def _get_word_embeddings_types(self):
+        query = "SELECT word_embedding_type from author_word_embeddings GROUP BY 1"
+        result = self.session.execute(query).fetchall()
+        parsed = [col[0] for col in result]
+        return parsed
+
+    def _get_author_guid_word_embedding_vector_full_query(self, table_name, targeted_field_name, word_embedding_type):
+        query = """
+                SELECT *
+                FROM author_word_embeddings
+                WHERE table_name = :table_name
+                AND targeted_field_name = :targeted_field_name
+                AND word_embedding_type = :word_embedding_type
+                AND author_id IS NOT NULL
+                """
+        return query
+
+    def _get_random_author_guid_word_embedding_vector_full_query(self,table_name, targeted_field_name, word_embedding_type, num_of_random_authors_for_graph):
+        query = """
+                SELECT *
+                FROM author_word_embeddings
+                WHERE table_name = :table_name
+                AND targeted_field_name = :targeted_field_name
+                AND word_embedding_type = :word_embedding_type
+                AND author_id IS NOT NULL
+                LIMIT :num_of_random_authors_for_graph
+                """
+        return query
+
+    def _create_author_guid_word_embedding_vector_dict_by_query(self, result):
+        cursor = result.cursor
+        records = self.result_iter(cursor)
+        # records = list(records)
+        author_guid_word_embedding_vector = {}
+        for record in records:
+            author_guid = record[0]
+            selected_table_name = record[1]
+            selected_targeted_field_name = record[3]
+            selected_word_embedding_type = record[4]
+            vector = record[5:]
+            # vector_str = np.array(vector_str)
+            # vector = vector_str.astype(np.float)
+            author_guid_word_embedding_vector[author_guid] = vector
+        return author_guid_word_embedding_vector
+
+    def get_word_embedding_dictionary(self):
+        query = """SELECT * FROM wikipedia_model_300d"""
+        result = self.session.execute(query)
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+        records = list(tuples)
+        ans = {record[0]: record[1:301] for record in records}
+        return ans
+
+    def get_author_word_embedding_table(self):
+        query = """SELECT * FROM author_word_embeddings"""
+        query = self.session.execute(query)
+        results = pd.read_sql_table('author_word_embeddings', self.engine)
+        return results
+
+    def get_author_word_embedding(self, author_guid, table_name, target_field_name):
+        ans = {}
+        columns = self._get_word_embeddings_types()
+        ans ={unicode(col):self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, col)[author_guid] for col in columns}
+        # ans[u'min'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'min')[author_guid]
+        # ans[u'max'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'max')[author_guid]
+        # ans[u'np.mean'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'np.mean')[author_guid]
+        return ans

@@ -2,19 +2,17 @@
 # Created by Aviad on 20-May-16 10:31 AM.
 #
 from __future__ import print_function
-
+from preprocessing_tools.abstract_controller import AbstractController
 from Twitter_API.twitter_api_requester import TwitterApiRequester
 from DB.schema_definition import DB, AuthorConnection, PostRetweeterConnection, Post
 from commons.consts import *
 from commons.commons import *
 from twitter import TwitterError
 
-from preprocessing_tools.abstract_executor import AbstractExecutor
 
-
-class Twitter_Rest_Api(AbstractExecutor):
+class Twitter_Rest_Api(AbstractController):
     def __init__(self, db):
-        AbstractExecutor.__init__(self, db)
+        AbstractController.__init__(self, db)
 
         self._working_app_number = self._config_parser.eval(self.__class__.__name__, "working_app_number")
 
@@ -35,11 +33,19 @@ class Twitter_Rest_Api(AbstractExecutor):
         self._num_of_twitter_timeline_requests_without_checking = self._config_parser.eval(self.__class__.__name__,
                                                                                            "num_of_twitter_timeline_requests_without_checking")
 
+        self._max_tweet_ids_allowed_in_single_get_tweets_by_tweet_ids_request = self._config_parser.eval(
+            self.__class__.__name__,
+            "max_tweet_ids_allowed_in_single_get_tweets_by_tweet_ids_request")
+
+        self._max_num_of_tweet_ids_requests_without_checking = self._config_parser.eval(self.__class__.__name__,
+                                                                                        "max_num_of_tweet_ids_requests_without_checking")
+
         self._num_of_get_friend_ids_requests = 0
         self._num_of_get_follower_ids_requests = 0
         self._num_of_get_timeline_statuses = 0
         self._num_of_twitter_status_id_requests = 0
         self._num_of_twitter_timeline_requests = 0
+        self._num_of_get_tweet_ids_requests = 0
         self._total_author_connections = []
 
         print("Creating TwitterApiRequester")
@@ -117,7 +123,6 @@ class Twitter_Rest_Api(AbstractExecutor):
         users = self.handle_get_users_request(total_user_ids_to_crawl, are_user_ids, author_type, insertion_type)
         self.convert_twitter_users_to_authors_and_save(users, author_type, insertion_type)
 
-
     def crawl_users(self, author_ids, author_type):
         print("--- crawl_users ---")
         total_user_ids = []
@@ -190,7 +195,8 @@ class Twitter_Rest_Api(AbstractExecutor):
         logging.info("---create_author_connections---")
         author_connections = []
         for destination_author_id in destination_author_ids:
-            author_connection = self.create_author_connection(source_author_id, destination_author_id, author_connection_type)
+            author_connection = self.create_author_connection(source_author_id, destination_author_id,
+                                                              author_connection_type)
             author_connections.append(author_connection)
 
         return author_connections
@@ -198,7 +204,8 @@ class Twitter_Rest_Api(AbstractExecutor):
     def create_author_connection(self, source_author_id, destination_author_id, connection_type):
         print("---create_author_connection---")
         author_connection = AuthorConnection()
-        print("Author connection: source -> " + str(source_author_id) + ", dest -> " + str(destination_author_id) + ", connection type = " + connection_type)
+        print("Author connection: source -> " + str(source_author_id) + ", dest -> " + str(
+            destination_author_id) + ", connection type = " + connection_type)
         author_connection.source_author_osn_id = source_author_id
         author_connection.destination_author_osn_id = destination_author_id
         author_connection.connection_type = unicode(connection_type)
@@ -267,42 +274,41 @@ class Twitter_Rest_Api(AbstractExecutor):
         users = []
         ids_in_chunks = split_into_equal_chunks(ids,
                                                 self._maximal_user_ids_allowed_in_single_get_user_request)
-        seconds_to_wait = self._twitter_api_requester.get_sleep_time_for_get_users_request()
         total_chunks = list(ids_in_chunks)
         ids_in_chunks = split_into_equal_chunks(ids,
                                                 self._maximal_user_ids_allowed_in_single_get_user_request)
         print("Total authors ids in chunk from twitter API: " + str(len(total_chunks)))
-        i = 1
+        i = 0
         for ids_in_chunk in ids_in_chunks:
-            print("Chunk of authors ids: " + str(i) + "/" + str(len(total_chunks)))
             i += 1
+            print("Chunk of authors ids: " + str(i) + "/" + str(len(total_chunks)))
+
             try:
-                num_of_get_users_requests = self._twitter_api_requester.get_num_of_get_users_requests()
-
-                if seconds_to_wait != 0:
-                    self.save_authors_and_connections_and_wait(users, author_type, insertion_type)
-                    users = []
-                    self._twitter_api_requester.init_num_of_get_users_requests()
-
                 users = self.send_get_users_request_and_add_users(ids_in_chunk, are_user_ids,
                                                                   users)
-                total_users = list(set(total_users + users))
+                total_users = total_users + users
 
             except TwitterError as e:
-                logging.info(e.message)
-                sec = self._twitter_api_requester.get_sleep_time_for_get_users_request()
-                logging.info("Seconds to wait from catched crush is: " + str(sec))
-                count_down_time(sec)
-                users = self.send_get_users_request_and_add_users(ids_in_chunk, are_user_ids, users)
-                total_users = list(set(total_users + users))
 
-            except Exception, e:
-                logging.info(e.message)
-                sec = self._twitter_api_requester.get_sleep_time_for_get_users_request()
-                logging.info("Seconds to wait from catched crush is: " + str(sec))
-                count_down_time(sec)
-                users = self.send_get_users_request_and_add_users(ids_in_chunk, are_user_ids, users)
-                total_users = list(set(total_users + users))
+                print(e)
+                error_messages = e.message
+                error_message_dict = error_messages[0]
+                error_code = error_message_dict['code']
+                if error_code == 88:  # Rate limit exceeded
+                    self.convert_twitter_users_to_authors_and_save(total_users, author_type, insertion_type)
+                    total_users = []
+
+                    seconds_to_wait_object = self._twitter_api_requester.get_sleep_time_for_get_users_request()
+                    if seconds_to_wait_object > 0:
+                        count_down_time(seconds_to_wait_object)
+                    #epoch_timestamp = seconds_to_wait_object.reset
+                    #current_timestamp = time.time()
+                    #seconds_to_wait = int(epoch_timestamp - current_timestamp + 5)
+                    #count_down_time(seconds_to_wait)
+
+                    users = self.send_get_users_request_and_add_users(ids_in_chunk, are_user_ids,
+                                                                      users)
+                    total_users = total_users + users
 
         print("--- Finishing handle_get_users_request --- ")
         logging.info("--- Finishing handle_get_users_request --- ")
@@ -320,8 +326,7 @@ class Twitter_Rest_Api(AbstractExecutor):
 
     def send_get_users_request_and_add_users(self, ids_in_chunk, are_user_ids, total_twitter_users):
         twitter_users = self.send_get_users_request(ids_in_chunk, are_user_ids)
-        total_twitter_users = total_twitter_users + twitter_users
-        return total_twitter_users
+        return twitter_users
 
     def save_connections_and_wait(self, seconds_to_wait):
         self.save_author_connections()
@@ -378,6 +383,19 @@ class Twitter_Rest_Api(AbstractExecutor):
                 self._num_of_twitter_status_id_requests = 0
         self._num_of_twitter_status_id_requests = self._num_of_twitter_status_id_requests + 1
         return self._twitter_api_requester.get_status(id)
+        # except TwitterError as e:
+        #     exception_response = e[0][0]
+        #     logging.info("e.massage =" + exception_response["message"])
+        #     code = exception_response["code"]
+        #     logging.info("e.code =" + str(exception_response["code"]))
+        #
+        #     if code == 88:
+        #         sec = self._twitter_api_requester.get_sleep_time_for_twitter_status_id()
+        #         logging.info("Seconds to wait from catched crush is: " + str(sec))
+        #         if sec != 0:
+        #             count_down_time(sec)
+        #             self._num_of_twitter_status_id_requests = 0
+        #         return self._twitter_api_requester.get_status(id)
 
     def get_timeline_by_author_name(self, author_name, maximal_tweets_count_in_timeline):
         try:
@@ -436,6 +454,80 @@ class Twitter_Rest_Api(AbstractExecutor):
     def get_post_by_post_id(self, post_id):
         return self._twitter_api_requester.get_tweet_by_post_id(post_id)
 
+    def get_tweets_by_tweet_ids_and_add_to_db(self, tweet_ids):
+        total_tweets = self.get_tweets_by_ids(tweet_ids)
 
+        posts, authors = self._db.convert_tweets_to_posts_and_authors(total_tweets, self._domain)
+        self._db.addPosts(posts)
+        self._db.add_authors(authors)
 
+        return total_tweets
 
+        # move to schema definition
+
+    def get_tweets_by_ids(self, tweet_ids, author_type=""):
+        total_tweets = []
+        ids_in_chunks = split_into_equal_chunks(tweet_ids,
+                                                self._max_tweet_ids_allowed_in_single_get_tweets_by_tweet_ids_request)
+        # seconds_to_wait = self._twitter_api_requester.get_sleep_time_for_get_tweets_by_tweet_ids_request()
+        total_chunks = list(ids_in_chunks)
+        ids_in_chunks = split_into_equal_chunks(tweet_ids,
+                                                self._max_tweet_ids_allowed_in_single_get_tweets_by_tweet_ids_request)
+        i = 0
+        for ids_in_chunk in ids_in_chunks:
+            i += 1
+            print("Chunk of tweet ids: " + str(i) + "/" + str(len(total_chunks)))
+            try:
+                tweets = self._twitter_api_requester.get_tweets_by_post_ids(ids_in_chunk)
+                total_tweets = list(set(total_tweets + tweets))
+                num_of_tweets = len(total_tweets)
+                if num_of_tweets > 10000:
+                    self._save_posts_and_authors(total_tweets, author_type)
+                    total_tweets = []
+
+            except TwitterError as e:
+                print(e)
+                error_messages = e.message
+                error_message_dict = error_messages[0]
+                error_code = error_message_dict['code']
+                if error_code == 88:  # Rate limit exceeded
+                    self._save_posts_and_authors(total_tweets, author_type)
+                    total_tweets = []
+
+                    seconds_to_wait_object = self._twitter_api_requester.get_sleep_time_for_get_tweets_by_tweet_ids_request()
+                    epoch_timestamp = seconds_to_wait_object.reset
+                    current_timestamp = time.time()
+                    seconds_to_wait = int(epoch_timestamp - current_timestamp + 5)
+                    count_down_time(seconds_to_wait)
+                    tweets = self._twitter_api_requester.get_tweets_by_post_ids(ids_in_chunk)
+                    total_tweets = list(set(total_tweets + tweets))
+        return total_tweets
+
+    # def create_post_from_tweet_data(self, tweet_data):
+    #     author_name = tweet_data.user.screen_name
+    #     tweet_author_guid = compute_author_guid_by_author_name(author_name)
+    #     tweet_author_guid = cleanForAuthor(tweet_author_guid)
+    #     tweet_post_twitter_id = str(tweet_data.id)
+    #     tweet_url = generate_tweet_url(tweet_post_twitter_id, author_name)
+    #     tweet_creation_time = tweet_data.created_at
+    #     tweet_str_publication_date = extract_tweet_publiction_date(tweet_creation_time)
+    #     tweet_guid = compute_post_guid(post_url=tweet_url, author_name=author_name,
+    #                                    str_publication_date=tweet_str_publication_date)
+    #
+    #     post = Post(guid=tweet_guid, post_id=tweet_guid, url=unicode(tweet_url),
+    #                       date=str_to_date(tweet_str_publication_date),
+    #                       title=unicode(tweet_data.text), content=unicode(tweet_data.text),
+    #                       post_osn_id=tweet_post_twitter_id,
+    #                       author=unicode(author_name), author_guid=unicode(tweet_author_guid),
+    #                       domain=unicode(self._domain),
+    #                       retweet_count=unicode(tweet_data.retweet_count),
+    #                       favorite_count=unicode(tweet_data.favorite_count),
+    #                       timeline_importer_insertion_date=unicode(get_current_time_as_string()))
+    #     return post
+
+    def _save_posts_and_authors(self, total_tweets, author_type=None):
+        posts, authors = self._db.convert_tweets_to_posts_and_authors(total_tweets, self._domain)
+        for author in authors:
+            author.author_type = author_type
+        self._db.addPosts(posts)
+        self._db.addPosts(authors)

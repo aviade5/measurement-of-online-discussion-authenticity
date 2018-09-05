@@ -87,12 +87,10 @@ class LDATopicModel(AbstractExecutor):
         self._db.create_author_topic_mapping_table(self.num_topics)
         author_guid_posts_dict = self._db.get_author_guid_post_dict()
         author_topic_mapping_items = []
-        i = 1
-        for author in authors:
-            if i % 1000 == 0:
-                msg = "\rGenerate author_topic_mapping {0}/{1}".format(str(i), str(len(authors)))
+        for i, author in enumerate(authors):
+            if i % 1000 == 0 or i >= len(authors) - 1:
+                msg = "\rGenerate author_topic_mapping {0}/{1}".format(str(i + 1), str(len(authors)))
                 print(msg, end="")
-            i += 1
             posts_by_domain = author_guid_posts_dict[author.author_guid]
             topics_probabilities = [0.0] * self.num_topics
             for post in posts_by_domain:

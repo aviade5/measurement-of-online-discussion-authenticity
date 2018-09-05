@@ -1,0 +1,175 @@
+from unittest import TestCase
+import numpy as np
+from DB.schema_definition import DB, Author, Post, Claim_Tweet_Connection, Target_Article_Item, Target_Article
+from configuration.config_class import getConfig
+from dataset_builder.word_embedding.glove_word_embedding_model_creator import GloveWordEmbeddingModelCreator
+from dataset_builder.word_embedding.gensim_word_embedding_trainer import GensimWordEmbeddingsModelTrainer
+
+
+class TestGensimWordEmbeddingsModelTrainer(TestCase):
+    def setUp(self):
+        self._config_parser = getConfig()
+        self._db = DB()
+        self._db.setUp()
+
+        # self._Word_Embedding_Model_Creator.execute(None)
+        self._is_load_wikipedia_300d_glove_model = True
+        self._wikipedia_model_file_path = "data/input/glove/test_glove.6B.300d_small.txt"
+        self._table_name = "wikipedia_model_300d"
+        self._word_vector_dict_full_path = "data/output/word_embedding/"
+        self._word_vector_dict = {}
+
+        self._author = None
+        self._set_author(u'test_user')
+        self._counter = 0
+        self._posts = []
+
+    def tearDown(self):
+        self._db.session.close()
+
+    def test_add_additional_fields_to_existing_table(self):
+        self._add_post(u'was', u'is')
+        self._add_post(u'is', u'was')
+        self._db.session.commit()
+        self._word_embedding_model_creator = GloveWordEmbeddingModelCreator(self._db)
+
+        self._word_embedding_model_creator.execute(None)
+        self._word_embedding_model_creator._aggregation_functions_names = ['sum']
+        self._word_embedding_model_creator.execute(None)
+        db_results = self._db.get_author_word_embedding(u'test_user', u'posts', 'title')  # check if
+        #  this is ok with Aviad
+        try:
+            if db_results[u'sum'] is not None and db_results[u'np.mean'] is not None:
+                self.assertTrue(True)
+            else:
+                self.assertTrue(False)
+        except:
+            self.assertTrue(False)
+
+    def test_case_post_represent_by_posts(self):
+        self._add_post(u'post1', u'the claim', u'Claim')
+        self._add_post(u'post2', u'dog cat pig man')  # 2
+        self._add_post(u'post3', u'TV is the best guys')  # 1
+        self._add_claim_tweet_connection(u'post1', u'post2')
+        self._add_claim_tweet_connection(u'post1', u'post3')
+        self._db.session.commit()
+        self._word_embedding_model_creator = GloveWordEmbeddingModelCreator(self._db)
+        self._word_embedding_model_creator._targeted_fields_for_embedding = [{
+            'source': {'table_name': 'posts', 'id': 'post_id'},
+            'connection': {'table_name': 'claim_tweet_connection', 'source_id': 'claim_id', 'target_id': 'post_id'},
+            'destination': {'table_name': 'posts', 'id': 'post_id', 'target_field': 'content',
+                            "where_clauses": [{"field_name": 1, "value": 1}]}}]
+
+        self._word_embedding_model_creator.execute(None)
+        self._words = self._db.get_word_embedding_dictionary()
+        self._words_vectors = self._get_posts_val()
+        expected_val = self._calc_results()
+        self._generic_test(expected_val, u'post1')
+
+    def _setup_test(self):
+        self._db.session.commit()
+        self._word_embedding_model_creator = GensimWordEmbeddingsModelTrainer(self._db)
+        self._word_embedding_model_creator.execute(None)
+
+        self._words = self._db.get_word_embedding_dictionary()
+        self._words_vectors = self._get_posts_val()
+
+    def _generic_test(self, expected_value, source_id=u""):
+        if source_id == u"":
+            source_id = self._author.author_guid
+        db_results = self._db.get_author_word_embedding(source_id, u'posts', u'content')
+        self.assertEquals(expected_value[u'min'], db_results[u'min'])
+        self.assertEquals(expected_value[u'max'], db_results[u'max'])
+        self.assertEquals(expected_value[u'np.mean'], db_results[u'np.mean'])
+
+    def _generic_non_equal_test(self, expected_value):
+        db_results = self._db.get_author_word_embedding(self._author.author_guid, u'posts', u'content')
+        self.assertNotEqual(expected_value[u'min'], db_results[u'min'])
+        self.assertNotEqual(expected_value[u'max'], db_results[u'max'])
+        self.assertNotEqual(expected_value[u'np.mean'], db_results[u'np.mean'])
+
+    def _set_author(self, author_guid):
+        author = Author()
+        author.author_guid = author_guid
+        author.author_full_name = u'name' + author_guid
+        author.name = u'name' + author_guid
+        author.domain = u'test'
+        self._db.add_author(author)
+        self._author = author
+
+    def _add_post(self, title, content, _domain=u'Microblog'):
+        post = Post()
+        post.author = self._author.author_full_name
+        post.author_guid = self._author.author_guid
+        post.content = content
+        post.title = title
+        post.domain = _domain
+        post.post_id = title
+        post.guid = title
+        self._db.addPost(post)
+        self._posts.append(post)
+
+    def _get_posts_val(self):  # return the vectors for all the words in the added posts
+        vals = {}
+        for post in self._posts:
+            for word in post.content.split():
+                if word in self._words.keys():
+                    vals[word] = self._words[word]
+        return vals.values()
+
+    def _calc_mean(self, vectors):
+        vectors = self._get_posts_val()
+        if len(vectors) == 0:
+            return (0,) * 300
+        ziped_vec = zip(*vectors)
+        result = map(eval('np.mean'), ziped_vec)
+        return tuple(result)
+
+    def _calc_min(self, vectors):
+        vectors = self._get_posts_val()
+        if len(vectors) == 0:
+            return (0,) * 300
+        ziped_vec = zip(*vectors)
+        result = map(eval('min'), ziped_vec)
+        return tuple(result)
+
+    def _calc_max(self, vectors):
+        vectors = self._get_posts_val()
+        if len(vectors) == 0:
+            return (0,) * 300
+        ziped_vec = zip(*vectors)
+        result = map(eval('max'), ziped_vec)
+        return tuple(result)
+
+    def _calc_results(self):
+        vectors = self._words_vectors
+        results = {}
+        results[u'min'] = self._calc_min(vectors)
+        results[u'max'] = self._calc_max(vectors)
+        results[u'np.mean'] = self._calc_mean(vectors)
+        return results
+
+    def _add_target_article(self, post_id, title, description, author_guid):
+        target_article = Target_Article()
+        target_article.author_guid = author_guid
+        target_article.post_id = post_id
+        target_article.title = title
+        target_article.description = description
+        target_article.keywords = 'temp, lala, fafa'
+        self._db.add_target_articles([target_article])
+
+    def _add_target_article_item(self, post_id, type, content, author_guid):
+        article_item = Target_Article_Item()
+        article_item.post_id = post_id
+        article_item.type = type
+        article_item.item_number = 3
+        article_item.content = content
+        article_item.author_guid = author_guid
+        self._db.addPosts([article_item])
+
+    def _add_claim_tweet_connection(self, claim_id, post_id):
+        connection = Claim_Tweet_Connection()
+        connection.claim_id = claim_id
+        connection.post_id = post_id
+        self._db.add_claim_connections([connection])
+        pass

@@ -37,20 +37,20 @@ class CsvImporter(PostImporter):
         self.insertPostsIntoDB()
 
     def parse_csv(self, csv_file, f):
-        try:
+        # try:
             reader = csv.DictReader(f, delimiter=',')
             for row in reader:
                 post_dict = self.create_post_dict_from_row(row)
                 self._listdic.append(post_dict.copy())
 
-        except:
-            self.logger.error("Cant encode the post:{0}".format(csv_file))
-            pass
+        # except:
+        #     self.logger.error("Cant encode the post:{0}".format(csv_file))
+        #     pass
 
     def create_post_dict_from_row(self, row):
         guid = unicode(generate_random_guid())
         post_dict = {}
-        post_dict["content"] = unicode(row["text"].decode('CP1252'))
+        post_dict["content"] = unicode(row["text"])
         post_dict["date"] = unicode(row["created"])
         post_dict["guid"] = guid
         post_dict["author"] = unicode(row["screenName"])

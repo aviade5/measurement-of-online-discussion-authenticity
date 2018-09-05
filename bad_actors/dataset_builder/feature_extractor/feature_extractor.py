@@ -7,6 +7,11 @@ import time
 from account_properties_feature_generator import AccountPropertiesFeatureGenerator
 from behavior_feature_generator import BehaviorFeatureGenerator
 from configuration.config_class import getConfig
+from dataset_builder.feature_extractor.word_embeddings_comparison_feature_generator import \
+    Word_Embeddings_Comparison_Feature_Generator
+from dataset_builder.feature_extractor.word_embeddings_feature_generator import Word_Embeddings_Feature_Generator
+from dataset_builder.word_embedding.word_embedding_differential_feature_generator import \
+    Word_Embedding_Differential_Feature_Generator
 from distances_from_targeted_class_feature_generator import DistancesFromTargetedClassFeatureGenerator
 from graph_feature_generator import GraphFeatureGenerator
 from link_prediction_feature_extractor import LinkPredictionFeatureExtractor
@@ -41,6 +46,10 @@ class FeatureExtractor(AbstractExecutor):
 
         # LinkPredictionFeatureExtractor must be the latest. Due to the deletion of features of the anchor authors.
         module_dict["LinkPredictionFeatureExtractor"] = LinkPredictionFeatureExtractor
+        module_dict["Word_Embeddings_Comparison_Feature_Generator"] = Word_Embeddings_Comparison_Feature_Generator
+        module_dict["Word_Embeddings_Feature_Generator"] = Word_Embeddings_Feature_Generator
+
+        module_dict["Word_Embedding_Differential_Feature_Generator"] = Word_Embedding_Differential_Feature_Generator
 
         ###############################################################
         ## SETUP
