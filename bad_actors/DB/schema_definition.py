@@ -2662,7 +2662,7 @@ class DB():
 
     def insert_or_update_authors_from_posts(self, domain, author_classify_dict, author_prop_dict):
         authors_to_update = []
-        posts = self.session.query(Post).filter(and_(Post.domain == domain, Post.author_guid == '')).all()
+        posts = self.session.query(Post).filter(Post.domain == domain).all()
         logging.info("Insert or update_authors from app importer")
         logging.info("total Posts: " + str(len(posts)))
         i = 1
