@@ -1,5 +1,8 @@
 from unittest import TestCase
 import numpy as np
+import pandas as pd
+from gensim.models import Word2Vec
+
 from DB.schema_definition import DB, Author, Post, Claim_Tweet_Connection, Target_Article_Item, Target_Article
 from configuration.config_class import getConfig
 from dataset_builder.word_embedding.glove_word_embedding_model_creator import GloveWordEmbeddingModelCreator
@@ -31,20 +34,27 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
         self._add_post(u'was', u'is')
         self._add_post(u'is', u'was')
         self._db.session.commit()
-        self._word_embedding_model_creator = GloveWordEmbeddingModelCreator(self._db)
+        self._word_embedding_model_creator = GensimWordEmbeddingsModelTrainer(self._db)
 
         self._word_embedding_model_creator.execute(None)
         self._word_embedding_model_creator._aggregation_functions_names = ['sum']
         self._word_embedding_model_creator.execute(None)
-        db_results = self._db.get_author_word_embedding(u'test_user', u'posts', 'title')  # check if
-        #  this is ok with Aviad
+
+        file_output_path = self._word_embedding_model_creator._saved_models_path + self._word_embedding_model_creator._table_name + ".csv"
+        data = pd.DataFrame.from_csv(file_output_path)
+
+        word_embedding_results = data.loc[(data['author_id'] == 'test_user') & (data['table_name'] == u'posts') & (
+                data['targeted_field_name'] == u'content')]
+        sum_value_df = word_embedding_results.loc[word_embedding_results[u'word_embedding_type'] == u'sum']
+        mean_value_df = word_embedding_results.loc[word_embedding_results[u'word_embedding_type'] == u'np.mean']
+
         try:
-            if db_results[u'sum'] is not None and db_results[u'np.mean'] is not None:
+            if len(sum_value_df.values.tolist()) > 0 and len(mean_value_df.values.tolist()) > 0:
                 self.assertTrue(True)
             else:
-                self.assertTrue(False)
+                self.fail()
         except:
-            self.assertTrue(False)
+            self.fail()
 
     def test_case_post_represent_by_posts(self):
         self._add_post(u'post1', u'the claim', u'Claim')
@@ -53,7 +63,7 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
         self._add_claim_tweet_connection(u'post1', u'post2')
         self._add_claim_tweet_connection(u'post1', u'post3')
         self._db.session.commit()
-        self._word_embedding_model_creator = GloveWordEmbeddingModelCreator(self._db)
+        self._word_embedding_model_creator = GensimWordEmbeddingsModelTrainer(self._db)
         self._word_embedding_model_creator._targeted_fields_for_embedding = [{
             'source': {'table_name': 'posts', 'id': 'post_id'},
             'connection': {'table_name': 'claim_tweet_connection', 'source_id': 'claim_id', 'target_id': 'post_id'},
@@ -61,7 +71,10 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
                             "where_clauses": [{"field_name": 1, "value": 1}]}}]
 
         self._word_embedding_model_creator.execute(None)
-        self._words = self._db.get_word_embedding_dictionary()
+        model_name_path = self._word_embedding_model_creator._prepare_model_name_path()
+        model = Word2Vec.load(model_name_path)
+        word_vector_dict = self._word_embedding_model_creator._get_word_embedding_dict(model)
+        self._words = word_vector_dict
         self._words_vectors = self._get_posts_val()
         expected_val = self._calc_results()
         self._generic_test(expected_val, u'post1')
@@ -77,10 +90,19 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
     def _generic_test(self, expected_value, source_id=u""):
         if source_id == u"":
             source_id = self._author.author_guid
-        db_results = self._db.get_author_word_embedding(source_id, u'posts', u'content')
-        self.assertEquals(expected_value[u'min'], db_results[u'min'])
-        self.assertEquals(expected_value[u'max'], db_results[u'max'])
-        self.assertEquals(expected_value[u'np.mean'], db_results[u'np.mean'])
+
+        file_output_path = self._word_embedding_model_creator._saved_models_path + self._word_embedding_model_creator._table_name + ".csv"
+        data = pd.DataFrame.from_csv(file_output_path)
+
+        word_embedding_results = data.loc[(data['author_id'] == source_id) & (data['table_name'] == u'posts') & (data['targeted_field_name'] == u'content')]
+
+        self.assert_word_embedding(word_embedding_results, expected_value, u'min')
+        self.assert_word_embedding(word_embedding_results, expected_value, u'max')
+        self.assert_word_embedding(word_embedding_results, expected_value, u'np.mean')
+
+    def assert_word_embedding(self, db_results, expected_value, type):
+        result_value = db_results.loc[db_results[u'word_embedding_type'] == type, '0':].values.tolist()[0]
+        self.assertEquals(list(expected_value[type]), result_value)
 
     def _generic_non_equal_test(self, expected_value):
         db_results = self._db.get_author_word_embedding(self._author.author_guid, u'posts', u'content')

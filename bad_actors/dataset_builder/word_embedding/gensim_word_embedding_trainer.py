@@ -1,7 +1,8 @@
+from __future__ import print_function
 import numpy as np
 import pandas as pd
 from gensim.models import Word2Vec
-
+import os
 from dataset_builder.word_embedding.abstract_word_embadding_trainer import AbstractWordEmbaddingTrainer
 
 __author__ = "Maor Reuben"
@@ -19,9 +20,14 @@ class GensimWordEmbeddingsModelTrainer(AbstractWordEmbaddingTrainer):
         self._epochs = self._config_parser.eval(self.__class__.__name__, "epochs")
         self._selected_optimizer = self._config_parser.eval(self.__class__.__name__, "selected_optimizer")
         self._seed = self._config_parser.eval(self.__class__.__name__, "seed")
+        self.file_output_path = self._saved_models_path + self._table_name + ".csv"
         self._loss_function = 0
 
         self.name = self.__class__.__name__
+
+    def setUp(self):
+        if os.path.exists(self.file_output_path):
+            os.remove(self.file_output_path)
 
     def execute(self, window_start=None):
         word_embeddings = []
@@ -32,7 +38,8 @@ class GensimWordEmbeddingsModelTrainer(AbstractWordEmbaddingTrainer):
             model = self._train_model_by_sentences(sentences)
 
             word_vector_dict = self._get_word_embedding_dict(model)
-            dimensions = max(dimensions, len(word_vector_dict.values()[0]))
+            if len(word_vector_dict.values()) > 0:
+                dimensions = max(dimensions, len(word_vector_dict.values()[0]))
             self._write_word_vector_dict_to_csv(word_vector_dict)
             word_embeddings += self._calculate_word_embedding_to_authors(source_id_target_elements_dict,
                                                                          targeted_fields_dict, word_vector_dict)
@@ -111,14 +118,22 @@ class GensimWordEmbeddingsModelTrainer(AbstractWordEmbaddingTrainer):
 
     def _write_word_embedding_to_csv(self, word_embeddings):
         self._results_dataframe = pd.DataFrame()
-        dimensions_count = 0
-        for word_embedding in word_embeddings:
-            self._fill_results_dataframe(*word_embedding)
-            dimensions_count = len(word_embedding[2])
+
+        self._add_word_embeddings_to_df(word_embeddings)
 
         column_names = ["author_id", "table_name", "id_field", "targeted_field_name", "word_embedding_type"]
+        dimensions_count = len(self._results_dataframe.columns) - len(column_names)
         dimensions = np.arange(dimensions_count)
         column_names.extend(dimensions)
         self._results_dataframe.columns = column_names
-        self._results_dataframe.to_csv(self._saved_models_path + self._table_name + ".csv")
+        try:
+            existing_table = pd.DataFrame.from_csv(self.file_output_path)
+            existing_table.columns = column_names
+            table_to_add = self._results_dataframe
+            merged_df = existing_table.append(table_to_add, ignore_index=True)
+            self._results_dataframe = merged_df
+            os.remove(self.file_output_path)
+        except Exception as e:
+            print(e)
+        self._results_dataframe.to_csv(self.file_output_path)
         pass

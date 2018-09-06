@@ -40,11 +40,7 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
     def _add_word_embeddings_to_db(self, word_embeddings):
         print("Add word embedding to DB")
         self._results_dataframe = pd.DataFrame()
-        for i, word_embedding in enumerate(word_embeddings):
-            if i % 100 == 0 or i == len(word_embeddings) - 1:
-                print("\rAdd word embedding to DF {0}/{1}".format(str(i+1), len(word_embeddings)), end='')
-            self._fill_results_dataframe(*word_embedding)
-        print()
+        self._add_word_embeddings_to_df(word_embeddings)
         # if result is None: #added by Lior, need to check for if no author_id
         #     self._fill_zeros(results_dataframe, author_id, table_name, id_field, targeted_field_name)
         column_names = ["author_id", "table_name", "id_field", "targeted_field_name", "word_embedding_type"]
@@ -64,6 +60,15 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
             print(e)
         engine = self._db.engine
         self._results_dataframe.to_sql(name="author_word_embeddings", con=engine, index=False, if_exists='replace')
+
+    def _add_word_embeddings_to_df(self, word_embeddings):
+        rows = []
+        for i, word_embedding in enumerate(word_embeddings):
+            if i % 10 == 0 or i == len(word_embeddings) - 1:
+                print("\rAdd word embedding to DF {0}/{1}".format(str(i + 1), len(word_embeddings)), end='')
+            rows += self._fill_results_dataframe(*word_embedding)
+        self._results_dataframe = pd.DataFrame(rows)
+        print()
 
     def _merge_results_with_existing_table(self, result):
         pass
@@ -137,18 +142,16 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
             targeted_field_name = targeted_fields_dict['source']["target_field"]
             where_clauses = targeted_fields_dict['source']["where_clauses"]
 
-        where_clause_dict = where_clauses[0]
-        values = where_clause_dict.values()
-        additional_str = u""
-        if values[0] != 1 and values[1] != 1:
-            for value in values:
-                additional_str += u"_" + value
-        if len(additional_str) > 0:
-            targeted_field_name = additional_str + u"_" + targeted_field_name
-        # targeted_field_name = targeted_field_name.replace("'", "")
-        dimensions = len(transposed)
-        if dimensions == 0:
-            dimensions = 300
+        if len(where_clauses) > 0:
+            where_clause_dict = where_clauses[0]
+            values = where_clause_dict.values()
+            additional_str = u""
+            if values[0] != 1 and values[1] != 1:
+                for value in values:
+                    additional_str += u"_" + value
+            if len(additional_str) > 0:
+                targeted_field_name = additional_str + u"_" + targeted_field_name
+        word_embedding_df_rows = []
         for aggregation_function_name in self._aggregation_functions_names:
             author_vector = [author_id, table_name, id_field, targeted_field_name,
                              aggregation_function_name]
@@ -156,10 +159,12 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
             result = map(eval(aggregation_function_name), transposed)
             if len(result) > 0:
                 author_vector.extend(result)
-                series = pd.Series(data=author_vector)
-                self._results_dataframe = self._results_dataframe.append(series, ignore_index=True)
             else:
+                if len(transposed) <= 0:
+                    dimensions = 300
+                else:
+                    dimensions = len(transposed)
                 zero_vector = np.zeros((dimensions,), dtype=np.int)
                 author_vector.extend(zero_vector)
-                series = pd.Series(data=author_vector)
-                self._results_dataframe = self._results_dataframe.append(series, ignore_index=True)
+            word_embedding_df_rows.append(author_vector)
+        return word_embedding_df_rows

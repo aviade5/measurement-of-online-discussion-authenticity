@@ -13,7 +13,6 @@ class GloveWordEmbeddingModelCreator(AbstractWordEmbaddingTrainer):
         self._is_load_wikipedia_300d_glove_model = self._config_parser.eval(self.__class__.__name__,
                                                                             "is_load_wikipedia_300d_glove_model")
         self._wikipedia_model_file_path = self._config_parser.eval(self.__class__.__name__, "wikipedia_model_file_path")
-
         # key = author_id (could be author_guid, or other field) and array of the contents (maybe the author has many posts' content)
         self._word_vector_dict_full_path = "data/output/word_embedding/"
 
