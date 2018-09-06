@@ -1,18 +1,21 @@
 # Created by aviade at 12/12/2016
 from __future__ import print_function
 from configuration.config_class import getConfig
-from preprocessing_tools.abstract_executor import AbstractExecutor
+from preprocessing_tools.abstract_controller import AbstractController
+from collections import defaultdict
 import time
 
-class GraphBuilder(AbstractExecutor):
+class GraphBuilder(AbstractController):
     def __init__(self, db): #TODO: no kwargs in module constructors
-        AbstractExecutor.__init__(self, db)
+        AbstractController.__init__(self, db)
 
         self._connection_type = unicode(self._config_parser.get(self.__class__.__name__, "connection_type"))
         self._max_objects_without_saving = self._config_parser.eval(self.__class__.__name__, "max_objects_without_saving")
         self._min_number_of_posts_per_author = self._config_parser.eval(self.__class__.__name__, "min_number_of_posts_per_author")
         self._num_of_random_authors_for_graph = self._config_parser.eval(self.__class__.__name__, "num_of_random_authors_for_graph")
         self._author_connections_edges = []
+        # will save the connection and the reversed in order to make this connection type as un directed.
+        self._existing_connections_dict = defaultdict()
 
     def setUp(self):
         if self._num_of_random_authors_for_graph is not None and not self._are_already_randomize_authors_for_graphs():
@@ -34,10 +37,8 @@ class GraphBuilder(AbstractExecutor):
             guid_b = tuple[1]
             weight = tuple[2]
 
-
             self._create_and_optional_save_connection(guid_a, guid_b, weight)
 
-        self._db.save_author_connections(self._author_connections_edges)
 
 
     def _create_and_optional_save_connection(self, author_guid_a, author_guid_b, weight):
@@ -52,4 +53,10 @@ class GraphBuilder(AbstractExecutor):
         num_of_random_authors_for_graph = len(list(random_authors_for_graphs))
 
         return num_of_random_authors_for_graph != 0
+
+    def _update_existing_connections_dictionary(self, author_guid, neighbor_author_guid):
+        optional_key = author_guid + " - " + neighbor_author_guid
+        self._existing_connections_dict[optional_key] = optional_key
+        reversed_key = neighbor_author_guid + " - " + author_guid
+        self._existing_connections_dict[reversed_key] = reversed_key
 

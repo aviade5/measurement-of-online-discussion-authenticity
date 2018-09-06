@@ -389,6 +389,19 @@ class Topic(Base):
     term_id = Column(Integer, ForeignKey("terms.term_id"), primary_key=True)
     probability = Column(FLOAT, default=None)
 
+class Text_From_Image(Base):
+    __tablename__ = 'image_hidden_texts'
+
+    post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
+    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
+    media_path = Column(Unicode, default=None)
+    content = Column(Unicode, default=None)
+
+    def __repr__(self):
+        return "<Image_Hidden_Text(post_id='%s', author_guid='%s', media_path='%s', content='%s')>" % (
+            self.post_id, self.author_guid, self.media_path, self.content)
+
+
 class Image_Tags(Base):
     __tablename__ = 'image_tags'
 
@@ -1794,7 +1807,7 @@ class DB():
 
     def create_author_connections(self, source_id, destination_author_ids, weight, author_connection_type,
                                   insertion_date):
-        print("---create_author_connections---")
+        print("---create_author_connections---\n")
         author_connections = []
         for destination_author_id in destination_author_ids:
             author_connection = self.create_author_connection(source_id, destination_author_id, weight,
@@ -1808,11 +1821,9 @@ class DB():
         # print("---create_author_connection---")
         author_connection = AuthorConnection()
 
-        msg = '\r Author connection: source -> ' + str(source_author_guid) + ', dest -> ' + str(
-            destination_author_guid) + ', connection type = ' + connection_type
-        print(msg, end="")
-
-        # print("Author connection: source -> " + str(source_author_guid) + ", dest -> " + str(destination_author_guid) + ", connection type = " + connection_type)
+        # msg = '\r Author connection: source -> ' + str(source_author_guid) + ', dest -> ' + str(
+        #     destination_author_guid) + ', connection type = ' + connection_type
+        # print(msg, end="")
         author_connection.source_author_guid = source_author_guid
         author_connection.destination_author_guid = destination_author_guid
         author_connection.connection_type = unicode(connection_type)
@@ -2809,7 +2820,9 @@ class DB():
                                        insertion_date):
         print("---create_temp_author_connections---")
         author_connections = []
-        for destination_author_id in destination_author_ids:
+        for i, destination_author_id in enumerate(destination_author_ids):
+            if i % 100 == 0:
+                print('author connection generated {0}/{1}'.format(i, len(destination_author_ids)))
             author_connection = self.create_temp_author_connection(source_author_id, destination_author_id,
                                                                    author_connection_type, insertion_date)
             author_connections.append(author_connection)
@@ -2888,7 +2901,7 @@ class DB():
 
         author_connections = []
         already_converted_temp_author_connections = []
-        for temp_author_connection in temp_author_connection_tuples:
+        for i, temp_author_connection in enumerate(temp_author_connection_tuples):
             source_author_osn_id = temp_author_connection[0]
             destination_author_osn_id = temp_author_connection[1]
             connection_type = temp_author_connection[2]
@@ -3277,6 +3290,56 @@ class DB():
             return result[0]
         if field_id == "author_guid":
             return id_val
+
+    def get_author_screen_name_author_guid_dictionary(self):
+        query = """
+                SELECT authors.author_screen_name, authors.author_guid
+                FROM authors
+                """
+        query = text(query)
+
+        result = self.session.execute(query, params=dict(domain=domain))
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+        author_screen_name_author_guid_dict = {}
+        for tuple in tuples:
+            author_screen_name = tuple[0]
+            author_guid = tuple[1]
+            author_screen_name_author_guid_dict[author_screen_name] = author_guid
+        return author_screen_name_author_guid_dict
+
+    def randomize_authors(self, min_number_of_posts_per_author, domain, authors_table_field_name,
+                          authors_table_value, num_of_random_authors):
+        randomized_authors = []
+        randomized_authors_for_graph = self._randomize_authors_by_conditions(min_number_of_posts_per_author,
+                                                                             domain, authors_table_field_name,
+                                                                             authors_table_value,
+                                                                             num_of_random_authors)
+        for author_guid, author_type in randomized_authors_for_graph:
+            randomized_author_for_graph = self._create_randomized_author_for_graph(author_guid, author_type)
+            randomized_authors.append(randomized_author_for_graph)
+
+        self.addPosts(randomized_authors)
+
+    def _randomize_authors_by_conditions(self, min_posts_count, domain, authors_table_field_name,
+                                         authors_table_value, num_of_random_authors):
+
+        query = """
+                SELECT authors.author_guid, authors.author_type
+                FROM authors
+                INNER JOIN author_guid_num_of_posts_view ON (author_guid_num_of_posts_view.author_guid = authors.author_guid)
+                WHERE author_guid_num_of_posts_view.num_of_posts >= {0}
+                AND authors.domain = '{1}'
+                AND authors.{2} = '{3}'
+                ORDER BY RANDOM()
+                LIMIT {4}
+                """.format(min_posts_count, domain, authors_table_field_name, authors_table_value, num_of_random_authors)
+        query = text(query)
+        result = self.session.execute(query, params=dict(min_posts_count=min_posts_count, domain=domain,
+                                                         num_of_random_authors=num_of_random_authors))
+        cursor = result.cursor
+        randomized_authors_for_graph = self.result_iter(cursor)
+        return randomized_authors_for_graph
 
     def convert_tweets_to_posts_and_authors(self, tweets, domain):
         posts = []

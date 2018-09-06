@@ -13,6 +13,19 @@ from DB.schema_definition import DB
 from bad_actors_collector.bad_actors_collector import BadActorsCollector
 from configuration.config_class import getConfig
 from data_exporter.data_exporter import DataExporter
+from dataset_builder.graph_builders.bag_of_words_graph_builders.bag_of_words_graph_builder_all_combinations import \
+    Bag_Of_Words_Graph_Builder_All_Combinations
+from dataset_builder.graph_builders.bag_of_words_graph_builders.bag_of_words_graph_builder_k_best import \
+    Bag_Of_Words_Graph_Builder_K_Best
+from dataset_builder.graph_builders.bag_of_words_graph_builders.bag_of_words_graph_builder_random_combinations import \
+    Bag_Of_Words_Graph_Builder_Random_Combinations
+from dataset_builder.graph_builders.followers_graph_builder import GraphBuilder_Followers
+from dataset_builder.graph_builders.topic_graph_builders.topic_graph_builder_all_combinations import \
+    Topic_Graph_Builder_All_Combinations
+from dataset_builder.graph_builders.topic_graph_builders.topic_graph_builder_k_best import Topic_Graph_Builder_K_Best
+from dataset_builder.graph_builders.topic_graph_builders.topic_graph_builder_random_combinations import \
+    Topic_Graph_Builder_Random_Combinations
+from dataset_builder.graph_builders.word_embedding_graph_builder import GraphBuilder_Word_Embedding
 from dataset_builder.image_downloader.image_downloader import Image_Downloader
 from dataset_builder.image_recognition.image_tags_extractor import Image_Tags_Extractor
 from dataset_builder.lda_topic_model import LDATopicModel
@@ -22,6 +35,8 @@ from dataset_builder.cocitation_graph_builder import GraphBuilder_CoCitation
 from dataset_builder.common_posts_graph_builder import GraphBuilder_Common_Posts
 from dataset_builder.feature_extractor.feature_extractor import FeatureExtractor
 from dataset_builder.feature_similarity_graph_builder import GraphBuilder_Feature_Similarity
+from dataset_builder.ocr_extractor import OCR_Extractor
+from dataset_builder.randomizer.randomizer import Randomizer
 from dataset_builder.topic_distribution_builder import TopicDistributionBuilder
 from dataset_builder.topics_graph_builder import GraphBuilder_Topic
 from dataset_builder.word_embedding.gensim_word_embedding_trainer import GensimWordEmbeddingsModelTrainer
@@ -66,15 +81,25 @@ modules_dict["Preprocessor"] = Preprocessor
 modules_dict["LDATopicModel"] = LDATopicModel
 modules_dict["GloveWordEmbeddingModelCreator"] = GloveWordEmbeddingModelCreator
 modules_dict["GensimWordEmbeddingsModelTrainer"] = GensimWordEmbeddingsModelTrainer
-
+modules_dict["OCR_Extractor"] = OCR_Extractor
 modules_dict["TopicDistributionBuilder"] = TopicDistributionBuilder
 modules_dict["PostCitationCreator"] = PostCitationCreator
-modules_dict["GraphBuilder_Bag_Of_Words"] = GraphBuilder_Bag_Of_Words
-modules_dict["GraphBuilder_CoCitation"] = GraphBuilder_CoCitation
+
 modules_dict["GraphBuilder_Citation"] = GraphBuilder_Citation
+modules_dict["GraphBuilder_CoCitation"] = GraphBuilder_CoCitation
+modules_dict["Randomizer"] = Randomizer
 modules_dict["GraphBuilder_Topic"] = GraphBuilder_Topic
-modules_dict["GraphBuilder_Common_Posts"] = GraphBuilder_Common_Posts
+modules_dict["Topic_Graph_Builder_All_Combinations"] = Topic_Graph_Builder_All_Combinations
+modules_dict["Topic_Graph_Builder_Random_Combinations"] = Topic_Graph_Builder_Random_Combinations
+modules_dict["Topic_Graph_Builder_K_Best"] = Topic_Graph_Builder_K_Best
+modules_dict["Bag_Of_Words_Graph_Builder_K_Best"] = Bag_Of_Words_Graph_Builder_K_Best
+modules_dict["Bag_Of_Words_Graph_Builder_All_Combinations"] = Bag_Of_Words_Graph_Builder_All_Combinations
+modules_dict["Bag_Of_Words_Graph_Builder_Random_Combinations"] = Bag_Of_Words_Graph_Builder_Random_Combinations
+modules_dict["GraphBuilder_Word_Embedding"] = GraphBuilder_Word_Embedding
 modules_dict["GraphBuilder_Feature_Similarity"] = GraphBuilder_Feature_Similarity
+modules_dict["GraphBuilder_Common_Posts"] = GraphBuilder_Common_Posts
+modules_dict["GraphBuilder_Followers"] = GraphBuilder_Followers
+modules_dict["GraphBuilder_Bag_Of_Words"] = GraphBuilder_Bag_Of_Words
 modules_dict["FeatureExtractor"] = FeatureExtractor
 modules_dict["BadActorsCollector"] = BadActorsCollector
 modules_dict["DataExporter"] = DataExporter

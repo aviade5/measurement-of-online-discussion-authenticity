@@ -39,7 +39,6 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
 
     def _add_word_embeddings_to_db(self, word_embeddings):
         print("Add word embedding to DB")
-        self._results_dataframe = pd.DataFrame()
         self._add_word_embeddings_to_df(word_embeddings)
         # if result is None: #added by Lior, need to check for if no author_id
         #     self._fill_zeros(results_dataframe, author_id, table_name, id_field, targeted_field_name)
