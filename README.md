@@ -24,3 +24,6 @@ BibTex:
   * Scikit Learn
   * networkx
   * pandas
+
+### To Run
+commend: python run.py configuration\config.ini
