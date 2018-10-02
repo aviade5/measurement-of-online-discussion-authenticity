@@ -52,7 +52,7 @@ class CsvImporter(PostImporter):
         post_dict = {}
         post_dict["content"] = unicode(row["text"])
         post_dict["date"] = unicode(row["created"])
-        post_dict["guid"] = guid
+        post_dict["guid"] = guid.replace('-', '')
         post_dict["author"] = unicode(row["screenName"])
         author_guid = unicode(compute_author_guid_by_author_name(row["screenName"]).replace('-', ''))
         post_dict["author_guid"] = author_guid

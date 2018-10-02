@@ -916,7 +916,6 @@ class DB():
 
     def get_authors_by_domain(self, domain):
         result = self.session.query(Author).filter(and_(Author.domain == unicode(domain)),
-                                                   Author.author_osn_id.isnot(None)
                                                    ).all()
 
         return result

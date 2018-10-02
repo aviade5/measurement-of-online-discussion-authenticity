@@ -46,7 +46,7 @@ class PostImporter(AbstractExecutor):  # define child class
                 self._create_new_post(dictItem, post, postsRefsDictList, updatepostList, xml_importer_insertion_date)
         print("")
         self._db.addPosts(postList)
-        self._db.updatePosts(updatepostList)
+        # self._db.updatePosts(updatepostList)
 
         stopInsertToDB = timeit.default_timer()
         self.logger.debug("total time write post from single file to DB: {0}".format(stopInsertToDB - startInsetToDB))

@@ -45,7 +45,7 @@ class LDATopicModel(AbstractExecutor):
             self.calculate_topics(post_id_to_words)
 
     def _create_post_id_to_content_words(self, curr_posts):
-        post_id_to_content = {post[2]: post[6] for post in curr_posts}
+        post_id_to_content = {post[0]: post[6] for post in curr_posts}
         post_id_to_ngrams = {}
         for doc_id, content in post_id_to_content.iteritems():
             if content is not None:
@@ -94,8 +94,8 @@ class LDATopicModel(AbstractExecutor):
             posts_by_domain = author_guid_posts_dict[author.author_guid]
             topics_probabilities = [0.0] * self.num_topics
             for post in posts_by_domain:
-                for key in post_to_topic_id[post.guid]:
-                    topics_probabilities[key] = post_to_topic_id[post.guid][key]
+                for key in post_to_topic_id[post.post_id]:
+                    topics_probabilities[key] = post_to_topic_id[post.post_id][key]
 
             author_topic_mapping_items.append((author.author_guid, topics_probabilities))
 
