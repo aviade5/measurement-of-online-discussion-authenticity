@@ -24,12 +24,23 @@ class GloveWordEmbeddingModelCreator(AbstractWordEmbaddingTrainer):
         if self._is_load_wikipedia_300d_glove_model:
             if not self._db.is_table_exist(self._table_name):
                 self._load_wikipedia_300d_glove_model()
-            word_embeddings = []
-            for targeted_fields_dict in self._targeted_fields_for_embedding:
-                source_id_target_elements_dict = self._get_source_id_target_elements(targeted_fields_dict)
-                word_vector_dict = self._db.get_word_vector_dictionary(self._table_name)
-                word_embeddings += self._calculate_word_embedding_to_authors(source_id_target_elements_dict, targeted_fields_dict, word_vector_dict)
+            word_embeddings = self.glove_word_embedding_author_by_posts()
             self._add_word_embeddings_to_db(word_embeddings)
+
+    def glove_word_embedding_author_by_posts(self):
+        targeted_fields_dict = {"source": {"table_name": "posts", "id": "author_guid", "target_field": "content",
+                                        "where_clauses": [{"field_name": 1, "value": 1}]}}
+        # for targeted_fields_dict in self._targeted_fields_for_embedding:
+        word_embeddings = self._generic_glove_word_embedding_source_by_target(targeted_fields_dict)
+        return word_embeddings
+
+    def _generic_glove_word_embedding_source_by_target(self, targeted_fields_dict):
+        word_embeddings = []
+        source_id_target_elements_dict = self._get_source_id_target_elements(targeted_fields_dict)
+        word_vector_dict = self._db.get_word_vector_dictionary(self._table_name)
+        word_embeddings += self._calculate_word_embedding_to_authors(source_id_target_elements_dict,
+                                                                     targeted_fields_dict, word_vector_dict)
+        return word_embeddings
 
     def _load_wikipedia_300d_glove_model(self):
         logging.info("_load_wikipedia_300d_glove_model")
@@ -75,4 +86,3 @@ class GloveWordEmbeddingModelCreator(AbstractWordEmbaddingTrainer):
     #     return author_id_texts_dict
 
     # added by Lior
-
