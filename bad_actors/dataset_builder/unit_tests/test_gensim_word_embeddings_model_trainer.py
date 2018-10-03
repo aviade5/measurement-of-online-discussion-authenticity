@@ -57,9 +57,9 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
             self.fail()
 
     def test_case_post_represent_by_posts(self):
-        self._add_post(u'post1', u'the claim', u'Claim')
-        self._add_post(u'post2', u'dog cat pig man')  # 2
-        self._add_post(u'post3', u'TV is the best guys')  # 1
+        self._add_post(u'post1', u'the claim NYT: Trump helped parents evade taxes', u'Claim')
+        self._add_post(u'post2', u'dog cat pig man dog cat pig man dog cat pig man dog cat pig man')  # 2
+        self._add_post(u'post3', u'TV is the best guys Man who used copter to escape jail arrested')  # 1
         self._add_claim_tweet_connection(u'post1', u'post2')
         self._add_claim_tweet_connection(u'post1', u'post3')
         self._db.session.commit()
@@ -77,7 +77,7 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
         self._words = word_vector_dict
         self._words_vectors = self._get_posts_val()
         expected_val = self._calc_results()
-        self._generic_test(expected_val, u'post1')
+        self._generic_test(expected_val, u'test_author')
 
     def _setup_test(self):
         self._db.session.commit()
@@ -96,13 +96,15 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
 
         word_embedding_results = data.loc[(data['author_id'] == source_id) & (data['table_name'] == u'posts') & (data['targeted_field_name'] == u'content')]
 
-        self.assert_word_embedding(word_embedding_results, expected_value, u'min')
-        self.assert_word_embedding(word_embedding_results, expected_value, u'max')
-        self.assert_word_embedding(word_embedding_results, expected_value, u'np.mean')
+        self.assert_word_embedding(data, expected_value, u'min')
+        self.assert_word_embedding(data, expected_value, u'max')
+        self.assert_word_embedding(data, expected_value, u'np.mean')
 
     def assert_word_embedding(self, db_results, expected_value, type):
         result_value = db_results.loc[db_results[u'word_embedding_type'] == type, '0':].values.tolist()[0]
-        self.assertEquals(list(expected_value[type]), result_value)
+        result_value = [round(value, 6) for value in result_value]
+        expected_list = [round(value, 6) for value in list(expected_value[type])]
+        self.assertListEqual(expected_list, result_value)
 
     def _generic_non_equal_test(self, expected_value):
         db_results = self._db.get_author_word_embedding(self._author.author_guid, u'posts', u'content')
