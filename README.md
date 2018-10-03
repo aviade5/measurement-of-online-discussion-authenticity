@@ -24,3 +24,11 @@ BibTex:
   * Scikit Learn
   * networkx
   * pandas
+  * selenium
+  * praw
+  * pyquery
+  * genism
+  * python-twitter
+
+### To Run
+commend: python run.py configuration\config.ini
