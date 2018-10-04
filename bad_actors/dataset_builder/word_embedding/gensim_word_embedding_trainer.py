@@ -1,11 +1,8 @@
 from __future__ import print_function
-
-import os
-
 import numpy as np
 import pandas as pd
 from gensim.models import Word2Vec
-
+import os
 from dataset_builder.word_embedding.abstract_word_embadding_trainer import AbstractWordEmbaddingTrainer
 
 __author__ = "Maor Reuben"
@@ -33,28 +30,22 @@ class GensimWordEmbeddingsModelTrainer(AbstractWordEmbaddingTrainer):
             os.remove(self.file_output_path)
 
     def execute(self, window_start=None):
-        word_embeddings = self.get_word_embedding_author_by_posts()
+        word_embeddings = []
+        dimensions = 0
+        for targeted_fields_dict in self._targeted_fields_for_embedding:
+            source_id_target_elements_dict = self._get_source_id_target_elements(targeted_fields_dict)
+            sentences = self._get_target_field_from_elements(source_id_target_elements_dict, targeted_fields_dict)
+            model = self._train_model_by_sentences(sentences)
 
+            word_vector_dict = self._get_word_embedding_dict(model)
+            if len(word_vector_dict.values()) > 0:
+                dimensions = max(dimensions, len(word_vector_dict.values()[0]))
+            self._write_word_vector_dict_to_csv(word_vector_dict)
+            word_embeddings += self._calculate_word_embedding_to_authors(source_id_target_elements_dict,
+                                                                         targeted_fields_dict, word_vector_dict)
         # self._add_word_embeddings_to_db(word_embeddings)
 
         self._write_word_embedding_to_csv(word_embeddings)
-
-    def get_word_embedding_author_by_posts(self):
-        targeted_fields_dict = {'source': {"table_name": "posts", "id": "author_guid", "target_field": "content",
-                                           "where_clauses": [{"field_name": 1, "value": 1}]}}
-        word_embeddings = self._get_word_embedding_source_by_target(targeted_fields_dict)
-        return word_embeddings
-
-    def _get_word_embedding_source_by_target(self, targeted_fields_dict):
-        word_embeddings = []
-        source_id_target_elements_dict = self._get_source_id_target_elements(targeted_fields_dict)
-        sentences = self._get_target_field_from_elements(source_id_target_elements_dict, targeted_fields_dict)
-        model = self._train_model_by_sentences(sentences)
-        word_vector_dict = self._get_word_embedding_dict(model)
-        self._write_word_vector_dict_to_csv(word_vector_dict)
-        word_embeddings += self._calculate_word_embedding_to_authors(source_id_target_elements_dict,
-                                                                     targeted_fields_dict, word_vector_dict)
-        return word_embeddings
 
     def _train_model_by_sentences(self, sentences):
         model_seed = self._seed

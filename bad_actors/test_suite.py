@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(mes
 # from bad_actors_collector.unit_tests.bad_actor_collector_unittests import TestBadActorCollector
 # from missing_data_complementor.unit_tests.test_missingDataComplementor import MissingDataComplemntorTests
 # from twitter_crawler.unittests.twitter_crawler_tests import TwitterCrawlerTests
-from dataset_builder.lda_topic_model_test import TestLDATopicModel
+# from dataset_builder.lda_topic_model_test import TestLDATopicModel
 
 from timeline_overlap_visualization.test_timelineOverlapVisualizationGenerator import TestTimelineOverlapVisualizationGenerator
 from DB.unit_tests.posts_unittests import TestPost
