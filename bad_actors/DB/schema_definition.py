@@ -208,26 +208,30 @@ class Target_Article(Base):
     __tablename__ = 'target_articles'
 
     post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
+    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
     title = Column(Unicode, default=None)
     description = Column(Unicode, default=None)
     keywords = Column(Unicode, default=None)
 
     def __repr__(self):
-        return "<TargetArticle(post_id='%s', title='%s', description='%s', keywords='%s')>" % (
-            self.post_id, self.title, self.description, self.keywords)
+        return "<TargetArticle(post_id='%s', author_guid='%s', title='%s', description='%s', keywords='%s')>" % (
+            self.post_id, self.author_guid, self.title, self.description, self.keywords)
 
-#could be a 'paragraph' or caption
+
+# could be a 'paragraph' or caption
 class Target_Article_Item(Base):
     __tablename__ = 'target_article_items'
 
     post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
+    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
     type = Column(Unicode, default=None, primary_key=True)
     item_number = Column(Integer, default=None, primary_key=True)
     content = Column(Unicode, default=None)
 
     def __repr__(self):
         return "<Target_Article_Item(post_id='%s', type='%s', item_number='%s', content='%s')>" % (
-            self.post_id, self.type, self.item_number, self.content)
+            self.post_id, self._author_guid, self.type, self.item_number, self.content)
+
 
 class AuthorCitation(Base):
     __tablename__ = 'author_citations'

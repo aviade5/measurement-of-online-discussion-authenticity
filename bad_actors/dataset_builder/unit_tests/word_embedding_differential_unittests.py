@@ -8,7 +8,7 @@ from dataset_builder.word_embedding.word_embedding_differential_feature_generato
 from dataset_builder.word_embedding.glove_word_embedding_model_creator import GloveWordEmbeddingModelCreator
 
 
-class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
+class Word_Embeddings_Differential_Feature_Generator_Unittests(unittest.TestCase):
     def setUp(self):
         self._config_parser = getConfig()
         self._db = DB()
