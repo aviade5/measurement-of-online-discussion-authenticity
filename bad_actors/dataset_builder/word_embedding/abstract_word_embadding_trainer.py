@@ -14,8 +14,6 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
         self._aggregation_functions_names = self._config_parser.eval(self.__class__.__name__,
                                                                      "aggregation_functions_names")
         self._table_name = self._config_parser.eval(self.__class__.__name__, "table_name")
-        self._targeted_fields_for_embedding = self._config_parser.eval(self.__class__.__name__,
-                                                                       "targeted_fields_for_embedding")
 
     def _calculate_word_embedding_to_authors(self, source_id_elements_dict, targeted_fields_dict, word_vector_dict):
         source_id_words_dict = self._fill_source_id_words_dictionary(source_id_elements_dict, targeted_fields_dict)
