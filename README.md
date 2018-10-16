@@ -24,3 +24,4 @@ BibTex:
   * Scikit Learn
   * networkx
   * pandas
+  * wordcloud
