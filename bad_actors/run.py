@@ -10,6 +10,8 @@ import os
 import time
 
 from DB.schema_definition import DB
+from old_tweets_crawler.old_tweets_crawler import OldTweetsCrawler
+from preprocessing_tools.fake_news_snopes_importer.fake_news_snopes_importer import FakeNewsSnopesImporter
 from bad_actors_collector.bad_actors_collector import BadActorsCollector
 from configuration.config_class import getConfig
 from data_exporter.data_exporter import DataExporter
@@ -71,6 +73,7 @@ modules_dict["CreateAuthorTables"] = CreateAuthorTables
 modules_dict["RankAppImporter"] = RankAppImporter
 modules_dict["JSON_Importer"] = JSON_Importer
 modules_dict["CsvImporter"] = CsvImporter
+modules_dict["FakeNewsSnopesImporter"] = FakeNewsSnopesImporter
 modules_dict["GDLET_News_Importer"] = GDLET_News_Importer
 modules_dict["Twitter_Crawler"] = Twitter_Crawler
 modules_dict["MissingDataComplementor"] = MissingDataComplementor
@@ -106,7 +109,7 @@ modules_dict["DataExporter"] = DataExporter
 modules_dict["LinkPredictionEvaluator"] = LinkPredictionEvaluator
 modules_dict["ExperimentalEnvironment"] = ExperimentalEnvironment
 modules_dict["Predictor"] = Predictor
-
+modules_dict["OldTweetsCrawler"] = OldTweetsCrawler
 modules_dict["KNNWithLinkPrediction"] = KNNWithLinkPrediction
 modules_dict["Kernel_Performance_Evaluator"] = Kernel_Performance_Evaluator
 modules_dict["TopicDistrobutionVisualizationGenerator"] = TopicDistrobutionVisualizationGenerator

@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import numpy as np
 import pandas as pd
-
+import os
 from commons.commons import *
 from dataset_builder.word_embedding.abstract_word_embadding_trainer import AbstractWordEmbaddingTrainer
 

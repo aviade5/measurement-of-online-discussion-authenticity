@@ -28,6 +28,8 @@ class GensimWordEmbeddingsModelTrainer(AbstractWordEmbaddingTrainer):
     def setUp(self):
         if os.path.exists(self.file_output_path):
             os.remove(self.file_output_path)
+        if not os.path.exists(self._saved_models_path):
+            os.makedirs(self._saved_models_path)
 
     def execute(self, window_start=None):
         word_embeddings = []

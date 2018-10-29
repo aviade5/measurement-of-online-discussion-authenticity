@@ -31,7 +31,7 @@ from dataset_builder.unit_tests.word_embeddings_comparison_feature_generator_uni
 from dataset_builder.unit_tests.glove_word_embedding_model_creator_unittest import GloveWordEmbeddingModelCreatorUnittest
 from dataset_builder.unit_tests.word_embeddings_feature_generator_unittests import Word_Embeddings_Feature_Generator_Unittests
 from dataset_builder.unit_tests.test_gensim_word_embeddings_model_trainer import TestGensimWordEmbeddingsModelTrainer
-
+from old_tweets_crawler.test_old_tweets_crawler import TestOldTweetsCrawler
 from dataset_builder.unit_tests.test_image_downloader import TestImageDownloader
 if __name__ == "__main__":
     unittest.main()

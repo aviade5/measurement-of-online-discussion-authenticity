@@ -56,7 +56,7 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
             # self._db.session.dr
             pass
         except Exception as e:
-            print(e)
+            print('create new author_word_embedding table')
         engine = self._db.engine
         self._results_dataframe.to_sql(name="author_word_embeddings", con=engine, index=False, if_exists='replace')
 
