@@ -23,5 +23,5 @@ BibTex:
   * numpy
   * Scikit Learn
   * networkx
-  * pandas
+  * pandas 0.22.0
   * wordcloud
