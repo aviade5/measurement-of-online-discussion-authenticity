@@ -20,7 +20,7 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         self._include_labeled_authors_in_visualization = self._config_parser.eval(self.__class__.__name__,
                                                                                   "include_labeled_authors_in_visualization")
         self._optional_classes = self._config_parser.eval(self.__class__.__name__, "optional_classes")
-
+        self._extend_posts_by_retweets = self._config_parser.eval(self.__class__.__name__, "extend_posts_by_retweets")
         # if you have problem with config - this is it
         # font = "topic_distribution_visualization/Mukadimah.ttf"
         self._font_path = self._config_parser.eval(self.__class__.__name__, "font_path")
@@ -136,6 +136,7 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         self._db.create_topic_terms_view()
         css = self.create_wordcloud_for_charts(topic_and_data)
         data_sets = self.create_charts_script(topic_and_data)
+        self._write_topic_statistics(topic_and_data)
         whole = wrapper % (css, data_sets, self.create_body_section(len(topic_and_data)))
         f.write(whole)
         f.close()
@@ -195,16 +196,20 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         wordcloud = wordcloud.WordCloud(prefer_horizontal=1, ranks_only=True,
                                         background_color='white',
                                         mask=imread('topic_distribution_visualization/red-circle.png')).fit_words(frec)
-        picture_path = '%stopic_wordcloud/topic%s.png' % (self._viz_output_path, str(int(topic) + 1))
+        picture_path = '%stopic_wordcloud/topic%s.png' % (self._viz_output_path, topic)
         wordcloud.to_file(picture_path)
         pass
 
     def _reverse_artbic_words(self, frec):
         result = {}
         for word, frequency in frec:
-            if detect(word) == 'ar' or detect(word) == 'he':
-                result[word[::-1]] = frequency
-            else:
+            try:
+                if detect(word) == 'ar' or detect(word) == 'he':
+                    result[word[::-1]] = frequency
+                else:
+                    result[word] = frequency
+            except Exception as e:
+                print(e)
                 result[word] = frequency
         return result
 
@@ -352,3 +357,43 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
                 prediction = float(row['prediction'])
                 self._fill_author_classification(author_name, predicted, prediction, author_classification)
         return author_classification
+
+    def _write_topic_statistics(self, topic_and_data):
+        dfs = []
+        for i, topic_tuple in enumerate(topic_and_data):
+            topic_number = int(topic_tuple[0])
+            buckets = topic_tuple[2]
+            #buckets = buckets
+            #topic_buckets = ["topic_" + str(i) + "_" + str(bucket) for bucket in buckets]
+            #topic_buckets = ["topic_{0}_{1}".format(i + 1, bucket) for bucket in buckets]
+
+            df = pd.DataFrame()
+
+            posts = topic_tuple[1]['datasets'][0]['data']
+            authors = topic_tuple[1]['datasets'][1]['data']
+
+            post_author_ratios = []
+            for j, post in enumerate(posts):
+                authors_in_bucket = authors[j]
+                posts_in_bucket = posts[j]
+
+                if authors_in_bucket != 0:
+                    ratio = posts_in_bucket / float(authors_in_bucket)
+                else:
+                    ratio = -1.0
+                post_author_ratios.append(ratio)
+
+            df['authors'] = authors
+            df['posts'] = posts
+            df['post_author_ratio'] = post_author_ratios
+            df['buckets'] = buckets
+            df['topic_number'] = [topic_number] * len(buckets)
+
+            df.set_index(['topic_number', 'buckets'], inplace=True)
+            # reverse dataframe
+            df = df[::-1]
+
+            dfs.append(df)
+        topic_df = pd.concat(dfs)
+        topic_df.to_csv(self._viz_output_path + "topic_statistics.csv")
+

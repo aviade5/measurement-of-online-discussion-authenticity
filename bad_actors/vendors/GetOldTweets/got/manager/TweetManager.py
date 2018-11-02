@@ -1,15 +1,6 @@
-import cookielib
-import datetime
-import json
-import re
-import sys
-import urllib
-import urllib2
-
-from pyquery import PyQuery
-
+import urllib,urllib2,json,re,datetime,sys,cookielib
 from .. import models
-
+from pyquery import PyQuery
 
 class TweetManager:
 	
@@ -91,7 +82,7 @@ class TweetManager:
 	@staticmethod
 	def getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy):
 		url = "https://twitter.com/i/search/timeline?f=tweets&q=%s&src=typd&max_position=%s"
-		
+
 		urlGetData = ''
 		
 		if hasattr(tweetCriteria, 'username'):
@@ -115,12 +106,11 @@ class TweetManager:
 				url = "https://twitter.com/i/search/timeline?q=%s&src=typd&max_position=%s"
 		
 		
-		
 		url = url % (urllib.quote(urlGetData), refreshCursor)
 
 		headers = [
 			('Host', "twitter.com"),
-			('User-Agent', "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"),
+			('User-Agent', "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"),
 			('Accept', "application/json, text/javascript, */*; q=0.01"),
 			('Accept-Language', "de,en-US;q=0.7,en;q=0.3"),
 			('X-Requested-With', "XMLHttpRequest"),

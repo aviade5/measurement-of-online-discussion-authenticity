@@ -33,5 +33,6 @@ from dataset_builder.unit_tests.word_embeddings_feature_generator_unittests impo
 from dataset_builder.unit_tests.test_gensim_word_embeddings_model_trainer import TestGensimWordEmbeddingsModelTrainer
 from old_tweets_crawler.test_old_tweets_crawler import TestOldTweetsCrawler
 from dataset_builder.unit_tests.test_image_downloader import TestImageDownloader
+from topic_distribution_visualization.test_claim_to_topic_converter import TestClaimToTopicConverter
 if __name__ == "__main__":
     unittest.main()

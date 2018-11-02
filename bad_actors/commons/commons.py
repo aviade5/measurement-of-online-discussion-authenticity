@@ -6,6 +6,7 @@ import datetime
 import logging
 import os
 import re
+import string
 import time
 import unicodedata
 import urllib2
@@ -153,6 +154,7 @@ def compute_post_guid(post_url, author_name, str_publication_date):
     post_guid = uuid.uuid3(NULL_NAMESPACE, url.encode('utf-8'))
     str_author_guid = unicode(str(post_guid))
     return str_author_guid
+
 
 def convert_date_to_long(str_date):
     return 0
@@ -358,19 +360,20 @@ def calc_ngrams(words, minngram, maxngram):
 
 def goodbye_string(obj, encoding='utf-8'):
     """For objects leaving the system. Returns an str instance."""
-    #@review: why "leaving the system"? what is the purpose of this function?
+    # @review: why "leaving the system"? what is the purpose of this function?
     if isinstance(obj, basestring):
         if isinstance(obj, unicode):
             obj.encode(encoding, 'ignore')
     return obj
 
+
 def get_words_by_content(content):
-        words = []
-        tokenizer = SpaceTokenizer()
-        words += tokenizer.tokenize(content)
-        ##words = list(set(words))
-        #words = frozenset(words)
-        return words
+    words = []
+    tokenizer = SpaceTokenizer()
+    words += tokenizer.tokenize(content)
+    ##words = list(set(words))
+    # words = frozenset(words)
+    return words
 
 
 def euclidean_distance(vector_a, vector_b):
@@ -381,7 +384,7 @@ def euclidean_distance(vector_a, vector_b):
 def cosine_similarity(vector_a, vector_b):
     numerator = sum(a * b for a, b in zip(vector_a, vector_b))
     denominator = _square_rooted(vector_a) * _square_rooted(vector_b)
-    if denominator == 0: #check if this is right!
+    if denominator == 0:  # check if this is right!
         return 0
     return round(numerator / float(denominator), 3)
 
@@ -409,11 +412,12 @@ def jaccard_index(vector_a, vector_b):
     n = len(set_1.intersection(set_2))
     return n / float(len(set_1) + len(set_2) - n)
 
+
 def clean_word(word):
     return re.sub('[^a-zA-Z]+', '', word)
 
 
-#TODO: refactor code in link_prediction_feature_extractor
+# TODO: refactor code in link_prediction_feature_extractor
 def create_targeted_graph(graph_type):
     if (graph_type == 'undirected'):
         graph = Graph()
@@ -425,6 +429,7 @@ def create_targeted_graph(graph_type):
 
     return graph
 
+
 def fill_edges_to_graph(graph, tuples):
     edges = []
     for tuple in tuples:
@@ -435,3 +440,17 @@ def fill_edges_to_graph(graph, tuples):
         edges.append((source_author_guid, dest_author_guid, {"weight": weight}))
 
     graph.add_edges_from(edges)
+
+
+def clean_tweet(content):
+    content = content.lower()
+    exclude = set(string.punctuation)
+    content = ''.join(ch for ch in content if ch not in exclude)
+
+    content = content.replace('&amp;', '&')
+    content = content.replace(',', '')
+    content = content.replace('!', '')
+    content = content.replace('-', '')
+    content = content.replace('.', '')
+    content = re.sub(r'http\S+', '', content)
+    return content

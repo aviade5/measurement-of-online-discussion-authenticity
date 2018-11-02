@@ -425,6 +425,23 @@ class Claim_Tweet_Connection(Base):
     post_id = Column(Unicode, primary_key=True)  # crawled tweet by
 
 
+class Claim(Base):
+    __tablename__ = "claims"
+
+    claim_id = Column(Unicode, primary_key=True, index=True)
+    title = Column(Unicode, default=None)
+    description = Column(Unicode, default=None)
+    url = Column(Unicode, default=None)
+    verdict_date = Column(dt, default=None)
+    keywords = Column(Unicode, default=None)
+    domain = Column(Unicode, default=None)
+    verdict = Column(Unicode, default=None)
+
+    def __repr__(self):
+        return "<Claim(claim_id='%s', title='%s', description='%s', url='%s', vardict_date='%s', keywords='%s', domain='%s', verdicy='%s')>" % (
+            self.claim_id, self.title, self.description, self.url, self.verdict_date, self.keywords, self.domain, self.verdict)
+
+
 class DB():
     '''
     Represents the primary blackboard of the system.
@@ -1240,6 +1257,9 @@ class DB():
                 binary_exp = field_name == value
             conditions.append(binary_exp)
         return conditions
+
+    def get_claims(self):
+        return self.session.query(Claim).all()
 
     def get_table_dictionary(self, table_name):
         table = self.get_table_by_name(table_name)
@@ -2674,7 +2694,7 @@ class DB():
         rows = list(cursor.fetchall())
         return rows
 
-    def insert_or_update_authors_from_posts(self, domain, author_classify_dict, author_prop_dict):
+    def insert_or_update_authors_from_posts(self, domain, author_classify_dict, author_probability_dict):
         authors_to_update = []
         posts = self.session.query(Post).filter(Post.domain == domain).all()
         logging.info("Insert or update_authors from app importer")
@@ -2705,8 +2725,8 @@ class DB():
                     if author_sub_type is not None:
                         author.author_sub_type = author_sub_type
 
-                if author_guid in author_prop_dict:
-                    for key, value in author_prop_dict[author_guid].iteritems():
+                if author_guid in author_probability_dict:
+                    for key, value in author_probability_dict[author_guid].iteritems():
                         setattr(author, key, value)
 
                 authors_to_update.append(author)
@@ -3512,3 +3532,10 @@ class DB():
         # ans[u'max'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'max')[author_guid]
         # ans[u'np.mean'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'np.mean')[author_guid]
         return ans
+
+    def get_claim_id_posts_dict(self):
+        claim_id_posts_dict = defaultdict(list)
+        post_dict = self.get_post_dictionary()
+        for claim_id, post_id in self.get_claim_tweet_connections():
+            claim_id_posts_dict[claim_id].append(post_dict[post_id])
+        return claim_id_posts_dict

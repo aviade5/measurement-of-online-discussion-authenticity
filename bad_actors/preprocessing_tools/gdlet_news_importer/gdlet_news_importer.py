@@ -135,7 +135,7 @@ class GDLET_News_Importer(PostImporter):
         self._create_posts_list_from_urls(url_date_dict)
         self.insertPostsIntoDB()
         self._db.insert_or_update_authors_from_posts(self._domain, self._author_classify_dict,
-                                                     self._author_prop_dict)
+                                                     self._author_probability_dict)
 
     def _retrieve_top_terms_from_best_topic_and_save(self):
         top_terms = self._topic_term_manager.get_term_from_db_with_most_posts()

@@ -22,7 +22,7 @@ class PostImporter(AbstractExecutor):  # define child class
         self._listdic = []
         self._author_classify_dict = {}
         'should place the key-values from posts to put in author'
-        self._author_prop_dict = {}
+        self._author_probability_dict = {}
 
     def insertPostsIntoDB(self):
 
@@ -171,9 +171,9 @@ class PostImporter(AbstractExecutor):  # define child class
 
     def _add_property_to_author_prop_dict(self, author_guid, key, value):
         if value is not None:
-            if author_guid not in self._author_prop_dict:
-                self._author_prop_dict[author_guid] = {}
-            self._author_prop_dict[author_guid][key] = value
+            if author_guid not in self._author_probability_dict:
+                self._author_probability_dict[author_guid] = {}
+            self._author_probability_dict[author_guid][key] = value
 
     def _verify_value(self, dictItem, key):
         value = dictItem.get(key)

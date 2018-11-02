@@ -58,6 +58,7 @@ from preprocessing_tools.json_importer.json_importer import JSON_Importer
 from preprocessing_tools.post_citation_creator import PostCitationCreator
 from preprocessing_tools.rank_app_importer import RankAppImporter
 from preprocessing_tools.xml_importer import XMLImporter
+from topic_distribution_visualization.claim_to_topic_converter import ClaimToTopicConverter
 from topic_distribution_visualization.topic_distribution_visualization_generator import \
     TopicDistrobutionVisualizationGenerator
 from twitter_crawler.twitter_crawler import Twitter_Crawler
@@ -81,6 +82,7 @@ modules_dict["Load_Datasets"] = Load_Datasets
 modules_dict["Image_Tags_Extractor"] = Image_Tags_Extractor
 modules_dict["Image_Downloader"] = Image_Downloader
 modules_dict["Preprocessor"] = Preprocessor
+modules_dict["ClaimToTopicConverter"] = ClaimToTopicConverter
 modules_dict["LDATopicModel"] = LDATopicModel
 modules_dict["GloveWordEmbeddingModelCreator"] = GloveWordEmbeddingModelCreator
 modules_dict["GensimWordEmbeddingsModelTrainer"] = GensimWordEmbeddingsModelTrainer

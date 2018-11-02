@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-import codecs
-import getopt
-import sys
-
+import sys,getopt,datetime,codecs
 if sys.version_info[0] < 3:
-	pass
+    import got
 else:
-	pass
+    import got3 as got
 
 def main(argv):
 
@@ -24,7 +21,7 @@ def main(argv):
 	try:
 		opts, args = getopt.getopt(argv, "", ("username=", "near=", "within=", "since=", "until=", "querysearch=", "toptweets", "maxtweets=", "output="))
 
-		tweetCriteria = vendors.GetOldTweets.got.manager.TweetCriteria()
+		tweetCriteria = got.manager.TweetCriteria()
 		outputFileName = "output_got.csv"
 
 		for opt,arg in opts:
@@ -70,7 +67,7 @@ def main(argv):
 			outputFile.flush()
 			print('More %d saved on file...\n' % len(tweets))
 
-		vendors.GetOldTweets.got.manager.TweetManager.getTweets(tweetCriteria, receiveBuffer)
+		got.manager.TweetManager.getTweets(tweetCriteria, receiveBuffer)
 
 	except arg:
 		print('Arguments parser error, try -h' + arg)
