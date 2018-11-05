@@ -53,8 +53,7 @@ class TestXmlImporter(TestBase):
         self.xml_importer.execute(getConfig().eval("DEFAULT", "start_date"))
         self.create_author_table.setUp()
         self.create_author_table.execute(getConfig().eval("DEFAULT", "start_date"))
-        res = self.db.get_author_by_author_guid(u'5371821e67b53582bffbb293b2554dda')
-        author = res[0]
+        author = self.db.get_author_by_author_guid(u'5371821e-67b5-3582-bffb-b293b2554dda')
         self.assertTrue(
             author.xml_importer_insertion_date != None and author.bad_actors_collector_insertion_date != None)
         self.db.session.close()

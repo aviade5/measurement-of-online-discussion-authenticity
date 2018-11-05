@@ -33,12 +33,12 @@ class TestAppImporter(TestCase):
 
     def test_good_actor_inserted_to_db(self):
         self.app_importer.execute()
-        author = self._db.get_author_by_author_guid(self.good_actor_guid)[0]
+        author = self._db.get_author_by_author_guid(self.good_actor_guid)
         self.assertEqual(author.author_type, "good_actor")
 
     def test_bad_actor_inserted_to_db(self):
         self.app_importer.execute()
-        author = self._db.get_author_by_author_guid(self.bad_actor_guid)[0]
+        author = self._db.get_author_by_author_guid(self.bad_actor_guid)
         self.assertEqual(author.author_type, "bad_actor")
 
     def tearDown(self):

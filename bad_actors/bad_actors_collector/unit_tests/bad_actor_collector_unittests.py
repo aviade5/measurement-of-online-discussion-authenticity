@@ -57,14 +57,13 @@ class TestBadActorCollector(unittest.TestCase):
 
         self.db.commit()
 
-    def test___bad_actor_collector_not_overwriting_XML_importer(self):
+    def test_bad_actor_collector_not_overwriting_XML_importer(self):
         self.xml_importer.setUp()
         self.xml_importer.execute(getConfig().eval("DEFAULT","start_date"))
         self.create_author_table.setUp()
         self.create_author_table.execute(getConfig().eval("DEFAULT","start_date"))
         self._bad_actor_collector.execute()
-        res = self.db.get_author_by_author_guid_and_domain(u'5371821e-67b5-3582bffbb-293b2554dda', self._domain)
-        author = res[0]
+        author = self.db.get_author_by_author_guid(u'5371821e-67b5-3582-bffb-b293b2554dda')
         self.assertTrue(author.xml_importer_insertion_date != None and author.bad_actors_collector_insertion_date != None)
         self.db.session.close()
 
@@ -101,7 +100,7 @@ class TestBadActorCollector(unittest.TestCase):
             self._bad_actor_collector._actions = ['ggg', 'crawl_bad_actors_followers']
             self._bad_actor_collector.execute()
             author_guid = compute_author_guid_by_author_name(u'AnikaAhammed1')
-            author = self.db.get_author_by_author_guid(author_guid)[0]
+            author = self.db.get_author_by_author_guid(author_guid)
             if (author.bad_actors_collector_insertion_date == None or author.description == None):
                 test = False
         except:

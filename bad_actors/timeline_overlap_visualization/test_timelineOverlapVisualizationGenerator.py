@@ -68,8 +68,8 @@ class TestTimelineOverlapVisualizationGenerator(TestCase):
         self.timeline_overlap.setUp()
         self.timeline_overlap.generate_timeline_overlap_csv()
         author = self._db.get_author_by_author_guid(u'acquired_user')
-        self.assertEqual((author[0]).author_type,u'bad_actor')
-        self.assertEqual((author[0]).author_sub_type, u'acquired')
+        self.assertEqual(author.author_type, u'bad_actor')
+        self.assertEqual(author.author_sub_type, u'acquired')
         pass
 
     def tearDown(self):

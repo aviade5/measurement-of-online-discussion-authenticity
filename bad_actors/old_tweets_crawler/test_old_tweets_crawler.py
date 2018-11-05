@@ -33,7 +33,7 @@ class TestOldTweetsCrawler(TestCase):
                                                                     date_to_str(until_date, "%Y-%m-%d"))
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([claim_date <= date < until_date for date in tweets_date]))
-        self.assertEqual(100, len(tweets))
+        self.assertGreaterEqual(100, len(tweets))
 
     def test_retrieve_tweets_by_content_between_dates_before(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00")
@@ -49,7 +49,7 @@ class TestOldTweetsCrawler(TestCase):
                                                                     date_to_str(claim_date, "%Y-%m-%d"))
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([since_date <= date < claim_date for date in tweets_date]))
-        self.assertEqual(100, len(tweets))
+        self.assertGreaterEqual(100, len(tweets))
 
     def test_retrieve_tweets_by_content_between_dates_1_month_interval(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00")
@@ -64,7 +64,7 @@ class TestOldTweetsCrawler(TestCase):
 
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([since_date <= date < until_date for date in tweets_date]))
-        self.assertEqual(133, len(tweets))
+        self.assertGreaterEqual(133, len(tweets))
 
     def test_retrieve_tweets_by_content_between_dates_no_limit_after(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00")
@@ -79,7 +79,7 @@ class TestOldTweetsCrawler(TestCase):
 
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([since_date <= date for date in tweets_date]))
-        self.assertEqual(250, len(tweets))
+        self.assertGreaterEqual(250, len(tweets))
 
     def test_retrieve_tweets_by_content_between_dates_no_limit_before(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00")
@@ -94,7 +94,7 @@ class TestOldTweetsCrawler(TestCase):
 
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([date < until_date for date in tweets_date]))
-        self.assertEqual(250, len(tweets))
+        self.assertGreaterEqual(250, len(tweets))
 
     def test_execute_retrieve_tweets_by_full_content_1_month_interval(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00",

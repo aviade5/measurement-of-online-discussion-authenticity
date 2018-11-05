@@ -5,7 +5,7 @@ from configuration.config_class import getConfig
 from missing_data_complementor.missing_data_complementor import MissingDataComplementor
 
 
-class MissingDataComplemntorTests(TestCase):
+class MissingDataComplementorTests(TestCase):
     def setUp(self):
         self.config = getConfig()
         self._db = DB()
@@ -13,7 +13,7 @@ class MissingDataComplemntorTests(TestCase):
         self._minimal_num_of_posts = self.config.eval("MissingDataComplementor", "minimal_num_of_posts")
         self._missing_data_complemntor = MissingDataComplementor(self._db)
 
-        self._author_guid1 = u'64205a8170453edc8cf5a9f316116573'
+        self._author_guid1 = compute_author_guid_by_author_name(u'BillGates')
         author = Author()
         author.name = u'BillGates'
         author.domain = u'Microblog'
@@ -44,7 +44,7 @@ class MissingDataComplemntorTests(TestCase):
             post.xml_importer_insertion_date = datetime.datetime.now()
             self._db.addPost(post)
 
-        self._author_guid2 = u'3824f889f6e435c7bbd482faf0b6d2de'
+        self._author_guid2 = compute_author_guid_by_author_name(u'ZachServideo')
         author = Author()
         author.name = u'ZachServideo'
         author.domain = u'Microblog'
@@ -75,7 +75,7 @@ class MissingDataComplemntorTests(TestCase):
             post.xml_importer_insertion_date = datetime.datetime.now()
             self._db.addPost(post)
 
-        self._author_guid3 = u'3ac92c5a478b3bf79a6f72b947aacbee'
+        self._author_guid3 = compute_author_guid_by_author_name(u'AyexBee')
         author = Author()
         self._author_3_name = u'AyexBee'
         author.name = self._author_3_name
@@ -214,7 +214,7 @@ class MissingDataComplemntorTests(TestCase):
 
     def test_fill_data_for_sources(self):
         self._missing_data_complemntor.fill_data_for_sources()
-        author = self._db.get_author_by_author_guid(compute_author_guid_by_author_name(u"philkernick"))[0]
+        author = self._db.get_author_by_author_guid(compute_author_guid_by_author_name(u"philkernick"))
         self.assertNotEqual(author.author_osn_id, None)
         self.assertEqual(author.missing_data_complementor_insertion_date,
                          date_to_str(self._missing_data_complemntor._window_start))
@@ -241,7 +241,7 @@ class MissingDataComplemntorTests(TestCase):
     def test_fill_data_for_friends(self):
         self._missing_data_complemntor.fill_data_for_friends()
         author_guid = compute_author_guid_by_author_name(u"GeorgeSlefo")
-        author = self._db.get_author_by_author_guid(author_guid)[0]
+        author = self._db.get_author_by_author_guid(author_guid)
         self.assertEqual(author.missing_data_complementor_insertion_date,
                          date_to_str(self._missing_data_complemntor._window_start))
         self.assertNotEqual(author.description, None)
@@ -249,14 +249,14 @@ class MissingDataComplemntorTests(TestCase):
 
     def test_mark_suspended_from_twitter(self):
         self._missing_data_complemntor.mark_suspended_from_twitter()
-        author = self._db.get_author_by_author_guid(self._suspended_author_guid)[0]
+        author = self._db.get_author_by_author_guid(self._suspended_author_guid)
         self.assertEqual(author.is_suspended_or_not_exists, self._missing_data_complemntor._window_start)
         self.assertEqual(author.author_type, Author_Type.BAD_ACTOR)
 
     def test_missing_data_complimentor_with_incorrect_parameters(self):
         self._missing_data_complemntor._actions = ['ggg', 'assign_manually_labeled_authors']
         self._missing_data_complemntor.execute()
-        author = self._db.get_author_by_author_guid(self._private_author_guid)[0]
+        author = self._db.get_author_by_author_guid(self._private_author_guid)
         self.assertEqual(author.author_sub_type, "private")
         self.assertEqual(author.author_type, "good_actor")
         self._db.session.close()

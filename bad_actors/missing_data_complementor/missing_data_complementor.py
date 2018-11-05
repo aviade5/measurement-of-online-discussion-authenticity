@@ -168,7 +168,7 @@ class MissingDataComplementor(Method_Executor):
     def _update_suspended_authors_by_screen_names(self, author_names_of_suspendend_or_not_exists):
         for author_name in author_names_of_suspendend_or_not_exists:
             user_guid = compute_author_guid_by_author_name(author_name).replace("-", "")
-            suspended_author = self._db.get_author_by_author_guid(user_guid)[0]
+            suspended_author = self._db.get_author_by_author_guid(user_guid)
 
             suspended_author.is_suspended_or_not_exists = self._window_start
             suspended_author.author_type = Author_Type.BAD_ACTOR

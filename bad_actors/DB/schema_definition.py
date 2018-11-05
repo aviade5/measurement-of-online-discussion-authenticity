@@ -1502,7 +1502,7 @@ class DB():
 
     def get_author_by_author_guid(self, author_guid):
         result = self.session.query(Author).filter(Author.author_guid == author_guid).all()
-        return result
+        return result[0]
 
     def get_author_by_author_guid_and_domain(self, author_guid, domain):
         result = self.session.query(Author).filter(and_(Author.author_guid == author_guid,
