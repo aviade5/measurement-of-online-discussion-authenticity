@@ -24,7 +24,7 @@ RetweetData = namedtuple('RetweetData', ['retweet_guid', 'retweet_url', 'tweet_g
 
 class MissingDataComplementor(Method_Executor):
     def __init__(self, db):
-        AbstractExecutor.__init__(self, db)
+        Method_Executor.__init__(self, db)
         self._actions = self._config_parser.eval(self.__class__.__name__, "actions")
 
         self._minimal_num_of_posts = self._config_parser.eval(self.__class__.__name__, "minimal_num_of_posts")
@@ -43,6 +43,16 @@ class MissingDataComplementor(Method_Executor):
 
     def setUp(self):
         pass
+
+    def fill_author_guid_to_posts(self):
+        posts = self._db.get_posts()
+        num_of_posts = len(posts)
+        for i, post in enumerate(posts):
+            msg = "\rPosts to fill: [{0}/{1}]".format(i, num_of_posts)
+            print(msg, end="")
+            post.author_guid = compute_author_guid_by_author_name(post.author)
+        self._db.addPosts(posts)
+        self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
 
     def fill_data_for_followers(self):
         self._fill_data_for_author_connection_type(Author_Connection_Type.FOLLOWER)

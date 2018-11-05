@@ -113,8 +113,8 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         script += "</body>"
         return script
 
-    def creat_html_file(self, topic_and_data):
-        file_name = "test2"
+    def create_html_file(self, topic_and_data):
+        file_name = "topic_visualization"
         filename = self._viz_output_path + file_name + '.html'
         f = open(filename, 'w')
         wrapper = """ <!DOCTYPE HTML>
@@ -179,7 +179,7 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
                     {'data': number_of_authors_in_topic_distribution_dataset, 'backgroundColor': color_list}
                 ]
                 topic_data_list.append((str(topic), data, labeles))
-            self.creat_html_file(topic_data_list)
+            self.create_html_file(topic_data_list)
         except IOError as error:
             print("IOError:" + repr(error))
 

@@ -32,6 +32,7 @@ class TweetManager:
         active = True
 
         seen_tweets = set()
+        continued = 0
         while active:
             json = TweetManager.getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy)
             if len(json['items_html'].strip()) == 0:
@@ -80,6 +81,13 @@ class TweetManager:
                     results.append(tweet)
                     resultsAux.append(tweet)
                     seen_tweets.add(tweet.id)
+                    continued = 0
+                else:
+                    continued += 1
+                    if continued > 100:
+                        active = False
+                        break
+                    continue
 
                 if receiveBuffer and len(resultsAux) >= bufferLength:
                     receiveBuffer(resultsAux)

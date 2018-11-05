@@ -51,8 +51,9 @@ class OldTweetsCrawler(Method_Executor):
             for keyword in keywords:
                 tweets = self._retrieve_old_tweets(claim, keyword.lower().strip())
                 retrieved_tweets_count += self._retrieved
+                print('\rtweets retrieved {0}'.format(retrieved_tweets_count), end='')
 
-            msg = "Processing claims {0}/{1}, Retreived {2} tweets".format(str(i + 1), num_of_claims, retrieved_tweets_count)
+            msg = "\nProcessing claims {0}/{1}, Retreived {2} tweets".format(str(i + 1), num_of_claims, retrieved_tweets_count)
             print(msg)
 
     def _base_retrieve_tweets_from_claims(self, retrieve_tweets_function):
@@ -61,7 +62,7 @@ class OldTweetsCrawler(Method_Executor):
         retrieve_tweets_function(claims)
 
         self._db.addPosts(self._posts)
-        self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
+        # self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
         self._db.add_claim_connections(self._claim_post_connections)
         before_dict = self._claim_id_tweets_id_before_dict
         after_dict = self._claim_id_tweets_id_after_dict
@@ -87,7 +88,7 @@ class OldTweetsCrawler(Method_Executor):
         self._claim_post_connections += claim_connections
         if len(self._posts) > self._max_num_of_objects_without_saving:
             self._db.addPosts(self._posts)
-            self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
+            # self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
             self._db.add_claim_connections(self._claim_post_connections)
 
             self._posts = []
@@ -123,7 +124,7 @@ class OldTweetsCrawler(Method_Executor):
 
         author_name = unicode(tweet.username)
         post.author = author_name
-        post.author_guid = compute_author_guid_by_author_name(author_name)
+        # post.author_guid = compute_author_guid_by_author_name(author_name)
         post_url = tweet.permalink
         post.url = unicode(post_url)
 

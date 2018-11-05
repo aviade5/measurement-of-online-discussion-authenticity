@@ -1763,7 +1763,6 @@ class DB():
     def convert_twitter_user_to_author(self, osn_user, targeted_social_network, author_type, inseration_type):
         author_screen_name = unicode(osn_user.screen_name)
         author_guid = compute_author_guid_by_author_name(author_screen_name)
-        author_guid = cleanForAuthor(author_guid)
         domain = Domains.MICROBLOG
         result = self.get_author_by_author_guid_and_domain(author_guid, domain)
         if len(result) == 0:
@@ -2719,11 +2718,11 @@ class DB():
                     author.author_type = author_classify_dict[author_name]
 
                 post_type = post.post_type
-                if post_type is not None:
-                    targeted_classes = post_type.split('/')
-                    author_sub_type = targeted_classes[0]
-                    if author_sub_type is not None:
-                        author.author_sub_type = author_sub_type
+                # if post_type is not None:
+                #     targeted_classes = post_type.split('/')
+                #     author_sub_type = targeted_classes[0]
+                #     if author_sub_type is not None:
+                #         author.author_sub_type = author_sub_type
 
                 if author_guid in author_probability_dict:
                     for key, value in author_probability_dict[author_guid].iteritems():
