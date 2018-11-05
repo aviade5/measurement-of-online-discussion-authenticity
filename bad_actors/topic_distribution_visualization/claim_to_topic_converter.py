@@ -8,7 +8,7 @@ from dataset_builder.feature_extractor.feature_argument_parser import ArgumentPa
 class ClaimToTopicConverter(ArgumentParser):
     def __init__(self, db):
         super(ClaimToTopicConverter, self).__init__(db)
-        self._json_output_path = self._config_parser.eval(self.__class__.__name__, "json_output_path")
+        self._output_path = self._config_parser.eval(self.__class__.__name__, "output_path")
         self.term_dictionary = {}
         self._last_term_index = 0
         self._num_topics = 0
@@ -66,7 +66,7 @@ class ClaimToTopicConverter(ArgumentParser):
         table_name = u'claims'
         id_name = u'claim_id'
         json_str = json.dumps(self._claim_id_topic_dict, ensure_ascii=False)
-        json_file = open('{2}{0}_{1}_topic_id_json.json'.format(table_name, id_name, self._json_output_path), 'w')
+        json_file = open('{2}{0}_{1}_topic_id_json.json'.format(table_name, id_name, self._output_path), 'w')
         json_file.write(json_str)
 
     def _add_claim_id_topic_id_to_author_connections(self):
