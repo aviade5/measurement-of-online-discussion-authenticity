@@ -132,7 +132,7 @@ class XMLImporter(PostImporter):
                                 try:
                                     if art_child.tagName == 'author':
                                         dictionary.update(
-                                            {'author': createunicodedata(cleanForAuthor(art_child.firstChild.data))})
+                                            {'author': createunicodedata(art_child.firstChild.data)})
                                         author = True
                                 except:
                                     # the author will be NULL
@@ -141,9 +141,9 @@ class XMLImporter(PostImporter):
 
                                 try:
                                     if art_child.tagName == 'authorGuid':
-                                        dictionary.update({'author_guid': cleanForAuthor(art_child.firstChild.data)})
+                                        dictionary.update({'author_guid': art_child.firstChild.data})
                                         if (author == False):
-                                            dictionary.update({'author': cleanForAuthor(art_child.firstChild.data)})
+                                            dictionary.update({'author': art_child.firstChild.data})
                                 except:
                                     self.logger.error("missing author GUID in file: {0}".format(file_path))
 

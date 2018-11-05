@@ -45,16 +45,19 @@ class OldTweetsCrawler(Method_Executor):
     def _retrieve_tweets_from_claims_by_keywords(self, claims):
         num_of_claims = len(claims)
         for i, claim in enumerate(claims):
-            keywords_str = claim.keywords
-            keywords = keywords_str.split(",")
-            retrieved_tweets_count = 0
-            for keyword in keywords:
-                tweets = self._retrieve_old_tweets(claim, keyword.lower().strip())
-                retrieved_tweets_count += self._retrieved
-                print('\rtweets retrieved {0}'.format(retrieved_tweets_count), end='')
+            self._get_tweets_for_claim_by_keywords(claim, i, num_of_claims)
 
-            msg = "\nProcessing claims {0}/{1}, Retreived {2} tweets".format(str(i + 1), num_of_claims, retrieved_tweets_count)
-            print(msg)
+    def _get_tweets_for_claim_by_keywords(self, claim, i, num_of_claims):
+        keywords_str = claim.keywords
+        keywords = keywords_str.split(",")
+        retrieved_tweets_count = 0
+        for keyword in keywords:
+            tweets = self._retrieve_old_tweets(claim, keyword.lower().strip())
+            retrieved_tweets_count += self._retrieved
+            print('\rtweets retrieved {0}'.format(retrieved_tweets_count), end='')
+        msg = "\nProcessing claims {0}/{1}, Retreived {2} tweets".format(str(i + 1), num_of_claims,
+                                                                         retrieved_tweets_count)
+        print(msg)
 
     def _base_retrieve_tweets_from_claims(self, retrieve_tweets_function):
         claims = self._db.get_claims()

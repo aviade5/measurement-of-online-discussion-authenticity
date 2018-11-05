@@ -344,8 +344,6 @@ class MissingDataComplementor(Method_Executor):
                             continue
                         posts_counter = posts_counter + 1
                         tweet_author_guid = compute_author_guid_by_author_name(author_name)
-                        tweet_author_guid = cleanForAuthor(tweet_author_guid)
-                        tweet_content = post.text
                         post = self._db.create_post_from_tweet_data(post, self._domain)
                         posts.append(post)
             except Exception as e:

@@ -128,7 +128,7 @@ class TsvImporter(PostImporter):
         dictionary.update({'content': unicode(cleaner(row['Content']), 'utf-8', errors='ignore')})
         author = unicode(cleanForAuthor(row['Author']), 'utf-8', errors='ignore')
         dictionary.update({'author': author})
-        dictionary.update({'author_guid': unicode(cleaner(row['Author GUID']), 'utf-8', errors='ignore')})
+        dictionary.update({'author_guid': unicode(row['Author GUID'], 'utf-8', errors='ignore')})
         unicodeURL = normalize_url(unicode(cleaner(row['URL']), 'utf-8', errors='ignore'))
         dictionary.update({'url': unicodeURL})
         return haslinkes, unicodeURL

@@ -1,5 +1,7 @@
 # Created by Aviad at 10/04/2016
+from __future__ import print_function
 import os
+import random
 import re
 import copy
 from itertools import combinations
@@ -17,22 +19,22 @@ from sympy.stats.rv import probability
 import xgboost as xgb
 from sklearn import tree,svm
 from sklearn.preprocessing import RobustScaler, StandardScaler, MinMaxScaler
-from sklearn.feature_selection import SelectKBest, f_classif, mutual_info_classif
+from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.pipeline import make_pipeline
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score,confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, precision_score, recall_score,confusion_matrix, precision_recall_fscore_support
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.externals import joblib
 
 from commons.commons import *
-from preprocessing_tools.abstract_controller import AbstractController
+from commons.method_executor import Method_Executor
 from commons.data_frame_creator import DataFrameCreator
 from commons.consts import PerformanceMeasures, Classifiers
 
-class ExperimentalEnvironment(AbstractController):
+class ExperimentalEnvironment(Method_Executor):
 
     def __init__(self, db):
-        AbstractController.__init__(self, db)
+        Method_Executor.__init__(self, db)
 
         self._performance_measures = [PerformanceMeasures.AUC,
                                       PerformanceMeasures.ACCURACY,
@@ -44,9 +46,7 @@ class ExperimentalEnvironment(AbstractController):
                                       PerformanceMeasures.INCORRECTLY_CLASSIFIED
                                       ]
 
-        self._perform_k_fold_cross_validation_and_predict = self._config_parser.eval(self.__class__.__name__, "perform_k_fold_cross_validation_and_predict")
-        self._predict_on_prepared_clssifier = self._config_parser.eval(self.__class__.__name__, "predict_on_prepared_clssifier")
-
+        self._divide_lableled_by_percent_training_size = self._config_parser.eval(self.__class__.__name__, "divide_lableled_by_percent_training_size")
         self._k_for_fold = self._config_parser.eval(self.__class__.__name__, "k_for_fold")
         self._classifier_type_names = self._config_parser.eval(self.__class__.__name__, "classifier_type_names")
         self._selected_features = self._config_parser.eval(self.__class__.__name__, "selected_features")
@@ -60,601 +60,692 @@ class ExperimentalEnvironment(AbstractController):
         self._backup_path = self._config_parser.get(self.__class__.__name__, "backup_path")
         self._num_of_features_to_train = self._config_parser.eval(self.__class__.__name__, "num_of_features_to_train")
         self._full_path_model_directory = self._config_parser.get(self.__class__.__name__, "full_path_model_directory")
+        self._prepared_classifier_name = self._config_parser.get(self.__class__.__name__, "prepared_classifier_name")
         #self._fill_predictions_to_unlabeled_authors = self.config_parser.eval(self.__class__.__name__, "fill_predictions_to_unlabeled_authors")
         self._column_names_for_results_table = self._config_parser.eval(self.__class__.__name__, "column_names_for_results_table")
         self._results_table_file_name = self._config_parser.get(self.__class__.__name__, "results_table_file_name")
 
-        self._prepared_classifier_name = self._config_parser.get(self.__class__.__name__, "prepared_classifier_name")
+        #self._prepared_classifier_name = self._config_parser.get(self.__class__.__name__, "prepared_classifier_name")
         self._targeted_class_name = self._config_parser.get(self.__class__.__name__, "targeted_class_name")
-        self._num_of_features = self._config_parser.eval(self.__class__.__name__, "num_of_features")
-        self._classifier_type_name = self._config_parser.get(self.__class__.__name__, "classifier_type_name")
-        self._train_one_class_classifier_and_predict = self._config_parser.eval(self.__class__.__name__, "train_one_class_classifier_and_predict")
-        self._train_one_class_classifier_by_k_best_and_predict = self._config_parser.eval(self.__class__.__name__, "train_one_class_classifier_by_k_best_and_predict")
+        #self._num_of_features = self._config_parser.eval(self.__class__.__name__, "num_of_features")
+        self._classifier_type_names = self._config_parser.eval(self.__class__.__name__, "classifier_type_names")
+        self._trained_classifier_type_name = self._config_parser.get(self.__class__.__name__, "trained_classifier_type_name")
+        self._trained_classifier_num_of_features = self._config_parser.eval(self.__class__.__name__, "trained_classifier_num_of_features")
+
+
+        #self._train_one_class_classifier_and_predict = self._config_parser.eval(self.__class__.__name__, "train_one_class_classifier_and_predict")
+        #self._train_one_class_classifier_by_k_best_and_predict = self._config_parser.eval(self.__class__.__name__, "train_one_class_classifier_by_k_best_and_predict")
 
         self._replace_missing_values = self._config_parser.eval(self.__class__.__name__,"replace_missing_values")
-        self._transfer_learning = self._config_parser.eval(self.__class__.__name__, "transfer_learning")
-        self._transfer_algo = self._config_parser.eval(self.__class__.__name__, "transfer_algo")
-        self._num_neighbors = self._config_parser.eval(self.__class__.__name__, "num_neighbors")
+        #self._transfer_learning = self._config_parser.eval(self.__class__.__name__, "transfer_learning")
+        #self._transfer_algo = self._config_parser.eval(self.__class__.__name__, "transfer_algo")
+        #self._num_neighbors = self._config_parser.eval(self.__class__.__name__, "num_neighbors")
 
         self._num_iterations = self._config_parser.eval(self.__class__.__name__, "num_iterations")
-        self._source_domains = self._config_parser.eval(self.__class__.__name__, "source_domains")
-        self._source_input_type = self._config_parser.eval(self.__class__.__name__, "source_input_type")
-        self._source_input_path = self._config_parser.eval(self.__class__.__name__, "source_input_path")
-
-        self._target_train_test_split = self._config_parser.eval(self.__class__.__name__, "target_train_test_split")
-        self._target_train_percent_limit = self._config_parser.eval(self.__class__.__name__, "target_train_percent_limit")
-        self._target_test_percent_limit = self._config_parser.eval(self.__class__.__name__, "target_test_percent_limit")
-        self._transfer_instances = self._config_parser.eval(self.__class__.__name__, "transfer_instances")
-
-
-        self._target_domains = self._config_parser.eval(self.__class__.__name__, "target_domains")
-        self._target_input_type = self._config_parser.eval(self.__class__.__name__, "target_input_type")
-        self._target_input_path = self._config_parser.eval(self.__class__.__name__, "target_input_path")
-        self._feature_scaling = self._config_parser.eval(self.__class__.__name__, "feature_scaling")
-        self._feature_selection = self._config_parser.eval(self.__class__.__name__, "feature_selection")
-
-        self._stdev_threshold = self._config_parser.eval(self.__class__.__name__, "stdev_threshold")
+        self._num_of_iterations = self._config_parser.eval(self.__class__.__name__, "num_of_iterations")
+       #  self._source_domains = self._config_parser.eval(self.__class__.__name__, "source_domains")
+       #  self._source_input_type = self._config_parser.eval(self.__class__.__name__, "source_input_type")
+       #  self._source_input_path = self._config_parser.eval(self.__class__.__name__, "source_input_path")
+       #
+       #  self._target_train_test_split = self._config_parser.eval(self.__class__.__name__, "target_train_test_split")
+       #  self._target_train_percent_limit = self._config_parser.eval(self.__class__.__name__, "target_train_percent_limit")
+       #  self._target_test_percent_limit = self._config_parser.eval(self.__class__.__name__, "target_test_percent_limit")
+       #  self._transfer_instances = self._config_parser.eval(self.__class__.__name__, "transfer_instances")
+       #
+       #
+       #  self._target_domains = self._config_parser.eval(self.__class__.__name__, "target_domains")
+       #  self._target_input_type = self._config_parser.eval(self.__class__.__name__, "target_input_type")
+       #  self._target_input_path = self._config_parser.eval(self.__class__.__name__, "target_input_path")
+       #  self._feature_scaling = self._config_parser.eval(self.__class__.__name__, "feature_scaling")
+       #  self._feature_selection = self._config_parser.eval(self.__class__.__name__, "feature_selection")
+       #
+       #  self._stdev_threshold = self._config_parser.eval(self.__class__.__name__, "stdev_threshold")
 
         self._target_class_classifier_dictionary = {}
 
     def set_up(self):
         pass
 
-    def execute(self, window_start=None):
-        start_time = time.time()
-        logging.info("execute started for " + self.__class__.__name__ + " started at " + str(start_time))
+    def divide_to_training_and_test_by_percent_random(self):
+        print("Running divide_to_training_and_test_by_percent_random")
+        author_features_dataframe = self._get_author_features_dataframe()
+        labeled_authors_df = retreive_labeled_authors_dataframe(self._targeted_class_name,
+                                                                        author_features_dataframe)
 
-        if self._perform_k_fold_cross_validation_and_predict:
-            self._target_class_classifier_dictionary = self._create_target_class_classifier_dictionary()
-            self._max_classifier_dictionary = self._init_max_classifier_dict()
+        targeted_class_dfs = self._create_labeled_dfs(labeled_authors_df)
 
-            author_features_dataframe = self._get_author_features_dataframe()
+        column_names = list(labeled_authors_df.columns.values)
+        result_tuples = []
+        for classifier_type_name in self._classifier_type_names:
+            for num_of_features in self._num_of_features_to_train:
+                for training_size_percent in self._divide_lableled_by_percent_training_size:
+                    for i in range(self._num_of_iterations):
 
-            unlabeled_features_dataframe = self._retreive_unlabeled_authors_dataframe(author_features_dataframe)
-            unlabeled_features_dataframe, unlabeled_targeted_class_series, unlabeled_index_field_series = \
-                self._prepare_dataframe_for_learning(unlabeled_features_dataframe)
+                        msg = "\r Classifier: {0}, #features: {1}, training size: {2}, iteration: {3}".format(classifier_type_name, num_of_features, training_size_percent, i)
+                        print(msg, end="")
 
+                        training_df = self._build_training_set(training_size_percent, targeted_class_dfs)
 
-            labeled_features_dataframe = retreive_labeled_authors_dataframe(self._targeted_class_name, author_features_dataframe)
+                        training_df, training_targeted_class_series, training_index_field_series = self._prepare_dataframe_for_learning(training_df)
 
-            labeled_features_dataframe, targeted_class_series, index_field_series = \
-                self._prepare_dataframe_for_learning(labeled_features_dataframe)
+                        training_df_indexes = training_df.index.tolist()
 
-            self._current_classifier_performance_dict = {}
+                        test_df = labeled_authors_df[~labeled_authors_df.index.isin(training_df_indexes)]
 
+                        test_df, test_targeted_class_series, test_index_field_series = self._prepare_dataframe_for_learning(test_df)
 
-            for classifier_type_name in self._classifier_type_names:
-                for num_of_features in self._num_of_features_to_train:
-                    targeted_dataframe, dataframe_column_names = self._reduce_dimensions_by_num_of_features(labeled_features_dataframe, targeted_class_series, num_of_features)
+                        training_df, training_df_column_names = self._reduce_dimensions_by_num_of_features(training_df, training_targeted_class_series, num_of_features)
 
-                    self._set_selected_features_into_dictionary(classifier_type_name, num_of_features, dataframe_column_names)
-                    print("classifier_type_name = " + classifier_type_name)
-                    selected_classifier = self._select_classifier_by_type(classifier_type_name)
+                        selected_classifier = self._select_classifier_by_type(classifier_type_name)
 
-                    if selected_classifier is not None:
+                        selected_classifier.fit(training_df, training_targeted_class_series)
 
-                        k_folds, valid_k = self._select_valid_k(targeted_class_series)
+                        columns_to_remove = list(set(column_names) - set(training_df_column_names))
+                        test_df = self._remove_features(columns_to_remove, test_df)
 
-                        print("Valid k is: " + str(valid_k))
-                        i = 0
-                        for train_indexes, test_indexes in k_folds:
-                            i+= 1
-                            print("i = " + str(i))
+                        if classifier_type_name == "XGBoost":
+                            test_df = self._set_dataframe_columns_types(test_df)
 
-                            train_set_dataframe, test_set_dataframe, train_class, test_class = self._create_train_and_test_dataframes_and_classes(targeted_dataframe,
-                                                                               train_indexes, test_indexes,targeted_class_series)
+                        predictions = selected_classifier.predict(test_df)
+                        #predictions_proba = selected_classifier.predict_proba(test_df)
 
 
-                            selected_classifier.fit(train_set_dataframe, train_class)
+                        try:
+                            auc_score = roc_auc_score(test_targeted_class_series, predictions)
+                        except:
+                            auc_score = -1
+                        accuracy = accuracy_score(test_targeted_class_series, predictions)
+                        f1 = f1_score(test_targeted_class_series, predictions)
+                        precision = precision_score(test_targeted_class_series, predictions)
+                        recall = recall_score(test_targeted_class_series, predictions)
+                        conf_matrix = confusion_matrix(test_targeted_class_series, predictions)
 
-                            predictions = selected_classifier.predict(test_set_dataframe)
-                            predictions_proba = selected_classifier.predict_proba(test_set_dataframe)
+                        result_tuple = (classifier_type_name, num_of_features, training_size_percent, i, auc_score, accuracy, f1, precision, recall, conf_matrix, training_df_column_names)
+                        result_tuples.append(result_tuple)
 
-                            classes = selected_classifier.classes_
+            df = pd.DataFrame(result_tuples, columns=['Classifier', '#Features', "%Training Size", "#Iteration", "AUC", "Accuracy", "F1", "Precision", "Recall", "Confusion Matrix", "Selected Features"])
+            df.to_csv(self._path + self._results_table_file_name, index=None)
 
-                            for performance_measure in self._performance_measures:
-                                self._update_performance_measures(classifier_type_name,num_of_features,
-                                                                  predictions, predictions_proba, performance_measure,
-                                                                  test_class, classes)
+    def perform_k_fold_cross_validation_and_predict(self):
+        self._target_class_classifier_dictionary = self._create_target_class_classifier_dictionary()
+        self._max_classifier_dictionary = self._init_max_classifier_dict()
 
-                        self._calculate_average_for_performance_measures(classifier_type_name, valid_k, num_of_features)
+        author_features_dataframe = self._get_author_features_dataframe()
 
-            self._write_results_into_file()
-            self._write_results_as_table()
+        unlabeled_features_dataframe = self._retreive_unlabeled_authors_dataframe(author_features_dataframe)
+        unlabeled_features_dataframe, unlabeled_targeted_class_series, unlabeled_index_field_series = \
+            self._prepare_dataframe_for_learning(unlabeled_features_dataframe)
 
-            if not unlabeled_features_dataframe.empty:
-                self._create_best_classifier_train_save_and_predict(labeled_features_dataframe, targeted_class_series,
-                                                                unlabeled_features_dataframe, unlabeled_index_field_series,
+        labeled_features_dataframe = retreive_labeled_authors_dataframe(self._targeted_class_name,
+                                                                        author_features_dataframe)
+
+        labeled_features_dataframe, targeted_class_series, index_field_series = \
+            self._prepare_dataframe_for_learning(labeled_features_dataframe)
+
+        self._current_classifier_performance_dict = {}
+
+        for classifier_type_name in self._classifier_type_names:
+            for num_of_features in self._num_of_features_to_train:
+                targeted_dataframe, dataframe_column_names = self._reduce_dimensions_by_num_of_features(
+                    labeled_features_dataframe, targeted_class_series, num_of_features)
+
+                self._set_selected_features_into_dictionary(classifier_type_name, num_of_features,
+                                                            dataframe_column_names)
+                print("classifier_type_name = " + classifier_type_name)
+                selected_classifier = self._select_classifier_by_type(classifier_type_name)
+
+                if selected_classifier is not None:
+
+                    k_folds, valid_k = self._select_valid_k(targeted_class_series)
+
+                    print("Valid k is: " + str(valid_k))
+                    i = 0
+                    for train_indexes, test_indexes in k_folds:
+                        i += 1
+                        print("i = " + str(i))
+
+                        train_set_dataframe, test_set_dataframe, train_class, test_class = self._create_train_and_test_dataframes_and_classes(
+                            targeted_dataframe,
+                            train_indexes, test_indexes, targeted_class_series)
+
+                        selected_classifier.fit(train_set_dataframe, train_class)
+
+                        predictions = selected_classifier.predict(test_set_dataframe)
+                        predictions_proba = selected_classifier.predict_proba(test_set_dataframe)
+
+                        classes = selected_classifier.classes_
+
+                        for performance_measure in self._performance_measures:
+                            self._update_performance_measures(classifier_type_name, num_of_features,
+                                                              predictions, predictions_proba, performance_measure,
+                                                              test_class, classes)
+
+                    self._calculate_average_for_performance_measures(classifier_type_name, valid_k, num_of_features)
+
+        self._write_results_into_file()
+        self._write_results_as_table()
+
+        if not unlabeled_features_dataframe.empty:
+            self._create_best_classifier_train_save_and_predict(labeled_features_dataframe, targeted_class_series,
+                                                                unlabeled_features_dataframe,
+                                                                unlabeled_index_field_series,
                                                                 unlabeled_targeted_class_series)
-            else:
-                print("The dataset is not include unlabeled authors!! so that is it!!")
+        else:
+            print("The dataset is not include unlabeled authors!! so that is it!!")
 
-        elif self._predict_on_prepared_clssifier == True:
-            selected_classifier = self._get_trained_classifier()
 
-            author_features_dataframe = self._get_author_features_dataframe()
-            unlabeled_features_dataframe = self._retreive_unlabeled_authors_dataframe(author_features_dataframe)
-            unlabeled_features_dataframe, unlabeled_targeted_class_series, unlabeled_index_field_series = \
-                self._prepare_dataframe_for_learning(unlabeled_features_dataframe)
+    def predict_on_prepared_clssifier(self):
+        selected_classifier = self._get_trained_classifier()
 
-            unlabeled_features_dataframe, dataframe_column_names = self._reduce_dimensions_by_num_of_features(
-                unlabeled_features_dataframe, unlabeled_targeted_class_series, self._num_of_features)
+        author_features_dataframe = self._get_author_features_dataframe()
+        unlabeled_features_dataframe = self._retreive_unlabeled_authors_dataframe(author_features_dataframe)
+        unlabeled_features_dataframe, unlabeled_targeted_class_series, unlabeled_index_field_series = \
+            self._prepare_dataframe_for_learning(unlabeled_features_dataframe)
 
-            predictions_series, predictions_proba_series = self._predict_classifier(selected_classifier,
-                                                                                    unlabeled_features_dataframe)
+        #unlabeled_features_dataframe, dataframe_column_names = self._reduce_dimensions_by_num_of_features(
+        #    unlabeled_features_dataframe, unlabeled_targeted_class_series, self._num_of_features)
 
-            self._write_predictions_into_file(self._classifier_type_name, self._num_of_features,
-                                              unlabeled_index_field_series, predictions_series,
-                                              predictions_proba_series)
+        predictions_series, predictions_proba_series = self._predict_classifier(selected_classifier,
+                                                                                unlabeled_features_dataframe)
 
-        elif self._train_one_class_classifier_and_predict == True:
+        self._write_predictions_into_file(self._trained_classifier_type_name, self._trained_classifier_num_of_features,
+                                          unlabeled_index_field_series, predictions_series,
+                                          predictions_proba_series)
 
-            self._one_class_column_names = ['Combination', '#Bad_Actors_Training_Set',
-                                            '#Bad_Actors_Errors_Test_Set', 'STDEV_Bad_Actors_Errors_Test_Set',
-                                            '#Bad_Actors_Corrected_Test_Set', 'STDEV_Bad_Actors_Corrected_Test_Set',
-                                            '#Good_Actors_Errors_Test_Set', 'STDEV_Good_Actors_Errors_Test_Set',
-                                            '#Good_Actors_Errors_Test_Set', 'STDEV_Good_Actors_Errors_Test_Set',
-                                            '#Total_Test_Set'
-                                            ]
+    def train_one_class_classifier_and_predict(self):
+        self._one_class_column_names = ['Combination', '#Bad_Actors_Training_Set',
+                                        '#Bad_Actors_Errors_Test_Set', 'STDEV_Bad_Actors_Errors_Test_Set',
+                                        '#Bad_Actors_Corrected_Test_Set', 'STDEV_Bad_Actors_Corrected_Test_Set',
+                                        '#Good_Actors_Errors_Test_Set', 'STDEV_Good_Actors_Errors_Test_Set',
+                                        '#Good_Actors_Errors_Test_Set', 'STDEV_Good_Actors_Errors_Test_Set',
+                                        '#Total_Test_Set'
+                                        ]
 
-            self._one_class_dict = self._create_one_class_dictionary()
+        self._one_class_dict = self._create_one_class_dictionary()
 
-            labeled_features_dataframe, unlabeled_features_dataframe, targeted_class_series, \
-            unlabeled_targeted_class_series, unlabeled_index_field_series = self._create_labeled_and_unlabeled_based_on_author_features()
+        labeled_features_dataframe, unlabeled_features_dataframe, targeted_class_series, \
+        unlabeled_targeted_class_series, unlabeled_index_field_series = self._create_labeled_and_unlabeled_based_on_author_features()
 
-            #path = self._path + "labeled_features_dataframe.txt"
-            #labeled_features_dataframe.to_csv(path, sep=',')
+        # path = self._path + "labeled_features_dataframe.txt"
+        # labeled_features_dataframe.to_csv(path, sep=',')
+
+        feature_names = list(labeled_features_dataframe.columns.values)
+        self._train_one_class_classifiers_for_each_combination(labeled_features_dataframe, targeted_class_series)
+
+        one_class_result_dataframe = pd.DataFrame(self._one_class_dict, columns=self._one_class_column_names)
+
+        full_path = self._path + "one_class_results.csv"
+        # results_dataframe.to_csv(full_path)
+        one_class_result_dataframe.to_csv(full_path, index=False)
+
+        best_combination_elements = self._find_best_combination(one_class_result_dataframe)
+
+        labeled_features_dataframe, unlabeled_features_dataframe = self._create_labeled_and_unlabeled_based_on_combination(
+            best_combination_elements, feature_names,
+            labeled_features_dataframe, unlabeled_features_dataframe)
+
+        one_class_classifier = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
+
+        one_class_classifier.fit(labeled_features_dataframe)
+        unlabeled_predictions = one_class_classifier.predict(unlabeled_features_dataframe)
+        distances = one_class_classifier.decision_function(unlabeled_features_dataframe)
+
+        self._write_predictions_into_file("one_class", str(len(best_combination_elements)),
+                                          unlabeled_index_field_series,
+                                          unlabeled_predictions, distances)
+
+    def train_one_class_classifier_by_k_best_and_predict(self):
+        self._one_class_column_names = ['Combination', 'Num_of_features', '#Bad_Actors_Training_Set',
+                                        '#Errors_Bad_Actors_Test_Set',
+                                        'STDEV_Bad_Actors_Errors_Test_Set', '#Corrected_Bad_Actors_Test_Set',
+                                        'STDEV_Corrected_Bad_Actors_Test_Set',
+                                        '#Errors_Good_Actors_Test_Set', 'STDEV_Good_Actors_Errors_Test_Set',
+                                        '#Corrects_Good_Actors_Test_Set', 'STDEV_Good_Actors_Corrects_Test_Set',
+                                        '#Errors_Test_Set', 'STDEV_Errors_Test_Set',
+                                        '#Corrects_Test_Set', 'STDEV_Corrects_Test_Set',
+                                        '#Total_Test_Set']
+
+        self._one_class_dict = self._create_one_class_dictionary()
+
+        labeled_features_dataframe, unlabeled_features_dataframe, unlabeled_targeted_class_series, \
+        unlabeled_index_field_series = self._create_unlabeled_authors_dataframe_and_raw_labeled_authors_dataframe()
+
+        good_actors_dataframe = labeled_features_dataframe.loc[
+            labeled_features_dataframe[self._targeted_class_name] == 'good_actor']
+        manually_bad_actors_dataframe = labeled_features_dataframe.loc[
+            (labeled_features_dataframe[self._targeted_class_name] == 'bad_actor') & (
+            labeled_features_dataframe['author_sub_type'].isnull())]
+        isis_bad_actors_dataframe = labeled_features_dataframe.loc[
+            (labeled_features_dataframe[self._targeted_class_name] == 'bad_actor') & (
+            labeled_features_dataframe['author_sub_type'] == 'ISIS_terrorist')]
+
+        good_actors_dataframe, good_actors_targeted_class_series, good_actors_index_field_series = \
+            self._prepare_dataframe_for_learning(good_actors_dataframe)
+
+        isis_bad_actors_dataframe, isis_bad_actors_targeted_class_series, isis_bad_actors_index_field_series = \
+            self._prepare_dataframe_for_learning(isis_bad_actors_dataframe)
+
+        for num_of_features in self._num_of_features_to_train:
+            reduced_isis_bad_actors_dataframe, selected_column_names = self._reduce_dimensions_by_num_of_features(
+                isis_bad_actors_dataframe, isis_bad_actors_targeted_class_series, num_of_features)
 
             feature_names = list(labeled_features_dataframe.columns.values)
-            self._train_one_class_classifiers_for_each_combination(labeled_features_dataframe, targeted_class_series)
+            best_combination_set = set(selected_column_names)
+            feature_names_set = set(feature_names)
+            features_to_remove_set = feature_names_set - best_combination_set
+            features_to_remove = list(features_to_remove_set)
+
+            reduced_good_actors_dataframe = self._remove_features(features_to_remove, good_actors_dataframe.copy())
+
+            combination_name = "+".join(selected_column_names)
+            self._one_class_dict['Combination'].append(combination_name)
+            self._one_class_dict['Num_of_features'].append(num_of_features)
+
+            isis_bad_actors_training_set_size_count = 0
+            isis_bad_actors_test_set_size_count = 0
+            good_actors_test_set_size_count = 0
+
+            bad_actors_test_set_errors_count = 0
+            bad_actors_test_set_errors = []
+            bad_actors_test_set_corrects_count = 0
+            bad_actors_test_set_corrects = []
 
+            good_actors_test_set_errors_count = 0
+            good_actors_test_set_errors = []
+            good_actors_test_set_corrects_count = 0
+            good_actors_test_set_corrects = []
 
-            one_class_result_dataframe = pd.DataFrame(self._one_class_dict, columns=self._one_class_column_names)
+            total_test_set_errors_count = 0
+            total_test_set_errors = []
 
-            full_path = self._path + "one_class_results.csv"
-            # results_dataframe.to_csv(full_path)
-            one_class_result_dataframe.to_csv(full_path, index=False)
+            total_test_set_corrects_count = 0
+            total_test_set_corrects = []
 
-            best_combination_elements = self._find_best_combination(one_class_result_dataframe)
+            test_set_total = 0
 
-            labeled_features_dataframe, unlabeled_features_dataframe = self._create_labeled_and_unlabeled_based_on_combination(best_combination_elements, feature_names,
-                                                           labeled_features_dataframe, unlabeled_features_dataframe)
+            k_folds, valid_k = self._select_valid_k(isis_bad_actors_targeted_class_series)
+            for train_indexes, test_indexes in k_folds:
+                isis_bad_actors_train_set_dataframe, isis_bad_actors_test_set_dataframe, train_class, test_class = self._create_train_and_test_dataframes_and_classes(
+                    reduced_isis_bad_actors_dataframe,
+                    train_indexes, test_indexes,
+                    isis_bad_actors_targeted_class_series)
+                training_size = isis_bad_actors_train_set_dataframe.shape[0]
+                isis_bad_actors_training_set_size_count += training_size
 
+                isis_bad_actors_test_set_size = isis_bad_actors_test_set_dataframe.shape[0]
+                isis_bad_actors_test_set_size_count += isis_bad_actors_test_set_size
 
-            one_class_classifier = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
+                good_actors_test_set_size = reduced_good_actors_dataframe.shape[0]
+                good_actors_test_set_size_count += good_actors_test_set_size
 
-            one_class_classifier.fit(labeled_features_dataframe)
-            unlabeled_predictions = one_class_classifier.predict(unlabeled_features_dataframe)
-            distances = one_class_classifier.decision_function(unlabeled_features_dataframe)
+                one_class_classifier = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
 
-            self._write_predictions_into_file("one_class", str(len(best_combination_elements)), unlabeled_index_field_series,
-                                              unlabeled_predictions, distances)
+                one_class_classifier.fit(isis_bad_actors_train_set_dataframe)
 
-        elif self._train_one_class_classifier_by_k_best_and_predict == True:
-            self._one_class_column_names = ['Combination', 'Num_of_features', '#Bad_Actors_Training_Set', '#Errors_Bad_Actors_Test_Set',
-                                            'STDEV_Bad_Actors_Errors_Test_Set', '#Corrected_Bad_Actors_Test_Set',
-                                            'STDEV_Corrected_Bad_Actors_Test_Set',
-                                            '#Errors_Good_Actors_Test_Set', 'STDEV_Good_Actors_Errors_Test_Set',
-                                            '#Corrects_Good_Actors_Test_Set', 'STDEV_Good_Actors_Corrects_Test_Set',
-                                            '#Errors_Test_Set', 'STDEV_Errors_Test_Set',
-                                            '#Corrects_Test_Set', 'STDEV_Corrects_Test_Set',
-                                            '#Total_Test_Set']
+                bad_actors_test_set_predictions = one_class_classifier.predict(isis_bad_actors_test_set_dataframe)
+                # distances = one_class_classifier.decision_function(test_set_dataframe)
+                num_error_bad_actors_test_set = bad_actors_test_set_predictions[
+                    bad_actors_test_set_predictions == -1].size
+                bad_actors_test_set_errors.append(num_error_bad_actors_test_set)
+                bad_actors_test_set_errors_count += num_error_bad_actors_test_set
+                test_set_total += num_error_bad_actors_test_set
 
-            self._one_class_dict = self._create_one_class_dictionary()
+                num_correct_bad_actors_test_set = bad_actors_test_set_predictions[
+                    bad_actors_test_set_predictions == 1].size
+                bad_actors_test_set_corrects.append(num_correct_bad_actors_test_set)
+                bad_actors_test_set_corrects_count += num_correct_bad_actors_test_set
+                test_set_total += num_correct_bad_actors_test_set
 
-            labeled_features_dataframe, unlabeled_features_dataframe, unlabeled_targeted_class_series, \
-            unlabeled_index_field_series = self._create_unlabeled_authors_dataframe_and_raw_labeled_authors_dataframe()
+                good_actors_test_set_predictions = one_class_classifier.predict(reduced_good_actors_dataframe)
+                # distances = one_class_classifier.decision_function(test_set_dataframe)
+                num_error_good_actors_test_set = good_actors_test_set_predictions[
+                    good_actors_test_set_predictions == 1].size
+                good_actors_test_set_errors.append(num_error_good_actors_test_set)
+                good_actors_test_set_errors_count += num_error_good_actors_test_set
+                test_set_total += num_error_good_actors_test_set
 
-            good_actors_dataframe = labeled_features_dataframe.loc[labeled_features_dataframe[self._targeted_class_name] == 'good_actor']
-            manually_bad_actors_dataframe = labeled_features_dataframe.loc[(labeled_features_dataframe[self._targeted_class_name] == 'bad_actor') & (labeled_features_dataframe['author_sub_type'].isnull())]
-            isis_bad_actors_dataframe = labeled_features_dataframe.loc[(labeled_features_dataframe[self._targeted_class_name] == 'bad_actor') & (labeled_features_dataframe['author_sub_type'] == 'ISIS_terrorist')]
+                num_correct_good_actors_test_set = good_actors_test_set_predictions[
+                    good_actors_test_set_predictions == -1].size
+                good_actors_test_set_corrects.append(num_correct_good_actors_test_set)
+                good_actors_test_set_corrects_count += num_correct_good_actors_test_set
+                test_set_total += num_correct_good_actors_test_set
 
-            good_actors_dataframe, good_actors_targeted_class_series, good_actors_index_field_series = \
-                self._prepare_dataframe_for_learning(good_actors_dataframe)
+                total_test_errors = num_error_bad_actors_test_set + num_error_good_actors_test_set
+                total_test_set_errors_count += total_test_errors
+                total_test_set_errors.append(total_test_errors)
 
-            isis_bad_actors_dataframe, isis_bad_actors_targeted_class_series, isis_bad_actors_index_field_series = \
-                self._prepare_dataframe_for_learning(isis_bad_actors_dataframe)
+                total_test_corrects = num_correct_bad_actors_test_set + num_correct_good_actors_test_set
+                total_test_set_corrects_count += total_test_corrects
+                total_test_set_corrects.append(total_test_corrects)
 
-            for num_of_features in self._num_of_features_to_train:
-                reduced_isis_bad_actors_dataframe, selected_column_names = self._reduce_dimensions_by_num_of_features(isis_bad_actors_dataframe, isis_bad_actors_targeted_class_series, num_of_features)
+            isis_bad_actors_training_set_size_count = float(isis_bad_actors_training_set_size_count) / self._k_for_fold
+            self._one_class_dict['#Bad_Actors_Training_Set'].append(isis_bad_actors_training_set_size_count)
 
-                feature_names = list(labeled_features_dataframe.columns.values)
-                best_combination_set = set(selected_column_names)
-                feature_names_set = set(feature_names)
-                features_to_remove_set = feature_names_set - best_combination_set
-                features_to_remove = list(features_to_remove_set)
+            bad_actors_test_set_errors_count = float(bad_actors_test_set_errors_count) / self._k_for_fold
+            self._one_class_dict['#Errors_Bad_Actors_Test_Set'].append(bad_actors_test_set_errors_count)
+
+            test_set_errors_stdev = self._calculate_stdev(bad_actors_test_set_errors)
+            self._one_class_dict['STDEV_Bad_Actors_Errors_Test_Set'].append(test_set_errors_stdev)
+
+            bad_actors_test_set_corrects_count = float(bad_actors_test_set_corrects_count) / self._k_for_fold
+            self._one_class_dict['#Corrected_Bad_Actors_Test_Set'].append(bad_actors_test_set_corrects_count)
+
+            test_set_corrects_stdev = self._calculate_stdev(bad_actors_test_set_corrects)
+            self._one_class_dict['STDEV_Corrected_Bad_Actors_Test_Set'].append(test_set_corrects_stdev)
+
+            good_actors_test_set_errors_count = float(good_actors_test_set_errors_count) / self._k_for_fold
+            self._one_class_dict['#Errors_Good_Actors_Test_Set'].append(good_actors_test_set_errors_count)
+
+            good_actors_test_set_errors_stdev = self._calculate_stdev(good_actors_test_set_errors)
+            self._one_class_dict['STDEV_Good_Actors_Errors_Test_Set'].append(good_actors_test_set_errors_stdev)
 
-                reduced_good_actors_dataframe = self._remove_features(features_to_remove, good_actors_dataframe.copy())
+            good_actors_test_set_corrects_count = float(good_actors_test_set_corrects_count) / self._k_for_fold
+            self._one_class_dict['#Corrects_Good_Actors_Test_Set'].append(good_actors_test_set_corrects_count)
+
+            good_actors_test_set_corrects_stdev = self._calculate_stdev(good_actors_test_set_corrects)
+            self._one_class_dict['STDEV_Good_Actors_Corrects_Test_Set'].append(good_actors_test_set_corrects_stdev)
+
+            test_set_errors_count = float(total_test_set_errors_count) / self._k_for_fold
+            self._one_class_dict['#Errors_Test_Set'].append(test_set_errors_count)
+
+            total_test_set_errors_stdev = self._calculate_stdev(total_test_set_errors)
+            self._one_class_dict['STDEV_Errors_Test_Set'].append(total_test_set_errors_stdev)
+
+            test_set_corrects_count = float(total_test_set_corrects_count) / self._k_for_fold
+            self._one_class_dict['#Corrects_Test_Set'].append(test_set_corrects_count)
+
+            total_test_set_corrects_stdev = self._calculate_stdev(total_test_set_corrects)
+            self._one_class_dict['STDEV_Corrects_Test_Set'].append(total_test_set_corrects_stdev)
+
+            self._one_class_dict['#Total_Test_Set'].append(
+                isis_bad_actors_test_set_size_count + good_actors_test_set_size_count)
+            # self._one_class_dict['#Total_Test_Set'].append(good_actors_test_set_size_count)
+
+        one_class_result_dataframe = pd.DataFrame(self._one_class_dict, columns=self._one_class_column_names)
+
+        full_path = self._path + "one_class_results.csv"
+        # results_dataframe.to_csv(full_path)
+        one_class_result_dataframe.to_csv(full_path, index=False)
+
+        best_combination_elements = self._find_best_combination(one_class_result_dataframe)
+
+        labeled_features_dataframe, unlabeled_features_dataframe = self._create_labeled_and_unlabeled_based_on_combination(
+            best_combination_elements, feature_names,
+            labeled_features_dataframe, unlabeled_features_dataframe)
+
+        one_class_classifier = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
+
+        labeled_features_dataframe = labeled_features_dataframe.fillna(0)
+
+        one_class_classifier.fit(labeled_features_dataframe)
+        unlabeled_predictions = one_class_classifier.predict(unlabeled_features_dataframe)
+        distances = one_class_classifier.decision_function(unlabeled_features_dataframe)
+
+        self._write_predictions_into_file("one_class", str(len(best_combination_elements)),
+                                          unlabeled_index_field_series,
+                                          unlabeled_predictions, distances)
+
+
+    def transfer_learning(self):
+        for source_domain in self._source_domains:
+            for target_domain in self._target_domains:
+                for iteration in range(0, self._num_iterations):
+                    print(iteration)
+                    number_of_transfered_instances = 0
+                    if self._source_input_type == 'csv':  # load source data from csv
+                        source_df = pd.read_csv(self._source_input_path + '/' + source_domain + '.csv')
+                    elif self._source_input_type == 'table':  # load from authors_features table
+                        source_df = self._get_author_features_dataframe()
+
+                    if self._target_input_type == 'csv':  # load target data from csv
+                        target_df = pd.read_csv(self._target_input_path + '/' + target_domain + '.csv')
+                    elif self._target_input_type == 'table':
+                        target_df = self._get_author_features_dataframe()
+
+                    # feature pre-processing
+                    source_df = self._preprocess_dataframe(source_df)
+                    target_df = self._preprocess_dataframe(target_df)
+
+                    # find features in common
+                    common_features = list(
+                        set(source_df.columns) & set(target_df.columns))  # train and test must have the same features
+                    source_df = source_df[common_features]
+                    target_df = target_df[common_features]
+
+                    # If we do not use instance based transfer learning we need to iterate only once through the num_neighbors loop
+                    if not self._transfer_instances:
+                        self._num_neighbors = [
+                            -1]  # If we are not transferring instances iterate only once through the for loop
+
+                    for k in self._num_neighbors:
+                        if source_domain == target_domain:  # split 'target' dataset into train and test, ignore 'source'
+                            msk = np.random.rand(len(target_df)) < (1 - self._target_train_test_split)
+                            train_df = target_df[~msk]
+                            test_df = target_df[msk]
+                        elif source_domain != target_domain and not self._transfer_instances:  # train on dataset source and test on dataset target
+                            train_df = source_df
+                            test_df = target_df
+                        elif source_domain != target_domain and self._transfer_instances:  # transfer knowledge from source to target
+
+                            msk = np.random.rand(len(target_df)) < (1 - self._target_train_test_split)
+                            train_df = target_df[~msk]
+                            test_df = target_df[msk]
+                            if self._target_train_percent_limit > 0:
+                                train_df = train_df.sample(frac=self._target_train_percent_limit)
+                            if self._target_test_percent_limit > 0:
+                                test_df = test_df.sample(frac=self._target_test_percent_limit)
+
+                            train_size_before_transfer = len(train_df)
+
+                            if self._transfer_algo == 'BURAK':
+                                '''
+                                    B. Turhan, T. Menzies, A. B. Bener, and J. DiStefano.
+                                    On the relative value of cross-company and within-company data for defect prediction.
+
+                                    Burak Algorithm for instance-based transfer learning:
+                                    The dataset we wish to improve or add additional data is called 'Target Dataset'.
+                                    This algorithm first splits the target dataset into train and test sets.
+                                    Then, for every object in the test set, it selects the k nearest neighbors wihtin any external 'Source dataset'
+                                    and transfer these neighbors from the 'Source dataset' to the train set of the target dataset.
+                                '''
+
+                                nbrs = NearestNeighbors(n_neighbors=k, algorithm='ball_tree').fit(source_df)
+                                for index, row in test_df.iterrows():
+                                    nbr_idx = nbrs.kneighbors(row, return_distance=False)
+                                    for idx in nbr_idx[0]:
+                                        train_df = train_df.append(source_df.iloc[idx])
+                                train_df.drop_duplicates(inplace=True)
+                                number_of_transfered_instances = len(train_df) - train_size_before_transfer
+                            elif self._transfer_algo == 'GRAVITY_WEIGHTING':
+                                '''
+                                Ying Ma, Guangchun Luo, Xue Zeng, Aiguo Chen
+                                Transfer learning for cross-company software defect prediction
+
+                                Gravity Weighting: training instances are weighted inversely
+                                proportional to their distance from the test instances, based
+                                on measure of similarity defined in the paper
+                                '''
+                                train_df['weight'] = 1
+                                min_values = test_df.min(axis=0)
+                                max_values = test_df.max(axis=0)
+                                for idx, row in source_df.iterrows():
+                                    si = 0
+                                    for col in target_df.columns:
+                                        min_j = min_values[col]
+                                        max_j = max_values[col]
+                                        if min_j <= row[col] <= max_j:
+                                            si += 1
+                                    w = si / (len(source_df.columns) - si + 1)
+                                    row['weight'] = w
+                                    train_df = train_df.append(row)
+                                X_train_weights = train_df.pop('weight').as_matrix()
+                                train_df.drop_duplicates(inplace=True)
+                                number_of_transfered_instances = len(train_df) - train_size_before_transfer
+
+                        else:
+                            raise Exception("Transfer learning module not configured properly")
+
+                        X_train = train_df[source_df.columns.drop(self._targeted_class_name)]
+                        y_train = train_df[self._targeted_class_name]
+
+                        X_test = test_df[target_df.columns.drop(self._targeted_class_name)]
+                        y_test = test_df[self._targeted_class_name]
+
+                        # feature scaling
+                        for scaling in self._feature_scaling:
+
+                            if scaling == 'StandardScaler':
+                                scaler = StandardScaler()
+                            elif scaling == 'RobustScaler':
+                                scaler = RobustScaler()
+                            elif scaling == 'MinMaxScaler':
+                                scaler = MinMaxScaler()
+
+                            if scaling != 'None':
+                                cols = list(X_train.columns)
+                                X_train[cols] = scaler.fit_transform(X_train[cols].as_matrix())
+                                X_test[cols] = scaler.fit_transform(X_test[cols].as_matrix())
+
+                            # feature selection
+                            for num_features in self._num_of_features_to_train:
+                                for selection_method in self._feature_selection:
+                                    if num_features == 'all':
+                                        num_features = len(X_train.columns)
+
+                                    selector = SelectKBest(score_func=globals()[selection_method],
+                                                           k=int(num_features), )
+                                    selector.fit_transform(X_train, y_train)
+                                    scores = {X_train.columns[i]: selector.scores_[i] for i in
+                                              range(len(X_train.columns))}
+                                    filename = 'selected_features_source_' + source_domain + '_target_' + target_domain + '.csv'
+                                    with open(filename, 'ab') as csv_file:
+                                        writer = csv.writer(csv_file)
+                                        writer.writerow(
+                                            ['Feature Scaling Method', 'Num features', 'Feature Selection Method',
+                                             'Feature', 'Value'])
+                                        for key, value in scores.items():
+                                            writer.writerow([scaling, num_features, selection_method, key, value])
+
+                                    sorted_features = sorted(scores, key=scores.get, reverse=True)[:int(num_features)]
+                                    X_best_features_train = X_train[sorted_features]
+                                    X_best_features_test = X_test[sorted_features]
+
+                                    # model training
+                                    trained_models = []
+                                    for classifier_type_name in self._classifier_type_names:
+                                        classifier = self._select_classifier_by_type(
+                                            classifier_type_name=classifier_type_name)
+                                        if source_domain != target_domain and self._transfer_instances and \
+                                                (
+                                                        self._transfer_algo == 'GRAVITY_WEIGHTING' or self._transfer_algo == 'MODIFIED_GRAVITY_WEIGHTING'):
+                                            trained_model = classifier.fit(X=X_best_features_train, y=y_train,
+                                                                           sample_weight=X_train_weights)
+                                        else:
+                                            trained_model = classifier.fit(X=X_best_features_train, y=y_train)
+
+                                        trained_models.append(trained_model)
+
+                                    one_time_flag = True
+                                    for model in trained_models:
+                                        model_name = model.__class__.__name__
+                                        predictions_confidence = model.predict_proba(X_best_features_test)[:, 1]
+                                        auc = roc_auc_score(y_test.values, predictions_confidence)
+                                        predictions = model.predict(X_best_features_test)
+                                        # conf = str(confusion_matrix(y_test.values, predictions))
+                                        clasif_rep = precision_recall_fscore_support(y_test.values, predictions,
+                                                                                     labels=[0, 1], pos_label=1)
+
+                                        out_dict = {}
+
+                                        if self._transfer_instances:
+                                            out_dict['Transfer Learning'] = 'Transfer Learning'
+                                            out_dict['Size of samples transferred'] = k
+                                            out_dict['Algorithm'] = self._transfer_algo
+                                        else:
+                                            out_dict['Transfer Learning'] = 'No Transfer Learning'
+                                            out_dict['Size of samples transferred'] = 0
+                                            out_dict['Algorithm'] = 'No'
+
+                                        out_dict['Source domain'] = source_domain
+                                        out_dict['Target domain'] = target_domain
+                                        out_dict['Number of Features'] = num_features
+                                        out_dict['Feature Scaling Method'] = scaling
+                                        out_dict['Feature Selection Method'] = selection_method
+                                        if self._num_of_features == 'all':
+                                            out_dict['Selected Features'] = 'all'
+                                        else:
+                                            out_dict['Selected Features'] = ', '.join(list(X_train.columns))
+
+                                        out_dict['Number of Transfered Instances'] = number_of_transfered_instances
+                                        if 'author_type' in train_df:
+                                            if 0 in train_df['author_type'].value_counts():
+                                                out_dict['Train Observations Good'] = int(
+                                                    train_df['author_type'].value_counts()[0])
+                                            else:
+                                                out_dict['Train Observations Good'] = 0
+
+                                            if 1 in train_df['author_type'].value_counts():
+                                                out_dict['Train Observations Bad'] = int(
+                                                    train_df['author_type'].value_counts()[1])
+                                            else:
+                                                out_dict['Train Observations Bad'] = 0
+                                        else:
+                                            out_dict['Train Observations Good'] = 0
+                                            out_dict['Train Observations Bad'] = 0
+
+                                        if 'author_type' in test_df:
+                                            out_dict['Test Observations Good'] = int(
+                                                test_df['author_type'].value_counts()[0])
+                                            out_dict['Test Observations Bad'] = int(
+                                                test_df['author_type'].value_counts()[1])
+                                        else:
+                                            out_dict['Test Observations Good'] = 0
+                                            out_dict['Test Observations Bad'] = 0
+
+                                        out_dict['Precision Good'] = clasif_rep[0][0].round(2)
+                                        out_dict['Precision Bad'] = clasif_rep[0][1].round(2)
+                                        out_dict['Recall Good'] = clasif_rep[1][0].round(2)
+                                        out_dict['Recall Bad'] = clasif_rep[1][1].round(2)
+                                        out_dict['F1-score Good'] = clasif_rep[2][0].round(2)
+                                        out_dict['F1-score Bad'] = clasif_rep[2][1].round(2)
+
+                                        tn, fp, fn, tp = confusion_matrix(y_test.values, predictions).ravel()
+
+                                        out_dict['TP'] = tp
+                                        out_dict['TN'] = tn
+                                        out_dict['FP'] = fp
+                                        out_dict['FN'] = fn
+
+                                        out_dict['AUC'] = auc
+                                        out_df = pd.DataFrame(out_dict, index=[model_name],
+                                                              columns=['Source domain', 'Target domain',
+                                                                       'Transfer Learning',
+                                                                       'Size of samples transferred', 'Algorithm',
+                                                                       'Feature Scaling Method', 'Number of Features',
+                                                                       'Feature Selection Method', 'Selected Features',
+                                                                       'Number of Transfered Instances',
+                                                                       'Train Observations Good',
+                                                                       'Train Observations Bad',
+                                                                       'Test Observations Good',
+                                                                       'Test Observations Bad', 'Precision Good',
+                                                                       'Precision Bad', 'Recall Good',
+                                                                       'Recall Bad', 'F1-score Good', 'F1-score Bad',
+                                                                       'TP', 'TN', 'FP', 'FN', 'AUC'])
+
+                                        tl = 'transfer_learning_' + out_dict['Transfer Learning']
+                                        filename = 'results_' + tl + '__source_' + source_domain + '_target_' + target_domain + '.csv'
+                                        if one_time_flag:
+                                            out_df.to_csv(filename, mode='a', header=True)
+                                            one_time_flag = False
+                                        else:
+                                            out_df.to_csv(filename, mode='a', header=False)
+                                        print(model_name)
+                                        print('AUC: ' + str(auc))
+                                        print('Confusion: \n' + str(
+                                            confusion_matrix(y_test.values, predictions, labels=[1, 0])))
+
+                                        print('##################################################')
 
-                combination_name = "+".join(selected_column_names)
-                self._one_class_dict['Combination'].append(combination_name)
-                self._one_class_dict['Num_of_features'].append(num_of_features)
-
-                isis_bad_actors_training_set_size_count = 0
-                isis_bad_actors_test_set_size_count = 0
-                good_actors_test_set_size_count = 0
-
-                bad_actors_test_set_errors_count = 0
-                bad_actors_test_set_errors = []
-                bad_actors_test_set_corrects_count = 0
-                bad_actors_test_set_corrects = []
-
-                good_actors_test_set_errors_count = 0
-                good_actors_test_set_errors = []
-                good_actors_test_set_corrects_count = 0
-                good_actors_test_set_corrects = []
-
-                total_test_set_errors_count = 0
-                total_test_set_errors = []
-
-                total_test_set_corrects_count = 0
-                total_test_set_corrects = []
-
-                test_set_total = 0
-
-
-                k_folds, valid_k = self._select_valid_k(isis_bad_actors_targeted_class_series)
-                for train_indexes, test_indexes in k_folds:
-                    isis_bad_actors_train_set_dataframe, isis_bad_actors_test_set_dataframe, train_class, test_class = self._create_train_and_test_dataframes_and_classes(
-                        reduced_isis_bad_actors_dataframe,
-                        train_indexes, test_indexes,
-                        isis_bad_actors_targeted_class_series)
-                    training_size = isis_bad_actors_train_set_dataframe.shape[0]
-                    isis_bad_actors_training_set_size_count += training_size
-
-                    isis_bad_actors_test_set_size = isis_bad_actors_test_set_dataframe.shape[0]
-                    isis_bad_actors_test_set_size_count += isis_bad_actors_test_set_size
-
-                    good_actors_test_set_size = reduced_good_actors_dataframe.shape[0]
-                    good_actors_test_set_size_count += good_actors_test_set_size
-
-                    one_class_classifier = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
-
-                    one_class_classifier.fit(isis_bad_actors_train_set_dataframe)
-
-                    bad_actors_test_set_predictions = one_class_classifier.predict(isis_bad_actors_test_set_dataframe)
-                    # distances = one_class_classifier.decision_function(test_set_dataframe)
-                    num_error_bad_actors_test_set = bad_actors_test_set_predictions[bad_actors_test_set_predictions == -1].size
-                    bad_actors_test_set_errors.append(num_error_bad_actors_test_set)
-                    bad_actors_test_set_errors_count += num_error_bad_actors_test_set
-                    test_set_total += num_error_bad_actors_test_set
-
-                    num_correct_bad_actors_test_set = bad_actors_test_set_predictions[bad_actors_test_set_predictions == 1].size
-                    bad_actors_test_set_corrects.append(num_correct_bad_actors_test_set)
-                    bad_actors_test_set_corrects_count += num_correct_bad_actors_test_set
-                    test_set_total += num_correct_bad_actors_test_set
-
-                    good_actors_test_set_predictions = one_class_classifier.predict(reduced_good_actors_dataframe)
-                    # distances = one_class_classifier.decision_function(test_set_dataframe)
-                    num_error_good_actors_test_set = good_actors_test_set_predictions[good_actors_test_set_predictions == 1].size
-                    good_actors_test_set_errors.append(num_error_good_actors_test_set)
-                    good_actors_test_set_errors_count += num_error_good_actors_test_set
-                    test_set_total += num_error_good_actors_test_set
-
-                    num_correct_good_actors_test_set = good_actors_test_set_predictions[good_actors_test_set_predictions == -1].size
-                    good_actors_test_set_corrects.append(num_correct_good_actors_test_set)
-                    good_actors_test_set_corrects_count += num_correct_good_actors_test_set
-                    test_set_total += num_correct_good_actors_test_set
-
-                    total_test_errors = num_error_bad_actors_test_set + num_error_good_actors_test_set
-                    total_test_set_errors_count += total_test_errors
-                    total_test_set_errors.append(total_test_errors)
-
-                    total_test_corrects = num_correct_bad_actors_test_set + num_correct_good_actors_test_set
-                    total_test_set_corrects_count += total_test_corrects
-                    total_test_set_corrects.append(total_test_corrects)
-
-                isis_bad_actors_training_set_size_count = float(isis_bad_actors_training_set_size_count) / self._k_for_fold
-                self._one_class_dict['#Bad_Actors_Training_Set'].append(isis_bad_actors_training_set_size_count)
-
-                bad_actors_test_set_errors_count = float(bad_actors_test_set_errors_count) / self._k_for_fold
-                self._one_class_dict['#Errors_Bad_Actors_Test_Set'].append(bad_actors_test_set_errors_count)
-
-                test_set_errors_stdev = self._calculate_stdev(bad_actors_test_set_errors)
-                self._one_class_dict['STDEV_Bad_Actors_Errors_Test_Set'].append(test_set_errors_stdev)
-
-                bad_actors_test_set_corrects_count = float(bad_actors_test_set_corrects_count) / self._k_for_fold
-                self._one_class_dict['#Corrected_Bad_Actors_Test_Set'].append(bad_actors_test_set_corrects_count)
-
-                test_set_corrects_stdev = self._calculate_stdev(bad_actors_test_set_corrects)
-                self._one_class_dict['STDEV_Corrected_Bad_Actors_Test_Set'].append(test_set_corrects_stdev)
-
-                good_actors_test_set_errors_count = float(good_actors_test_set_errors_count) / self._k_for_fold
-                self._one_class_dict['#Errors_Good_Actors_Test_Set'].append(good_actors_test_set_errors_count)
-
-                good_actors_test_set_errors_stdev = self._calculate_stdev(good_actors_test_set_errors)
-                self._one_class_dict['STDEV_Good_Actors_Errors_Test_Set'].append(good_actors_test_set_errors_stdev)
-
-                good_actors_test_set_corrects_count = float(good_actors_test_set_corrects_count) / self._k_for_fold
-                self._one_class_dict['#Corrects_Good_Actors_Test_Set'].append(good_actors_test_set_corrects_count)
-
-                good_actors_test_set_corrects_stdev = self._calculate_stdev(good_actors_test_set_corrects)
-                self._one_class_dict['STDEV_Good_Actors_Corrects_Test_Set'].append(good_actors_test_set_corrects_stdev)
-
-                test_set_errors_count = float(total_test_set_errors_count) / self._k_for_fold
-                self._one_class_dict['#Errors_Test_Set'].append(test_set_errors_count)
-
-                total_test_set_errors_stdev = self._calculate_stdev(total_test_set_errors)
-                self._one_class_dict['STDEV_Errors_Test_Set'].append(total_test_set_errors_stdev)
-
-                test_set_corrects_count = float(total_test_set_corrects_count) / self._k_for_fold
-                self._one_class_dict['#Corrects_Test_Set'].append(test_set_corrects_count)
-
-                total_test_set_corrects_stdev = self._calculate_stdev(total_test_set_corrects)
-                self._one_class_dict['STDEV_Corrects_Test_Set'].append(total_test_set_corrects_stdev)
-
-                self._one_class_dict['#Total_Test_Set'].append(isis_bad_actors_test_set_size_count + good_actors_test_set_size_count)
-                #self._one_class_dict['#Total_Test_Set'].append(good_actors_test_set_size_count)
-
-            one_class_result_dataframe = pd.DataFrame(self._one_class_dict, columns=self._one_class_column_names)
-
-            full_path = self._path + "one_class_results.csv"
-            # results_dataframe.to_csv(full_path)
-            one_class_result_dataframe.to_csv(full_path, index=False)
-
-            best_combination_elements = self._find_best_combination(one_class_result_dataframe)
-
-            labeled_features_dataframe, unlabeled_features_dataframe = self._create_labeled_and_unlabeled_based_on_combination(
-                best_combination_elements, feature_names,
-                labeled_features_dataframe, unlabeled_features_dataframe)
-
-            one_class_classifier = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
-
-            labeled_features_dataframe = labeled_features_dataframe.fillna(0)
-
-            one_class_classifier.fit(labeled_features_dataframe)
-            unlabeled_predictions = one_class_classifier.predict(unlabeled_features_dataframe)
-            distances = one_class_classifier.decision_function(unlabeled_features_dataframe)
-
-            self._write_predictions_into_file("one_class", str(len(best_combination_elements)),
-                                              unlabeled_index_field_series,
-                                              unlabeled_predictions, distances)
-
-        elif self._transfer_learning:
-             for source_domain in self._source_domains:
-                 for target_domain in self._target_domains:
-                     for iteration in range(0, self._num_iterations):
-                            print iteration
-                            number_of_transfered_instances = 0
-                            if self._source_input_type == 'csv':  # load source data from csv
-                                source_df = pd.read_csv(self._source_input_path+'/'+source_domain+'.csv')
-                            elif self._source_input_type == 'table':  # load from authors_features table
-                                source_df = self._get_author_features_dataframe()
-
-                            if self._target_input_type == 'csv':  # load target data from csv
-                                target_df = pd.read_csv(self._target_input_path+'/'+target_domain+'.csv')
-                            elif self._target_input_type == 'table':
-                                target_df = self._get_author_features_dataframe()
-
-                            # feature pre-processing
-                            source_df = self._preprocess_dataframe(source_df)
-                            target_df = self._preprocess_dataframe(target_df)
-
-                            # find features in common
-                            common_features = list(set(source_df.columns) & set(target_df.columns)) #train and test must have the same features
-                            source_df = source_df[common_features]
-                            target_df = target_df[common_features]
-
-                            # If we do not use instance based transfer learning we need to iterate only once through the num_neighbors loop
-                            if not self._transfer_instances:
-                                self._num_neighbors = [-1] # If we are not transferring instances iterate only once through the for loop
-
-                            for k in self._num_neighbors:
-                                if source_domain == target_domain : # split 'target' dataset into train and test, ignore 'source'
-                                    msk = np.random.rand(len(target_df)) < (1- self._target_train_test_split)
-                                    train_df = target_df[~msk]
-                                    test_df = target_df[msk]
-                                elif source_domain != target_domain and not self._transfer_instances: # train on dataset source and test on dataset target
-                                    train_df = source_df
-                                    test_df = target_df
-                                elif source_domain != target_domain and self._transfer_instances:# transfer knowledge from source to target
-
-                                    msk = np.random.rand(len(target_df)) < (1 - self._target_train_test_split)
-                                    train_df = target_df[~msk]
-                                    test_df = target_df[msk]
-                                    if self._target_train_percent_limit > 0:
-                                        train_df = train_df.sample(frac=self._target_train_percent_limit)
-                                    if self._target_test_percent_limit > 0:
-                                        test_df = test_df.sample(frac=self._target_test_percent_limit)
-
-                                    train_size_before_transfer = len(train_df)
-
-                                    if self._transfer_algo == 'BURAK':
-                                        '''
-                                            B. Turhan, T. Menzies, A. B. Bener, and J. DiStefano.
-                                            On the relative value of cross-company and within-company data for defect prediction.
-                                            
-                                            Burak Algorithm for instance-based transfer learning:
-                                            The dataset we wish to improve or add additional data is called 'Target Dataset'.
-                                            This algorithm first splits the target dataset into train and test sets. 
-                                            Then, for every object in the test set, it selects the k nearest neighbors wihtin any external 'Source dataset'
-                                            and transfer these neighbors from the 'Source dataset' to the train set of the target dataset.
-                                        '''
-
-                                        nbrs = NearestNeighbors(n_neighbors=k, algorithm='ball_tree').fit(source_df)
-                                        for index, row in test_df.iterrows():
-                                            nbr_idx = nbrs.kneighbors(row, return_distance=False)
-                                            for idx in nbr_idx[0]:
-                                                train_df = train_df.append(source_df.iloc[idx])
-                                        train_df.drop_duplicates(inplace=True)
-                                        number_of_transfered_instances = len(train_df)- train_size_before_transfer
-                                    elif self._transfer_algo == 'GRAVITY_WEIGHTING':
-                                        '''
-                                        Ying Ma, Guangchun Luo, Xue Zeng, Aiguo Chen 
-                                        Transfer learning for cross-company software defect prediction
-                                        
-                                        Gravity Weighting: training instances are weighted inversely
-                                        proportional to their distance from the test instances, based
-                                        on measure of similarity defined in the paper
-                                        '''
-                                        train_df['weight'] = 1
-                                        min_values = test_df.min(axis=0)
-                                        max_values = test_df.max(axis=0)
-                                        for idx, row in source_df.iterrows():
-                                            si = 0
-                                            for col in target_df.columns:
-                                                min_j = min_values[col]
-                                                max_j = max_values[col]
-                                                if min_j <= row[col] <= max_j:
-                                                    si += 1
-                                            w = si / (len(source_df.columns) - si + 1)
-                                            row['weight'] = w
-                                            train_df = train_df.append(row)
-                                        X_train_weights = train_df.pop('weight').as_matrix()
-                                        train_df.drop_duplicates(inplace=True)
-                                        number_of_transfered_instances = len(train_df) - train_size_before_transfer
-
-                                else:
-                                    raise Exception("Transfer learning module not configured properly")
-
-                                X_train = train_df[source_df.columns.drop(self._targeted_class_name)]
-                                y_train = train_df[self._targeted_class_name]
-
-                                X_test = test_df[target_df.columns.drop(self._targeted_class_name)]
-                                y_test = test_df[self._targeted_class_name]
-
-                                # feature scaling
-                                for scaling in self._feature_scaling:
-
-                                    if scaling == 'StandardScaler':
-                                        scaler = StandardScaler()
-                                    elif scaling == 'RobustScaler':
-                                        scaler = RobustScaler()
-                                    elif scaling == 'MinMaxScaler':
-                                        scaler = MinMaxScaler()
-
-                                    if scaling != 'None':
-                                        cols = list(X_train.columns)
-                                        X_train[cols] = scaler.fit_transform(X_train[cols].as_matrix())
-                                        X_test[cols] = scaler.fit_transform(X_test[cols].as_matrix())
-
-                                    #feature selection
-                                    for num_features in self._num_of_features_to_train:
-                                        for selection_method in self._feature_selection:
-                                            if num_features == 'all':
-                                                num_features = len(X_train.columns)
-
-                                            selector = SelectKBest(score_func=globals()[selection_method], k=int(num_features), )
-                                            selector.fit_transform(X_train, y_train)
-                                            scores = {X_train.columns[i]: selector.scores_[i] for i in range(len(X_train.columns))}
-                                            filename = 'selected_features_source_'+source_domain + '_target_' + target_domain + '.csv'
-                                            with open(filename, 'ab') as csv_file:
-                                                writer = csv.writer(csv_file)
-                                                writer.writerow(['Feature Scaling Method', 'Num features', 'Feature Selection Method','Feature','Value'])
-                                                for key, value in scores.items():
-                                                    writer.writerow([scaling, num_features, selection_method, key, value])
-
-                                            sorted_features = sorted(scores, key=scores.get, reverse=True)[:int(num_features)]
-                                            X_best_features_train = X_train[sorted_features]
-                                            X_best_features_test = X_test[sorted_features]
-
-
-                                            # model training
-                                            trained_models = []
-                                            for classifier_type_name in self._classifier_type_names:
-                                                classifier = self._select_classifier_by_type(classifier_type_name=classifier_type_name)
-                                                if source_domain != target_domain and self._transfer_instances and \
-                                                        (self._transfer_algo == 'GRAVITY_WEIGHTING' or self._transfer_algo == 'MODIFIED_GRAVITY_WEIGHTING'):
-                                                    trained_model = classifier.fit(X=X_best_features_train, y=y_train, sample_weight=X_train_weights)
-                                                else:
-                                                    trained_model = classifier.fit(X=X_best_features_train, y=y_train)
-
-                                                trained_models.append(trained_model)
-
-                                            one_time_flag = True
-                                            for model in trained_models:
-                                                model_name = model.__class__.__name__
-                                                predictions_confidence = model.predict_proba(X_best_features_test)[:,1]
-                                                auc = roc_auc_score(y_test.values, predictions_confidence)
-                                                predictions = model.predict(X_best_features_test)
-                                                #conf = str(confusion_matrix(y_test.values, predictions))
-                                                clasif_rep = precision_recall_fscore_support(y_test.values, predictions, labels=[0,1], pos_label=1)
-
-                                                result_dict = {}
-
-                                                if self._transfer_instances:
-                                                    result_dict['Transfer Learning'] = 'Transfer Learning'
-                                                    result_dict['Size of samples transferred'] = k
-                                                    result_dict['Algorithm'] = self._transfer_algo
-                                                else:
-                                                    result_dict['Transfer Learning'] = 'No Transfer Learning'
-                                                    result_dict['Size of samples transferred'] = 0
-                                                    result_dict['Algorithm'] = 'No'
-
-                                                result_dict['Source domain'] = source_domain
-                                                result_dict['Target domain'] = target_domain
-                                                result_dict['Number of Features'] = num_features
-                                                result_dict['Feature Scaling Method'] = scaling
-                                                result_dict['Feature Selection Method'] = selection_method
-                                                if self._num_of_features == 'all':
-                                                    result_dict['Selected Features'] = 'all'
-                                                else:
-                                                    result_dict['Selected Features'] = ', '.join(list(X_train.columns))
-
-                                                result_dict['Number of Transfered Instances'] = number_of_transfered_instances
-                                                if 'author_type' in train_df:
-                                                    if 0 in train_df['author_type'].value_counts():
-                                                        result_dict['Train Observations Good'] = int(train_df['author_type'].value_counts()[0])
-                                                    else:
-                                                        result_dict['Train Observations Good'] = 0
-
-                                                    if 1 in train_df['author_type'].value_counts():
-                                                        result_dict['Train Observations Bad'] = int(train_df['author_type'].value_counts()[1])
-                                                    else:
-                                                        result_dict['Train Observations Bad'] = 0
-                                                else:
-                                                    result_dict['Train Observations Good'] = 0
-                                                    result_dict['Train Observations Bad'] = 0
-
-                                                if 'author_type' in test_df:
-                                                    result_dict['Test Observations Good'] = int(test_df['author_type'].value_counts()[0])
-                                                    result_dict['Test Observations Bad'] = int(test_df['author_type'].value_counts()[1])
-                                                else:
-                                                    result_dict['Test Observations Good'] = 0
-                                                    result_dict['Test Observations Bad'] = 0
-
-
-
-                                                result_dict['Precision Good'] = clasif_rep[0][0].round(2)
-                                                result_dict['Precision Bad'] = clasif_rep[0][1].round(2)
-                                                result_dict['Recall Good'] = clasif_rep[1][0].round(2)
-                                                result_dict['Recall Bad'] = clasif_rep[1][1].round(2)
-                                                result_dict['F1-score Good'] = clasif_rep[2][0].round(2)
-                                                result_dict['F1-score Bad'] = clasif_rep[2][1].round(2)
-
-                                                tn, fp, fn, tp = confusion_matrix(y_test.values, predictions).ravel()
-
-                                                result_dict['TP'] = tp
-                                                result_dict['TN'] = tn
-                                                result_dict['FP'] = fp
-                                                result_dict['FN'] = fn
-
-                                                result_dict['AUC'] = auc
-                                                out_df = pd.DataFrame(result_dict, index=[model_name],
-                                                                      columns=['Source domain', 'Target domain','Transfer Learning', 'Size of samples transferred', 'Algorithm',
-                                                                               'Feature Scaling Method', 'Number of Features', 'Feature Selection Method', 'Selected Features',
-                                                                               'Number of Transfered Instances', 'Train Observations Good', 'Train Observations Bad', 'Test Observations Good',
-                                                                               'Test Observations Bad', 'Precision Good', 'Precision Bad', 'Recall Good',
-                                                                               'Recall Bad', 'F1-score Good', 'F1-score Bad', 'TP', 'TN', 'FP', 'FN', 'AUC'])
-
-                                                tl = 'transfer_learning_' + result_dict['Transfer Learning']
-                                                filename = 'results_' + tl + '__source_' + source_domain + '_target_' + target_domain + '.csv'
-                                                if one_time_flag:
-                                                    out_df.to_csv(filename, mode='a', header=True)
-                                                    one_time_flag = False
-                                                else:
-                                                    out_df.to_csv(filename, mode='a', header=False)
-                                                print model_name
-                                                print 'AUC: ' + str(auc)
-                                                print 'Confusion: \n'+str(confusion_matrix(y_test.values, predictions, labels=[1,0]))
-
-                                                print '##################################################'
-
-
-
-        end_time = time.time()
-        diff_time = end_time - start_time
-        logging.info('execute finished in '+ str(diff_time) +' seconds')
 
     def _preprocess_dataframe(self, df):
         df = self._remove_features(self._removed_features, df)# remove author_sub_type, user screen_name, etc.
@@ -752,13 +843,13 @@ class ExperimentalEnvironment(AbstractController):
         start_time = time.time()
         print("_prepare_dataframe_for_learning started for " + self.__class__.__name__ + " started at " + str(start_time))
 
-        dataframe.reset_index(drop=True, inplace=True)
+        #dataframe.reset_index(drop=True, inplace=True)
 
         # Replace None in 0 for later calculation
         if self._replace_missing_values == 'zero':
             dataframe = dataframe.fillna(0)
         elif self._replace_missing_values == 'mean':
-            dataframe = dataframe.fillna(dataframe.mean())
+            dataframe.fillna(dataframe.mean(), inplace=True)
 
         # # Replace nominal class in numeric classes
         # num_of_class = len(self._optional_classes)
@@ -948,7 +1039,7 @@ class ExperimentalEnvironment(AbstractController):
                                                                         labeled_author_features_dataframe)
 
         print("Best features found are: ")
-        print ', '.join(reduced_dataframe_column_names)
+        print(', '.join(reduced_dataframe_column_names))
 
         reduced_dataframe = pd.DataFrame(k_best_features, columns=reduced_dataframe_column_names)
 
@@ -1030,28 +1121,15 @@ class ExperimentalEnvironment(AbstractController):
         dataframe.to_csv(path, index=False)
 
 
-    def _set_dataframe_columns_types(self, unlabeled_dataframe):
-        column_names = unlabeled_dataframe.columns.values
+    def _set_dataframe_columns_types(self, df):
+        column_names = df.columns.values
         for column_name in column_names:
             print("feature_name: " + column_name)
-            feature_series = unlabeled_dataframe[column_name]
-            if "average" in column_name or \
-                            "avg" in column_name or \
-                            "retweet_count" in column_name or \
-                            "std_dev" in column_name or \
-                            "boost" in column_name or \
-                            "citation" in column_name or \
-                            "cocitation" in column_name or \
-                            "ratio" in column_name or \
-                            "tfidf" in column_name:
-                feature_series = feature_series.astype(np.float64)
-                print("feature_name: " + column_name + "->" "np.float64")
-            else: #"num" in column_name or "number" in column_name or "count" in column_name :
-                feature_series = feature_series.astype(np.int64)
-                print("feature_name: " + column_name + "->" "np.int64")
-            unlabeled_dataframe[column_name] = feature_series
-
-        return unlabeled_dataframe
+            feature_series = df[column_name]
+            feature_series = feature_series.astype(np.float64)
+            #feature_series = feature_series.astype(np.int64)
+            df[column_name] = feature_series
+        return df
 
     def _create_row_result(self, classifier_type_name, num_of_features):
         row = []
@@ -1165,7 +1243,7 @@ class ExperimentalEnvironment(AbstractController):
                                      unlabeled_index_field_series, predictions_series, predictions_proba_series):
 
         unlabeled_dataframe_with_prediction = pd.DataFrame(unlabeled_index_field_series,
-                                                           columns=[self._index_field])
+                                                           columns=['author_screen_name'])
 
         unlabeled_dataframe_with_prediction.reset_index(drop=True, inplace=True)
         unlabeled_dataframe_with_prediction["predicted"] = predictions_series
@@ -1389,4 +1467,18 @@ class ExperimentalEnvironment(AbstractController):
         features_to_remove = list(features_to_remove_set)
         return features_to_remove
 
+    def _create_labeled_dfs(self, labeled_authors_df):
+        targeted_class_dfs = []
+        for optional_class in self._optional_classes:
+            target_class_labeled_authors_df = labeled_authors_df.loc[labeled_authors_df[self._targeted_class_name] == optional_class]
+            targeted_class_dfs.append(target_class_labeled_authors_df)
+        return targeted_class_dfs
 
+    def _build_training_set(self, training_size_percent, targeted_class_dfs):
+        sample_targeted_class_dfs = []
+        for targeted_class_df in targeted_class_dfs:
+            #Choosing randonly samples from each class
+            sample_targeted_class_df = targeted_class_df.sample(frac=training_size_percent)
+            sample_targeted_class_dfs.append(sample_targeted_class_df)
+        training_set_df = pd.concat(sample_targeted_class_dfs)
+        return training_set_df

@@ -112,7 +112,8 @@ class MissingDataComplemntorTests(TestCase):
         author.name = u"philkernick"
         author.domain = u'Microblog'
         author.protected = 0
-        author.author_guid = u"8b06558548043d97903ab5b5c87bf254"
+
+        author.author_guid = compute_author_guid_by_author_name(u"philkernick")
         author.author_screen_name = u"philkernick"
         author.author_full_name = u"Phil Kernick"
         author.xml_importer_insertion_date = datetime.datetime.now()
@@ -151,7 +152,7 @@ class MissingDataComplemntorTests(TestCase):
         day = datetime.timedelta(1)
         post.date = datetime.datetime.strptime(tempDate, '%Y-%m-%d %H:%M:%S') + day * 1
         post.domain = u'Microblog'
-        post.author_guid = u"8b06558548043d97903ab5b5c87bf254"
+        post.author_guid = compute_author_guid_by_author_name(u"philkernick")
         post.title = u"RT @virturity: I noticed there is no good visualization of the real Information Security triad, so i made one. You're welcome. #infosec htt"
         post.content = u"RT @virturity: I noticed there is no good visualization of the real &lt;em&gt;Information&lt;/em&gt; &lt;em&gt;Security&lt;/em&gt; triad, so i made one. You're welcome. #infosec htt"
         post.xml_importer_insertion_date = datetime.datetime.now()
@@ -213,7 +214,7 @@ class MissingDataComplemntorTests(TestCase):
 
     def test_fill_data_for_sources(self):
         self._missing_data_complemntor.fill_data_for_sources()
-        author = self._db.get_author_by_author_guid(u"8b06558548043d97903ab5b5c87bf254")[0]
+        author = self._db.get_author_by_author_guid(compute_author_guid_by_author_name(u"philkernick"))[0]
         self.assertNotEqual(author.author_osn_id, None)
         self.assertEqual(author.missing_data_complementor_insertion_date,
                          date_to_str(self._missing_data_complemntor._window_start))
@@ -239,7 +240,7 @@ class MissingDataComplemntorTests(TestCase):
 
     def test_fill_data_for_friends(self):
         self._missing_data_complemntor.fill_data_for_friends()
-        author_guid = compute_author_guid_by_author_name(u"GeorgeSlefo").replace('-', '')
+        author_guid = compute_author_guid_by_author_name(u"GeorgeSlefo")
         author = self._db.get_author_by_author_guid(author_guid)[0]
         self.assertEqual(author.missing_data_complementor_insertion_date,
                          date_to_str(self._missing_data_complemntor._window_start))

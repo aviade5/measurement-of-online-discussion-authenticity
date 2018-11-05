@@ -12,7 +12,7 @@ from twitter_rest_api.twitter_rest_api import Twitter_Rest_Api
 class BadActorsCollector(Method_Executor):
 
     def __init__(self, db):
-        AbstractExecutor.__init__(self, db)
+        Method_Executor.__init__(self, db)
 
         self._actions = self._config_parser.eval(self.__class__.__name__, "actions")
 
