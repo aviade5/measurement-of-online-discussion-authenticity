@@ -83,6 +83,53 @@ class Twitter_Rest_Api(AbstractController):
             timeline = self._twitter_api_requester.get_timeline_by_user_id(user_id)
             return timeline
 
+    def crawl_followers_by_twitter_author_ids(self, author_ids, author_type, are_user_ids, inseration_type):
+        print("--- crawl_followers_by_twitter_author_ids ---")
+
+        #authors_ids_to_crawl = self.check_already_crawled_author_ids(author_ids)
+        total_follower_ids = self._twitter_api_requester.get_follower_ids_by_user_id(author_ids)
+
+        self.save_author_connections()
+
+        total_follower_ids_to_crawl = self.remove_already_crawled_authors(total_follower_ids)
+
+        self.handle_get_users_request(total_follower_ids_to_crawl, are_user_ids, author_type, inseration_type)
+        #self.convert_twitter_users_to_authors_and_save(followers, author_type, inseration_type)
+
+    def crawl_friends_by_twitter_author_ids(self, author_ids, author_type, are_user_ids, inseration_type):
+        # authors_ids_to_crawl = self.check_already_crawled_author_ids(author_ids)
+        total_friends_ids = self._twitter_api_requester.get_friend_ids_by_user_id(author_ids)
+
+        self.save_author_connections()
+
+        total_friends_ids_to_crawl = self.remove_already_crawled_authors(total_friends_ids)
+
+        friends = self.handle_get_users_request(total_friends_ids_to_crawl, are_user_ids, author_type, inseration_type)
+        self.convert_twitter_users_to_authors_and_save(friends, author_type, inseration_type)
+
+    def crawl_retweeters_by_twitter_post_ids(self, post_ids, author_type, inseration_type):
+        #authors_ids_to_crawl = self.check_already_crawled_author_ids(post_ids)
+        total_follower_ids = self.crawl_retweeters_ids(post_ids)
+
+        self.save_author_connections()
+        are_user_ids = True
+        followers = self.handle_get_users_request(total_follower_ids, are_user_ids, author_type, inseration_type)
+        self.convert_twitter_users_to_authors_and_save(followers, author_type, inseration_type)
+
+    def crawl_retweeters_ids(self, posts_ids):
+        total_retweeter_ids = []
+        for posts_id in posts_ids:
+            seconds_to_wait = self._twitter_api_requester.get_sleep_time_for_get_retweeter_ids_request()
+            if seconds_to_wait == 0:
+                retweeter_ids = self._twitter_api_requester.get_retweeter_ids_by_status_id(posts_id)
+                total_retweeter_ids = list(set(total_retweeter_ids + retweeter_ids))
+            else:
+                self.save_connections_and_wait(seconds_to_wait)
+                self._twitter_api_requester.init_num_of_get_follower_ids_requests()
+                retweeter_ids = self._twitter_api_requester.get_retweeter_ids_by_status_id(posts_id)
+                total_retweeter_ids = list(set(total_retweeter_ids + retweeter_ids))
+        return total_retweeter_ids
+
     def handle_get_follower_ids_request(self, source_id):
         print("--- handle_get_follower_ids_request ---")
         logging.info("--- handle_get_follower_ids_request ---")
@@ -95,6 +142,7 @@ class Twitter_Rest_Api(AbstractController):
 
     def handle_get_user_ids_request(self, source_id, author_type):
         print("--- handle_get_user_ids_request ---")
+        user_ids = []
         if author_type == Author_Connection_Type.FOLLOWER:
             user_ids = self._twitter_api_requester.get_follower_ids_by_user_id(source_id)
         elif author_type == Author_Connection_Type.FRIEND:

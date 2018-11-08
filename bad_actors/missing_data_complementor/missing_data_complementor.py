@@ -1,6 +1,3 @@
-#
-# Created by Aviad on 03-Jun-16 11:41 AM.
-#
 from __future__ import print_function
 
 import re
@@ -13,8 +10,9 @@ from commons.commons import *
 from commons.commons import get_current_time_as_string, cleanForAuthor
 from commons.consts import *
 from commons.method_executor import Method_Executor
-from preprocessing_tools.abstract_executor import AbstractExecutor
+from preprocessing_tools.abstract_controller import AbstractController
 from twitter_rest_api.twitter_rest_api import Twitter_Rest_Api
+import csv
 
 RetweetData = namedtuple('RetweetData', ['retweet_guid', 'retweet_url', 'tweet_guid', 'tweet_url', 'tweet_author_name',
                                          'tweet_author_guid',
@@ -22,9 +20,11 @@ RetweetData = namedtuple('RetweetData', ['retweet_guid', 'retweet_url', 'tweet_g
                                          'tweet_favorite_count'])
 
 
+__author__ = "Aviad Elyashar"
+
 class MissingDataComplementor(Method_Executor):
     def __init__(self, db):
-        Method_Executor.__init__(self, db)
+        AbstractController.__init__(self, db)
         self._actions = self._config_parser.eval(self.__class__.__name__, "actions")
 
         self._minimal_num_of_posts = self._config_parser.eval(self.__class__.__name__, "minimal_num_of_posts")
@@ -33,26 +33,18 @@ class MissingDataComplementor(Method_Executor):
         self._maximal_tweets_count_in_timeline = self._config_parser.eval(self.__class__.__name__,
                                                                           "maximal_tweets_count_in_timeline")
 
+        self._vico_importer_twitter_authors = []
         self._found_twitter_users = []
         self._social_network_crawler = Twitter_Rest_Api(db)
         self._suspended_authors = []
         self._max_users_without_saving = self._config_parser.eval(self.__class__.__name__, "max_users_without_saving")
+        self._output_path = self._config_parser.eval(self.__class__.__name__, "output_path")
         self._posts = []
         self._authors = []
         self._post_citatsions = []
 
     def setUp(self):
         pass
-
-    def fill_author_guid_to_posts(self):
-        posts = self._db.get_posts()
-        num_of_posts = len(posts)
-        for i, post in enumerate(posts):
-            msg = "\rPosts to fill: [{0}/{1}]".format(i, num_of_posts)
-            print(msg, end="")
-            post.author_guid = compute_author_guid_by_author_name(post.author)
-        self._db.addPosts(posts)
-        self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
 
     def fill_data_for_followers(self):
         self._fill_data_for_author_connection_type(Author_Connection_Type.FOLLOWER)
@@ -101,10 +93,11 @@ class MissingDataComplementor(Method_Executor):
         print("---complete_missing_information_for_authors_by_screen_names ---")
         logging.info("---complete_missing_information_for_authors_by_screen_names ---")
         # twitter_author_screen_names = self.create_author_screen_names()
-        twitter_author_screen_names = self._db.get_missing_data_twitter_screen_names()
+        #twitter_author_screen_names = self._db.get_missing_data_twitter_screen_names()
         # twitter_author_screen_names = (twitter_author.name for twitter_author in twitter_authors)
         # twitter_author_screen_names = list(twitter_author_screen_names)
 
+        twitter_author_screen_names = self._db.get_missing_data_twitter_screen_names_by_posts()
         author_type = None
         are_user_ids = False
         inseration_type = DB_Insertion_Type.MISSING_DATA_COMPLEMENTOR
@@ -114,9 +107,23 @@ class MissingDataComplementor(Method_Executor):
 
         self._social_network_crawler.save_authors_and_connections(total_twitter_users, author_type, inseration_type)
 
+        self.fill_author_guid_to_posts()
+        #self._db.delete_posts_with_missing_authors()
+        # self.insert_suspended_accounts()
+        # self.label_verified_accounts_as_good_actors()
         print("---complete_missing_information_for_authors_by_screen_names was completed!!!!---")
         logging.info("---complete_missing_information_for_authors_by_screen_names was completed!!!!---")
         return total_twitter_users
+
+    def fill_author_guid_to_posts(self):
+        posts = self._db.get_posts()
+        num_of_posts = len(posts)
+        for i, post in enumerate(posts):
+            msg = "\rPosts to fill: [{0}/{1}]".format(i, num_of_posts)
+            print(msg, end="")
+            post.author_guid = compute_author_guid_by_author_name(post.author)
+        self._db.addPosts(posts)
+        self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
 
     def complete_missing_information_for_authors_by_ids(self):
         print("---complete_missing_information_for_authors_by_ids ---")
@@ -207,9 +214,9 @@ class MissingDataComplementor(Method_Executor):
                     post = Post(guid=tweet_data.tweet_guid, post_id=tweet_data.tweet_guid, url=tweet_data.tweet_url,
                                 date=str_to_date(tweet_data.tweet_date),
                                 title=tweet_data.tweet_content, content=tweet_data.tweet_content,
-                                post_osn_id=tweet_data.tweet_twitter_id,
-                                retweet_count=tweet_data.tweet_retweet_count,
-                                favorite_count=tweet_data.tweet_favorite_count,
+                                post_osn_id=int(tweet_data.tweet_twitter_id),
+                                retweet_count=int(tweet_data.tweet_retweet_count),
+                                favorite_count=int(tweet_data.tweet_favorite_count),
                                 author=tweet_data.tweet_author_name, author_guid=tweet_data.tweet_author_guid,
                                 domain=self._domain,
                                 original_tweet_importer_insertion_date=unicode(get_current_time_as_string()))
@@ -344,6 +351,8 @@ class MissingDataComplementor(Method_Executor):
                             continue
                         posts_counter = posts_counter + 1
                         tweet_author_guid = compute_author_guid_by_author_name(author_name)
+                        tweet_author_guid = cleanForAuthor(tweet_author_guid)
+                        tweet_content = post.text
                         post = self._db.create_post_from_tweet_data(post, self._domain)
                         posts.append(post)
             except Exception as e:
@@ -374,3 +383,142 @@ class MissingDataComplementor(Method_Executor):
             author_screen_names_number_of_posts_dict[author_screen_name] = num_of_posts
         logging.info("Number of users to retrieve timelines: " + str(len(author_screen_names_number_of_posts_dict)))
         return author_screen_names_number_of_posts_dict
+
+    ###
+    # There is an option that there are posts that twitter did not provide their information.
+    # Most of them are suspended or protected.
+    # In this case we will add them into the authors table with label of 'bad_actor'.
+    # We should fill the author_guid in the posts table.
+    ###
+    def insert_suspended_accounts(self):
+        authors = []
+        author_screen_names = []
+        author_guids = []
+        missing_author_posts = self._db.get_posts_of_missing_authors()
+        num_of_missing_posts = len(missing_author_posts)
+        for i, missing_author_post in enumerate(missing_author_posts):
+            msg = "\rInserting missing authors to authors table: {0}/{1}".format(i, num_of_missing_posts)
+            print(msg, end="")
+
+            author = Author()
+
+            author_screen_name = missing_author_post.author
+            author.author_screen_name = author_screen_name
+            author.name = author_screen_name
+            author_screen_names.append(author_screen_name)
+
+            author_guid = compute_author_guid_by_author_name(author_screen_name)
+            author.author_guid = author_guid
+            author_guids.append(author_guid)
+
+            author.author_type = u"bad_actor"
+
+            author.domain = self._domain
+
+            authors.append(author)
+
+            # update the missing guid to post
+            missing_author_post.author_guid = author_guid
+
+        self._db.add_authors(authors)
+        self._db.addPosts(missing_author_posts)
+
+        with open(self._output_path + "insert_suspended_accounts.txt", 'w') as output_file:
+            output_file.write("Number of suspended_users_added_to_authors_table is: " + str(num_of_missing_posts))
+            output_file.write("\n")
+
+            author_screen_names_str = ','.join(author_screen_names)
+            output_file.write("author_screen_names: " + author_screen_names_str)
+            output_file.write("\n")
+
+            author_guids_str = ','.join(author_guids)
+            output_file.write("author_guids: " + author_guids_str)
+
+    #
+    # This function was created for filling information in Arabic Honeypot dataset
+    #
+    def insert_suspended_accounts2(self):
+        authors = []
+        author_screen_names = []
+        author_guids = []
+        author_guid_author_screen_name_tuples = self._db.get_missing_authors_tuples()
+        author_guid_author_screen_name_tuples = list(author_guid_author_screen_name_tuples)
+        num_of_suspended_accounts = len(author_guid_author_screen_name_tuples)
+        for i, author_guid_author_screen_name_tuple in enumerate(author_guid_author_screen_name_tuples):
+            msg = "\rInserting missing authors to authors table: {0}/{1}".format(i, num_of_suspended_accounts)
+            print(msg, end="")
+
+            author_guid = author_guid_author_screen_name_tuple[0]
+            author_screen_name = author_guid_author_screen_name_tuple[1]
+            if author_guid is None and author_screen_name is None:
+                continue
+
+            author = Author()
+
+            author.author_screen_name = author_screen_name
+            author.name = author_screen_name
+            author_screen_names.append(author_screen_name)
+
+            if author_guid is None:
+                author_guid = compute_author_guid_by_author_name(author_screen_name)
+            author.author_guid = author_guid
+            author_guids.append(author_guid)
+
+            author.author_type = u"bad_actor"
+
+            author.domain = self._domain
+
+            authors.append(author)
+
+
+        self._db.add_authors(authors)
+
+        with open(self._output_path + "insert_suspended_accounts.csv", 'w') as output_file:
+            writer = csv.writer(output_file)
+            writer.writerow("Number of suspended_users_added_to_authors_table is: " + str(num_of_suspended_accounts))
+
+            author_screen_names_str = ','.join(author_screen_names)
+            writer.writerow("author_screen_names: " + author_screen_names_str)
+
+            author_guids_str = ','.join(author_guids)
+            writer.writerow("author_guids: " + author_guids_str)
+
+    def label_verified_accounts_as_good_actors(self):
+        verified_authors = self._db.get_verified_authors()
+        num_of_verified_authors = len(verified_authors)
+        for i, verified_author in enumerate(verified_authors):
+            msg = "\rLabel verified accounts as good actors: {0}/{1}".format(i, num_of_verified_authors)
+            print(msg, end="")
+
+            verified_author.author_type = u"good_actor"
+
+        self._db.add_authors(verified_authors)
+
+        with open(self._output_path + "label_verified_accounts_as_good_actors.txt", 'w') as output_file:
+            output_file.write("Number of verified authors is: " + str(num_of_verified_authors))
+            output_file.write("\n")
+
+    def fill_retweets_for_tweets(self):
+        posts = self._db.get_posts()
+        num_of_posts = len(posts)
+        posts_to_add = []
+        authors_to_add = []
+        user_mentions_to_add = []
+        for i, post in enumerate(posts):
+            msg = "\rGiven posts for filling retweets : [{0}/{1}]".format(i, num_of_posts)
+            print(msg, end="")
+
+            tweet_id = post.post_osn_id
+            if tweet_id is not None:
+                retweets = self._social_network_crawler.get_retweets_by_post_id(tweet_id)
+
+                for retweet in retweets:
+                    post, author = self._db._convert_tweet_to_post_and_author(retweet, self._domain)
+                    user_mentions = self._db.convert_tweet_to_user_mentions(retweet, post.guid)
+                    user_mentions_to_add += user_mentions
+                    posts_to_add.append(post)
+                    authors_to_add.append(author)
+
+        self._db.addPosts(posts_to_add)
+        self._db.addPosts(authors_to_add)
+        self._db.addPosts(user_mentions_to_add)

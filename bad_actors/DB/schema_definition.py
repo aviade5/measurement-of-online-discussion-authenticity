@@ -1504,10 +1504,26 @@ class DB():
         result = self.session.query(Author).filter(Author.author_guid == author_guid).all()
         return result[0]
 
+    def get_missing_data_twitter_screen_names_by_posts(self):
+        query = "SELECT DISTINCT(posts.author) " \
+                "FROM posts WHERE posts.author NOT IN " \
+                "(SELECT author_screen_name FROM authors WHERE author_osn_id IS NOT NULL)"
+
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        screen_names = list(cursor.fetchall())
+        twitter_screen_names = [r[0] for r in screen_names]
+        return twitter_screen_names
+
     def get_author_by_author_guid_and_domain(self, author_guid, domain):
         result = self.session.query(Author).filter(and_(Author.author_guid == author_guid,
                                                         Author.domain == domain)).all()
         return result
+
+    def get_posts_of_missing_authors(self):
+        results = self.session.query(Post).filter(Post.author_guid == None).all()
+        return results
 
     def is_author_exists(self, author_guid, domain):
         author = self.get_author_by_author_guid_and_domain(author_guid, domain)
