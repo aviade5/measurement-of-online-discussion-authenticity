@@ -1243,7 +1243,7 @@ class ExperimentalEnvironment(Method_Executor):
                                      unlabeled_index_field_series, predictions_series, predictions_proba_series):
 
         unlabeled_dataframe_with_prediction = pd.DataFrame(unlabeled_index_field_series,
-                                                           columns=['author_screen_name'])
+                                                           columns=['AccountPropertiesFeatureGenerator_author_screen_name'])
 
         unlabeled_dataframe_with_prediction.reset_index(drop=True, inplace=True)
         unlabeled_dataframe_with_prediction["predicted"] = predictions_series
