@@ -234,7 +234,7 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
                     }
 
             """
-            css += temp % (str(i), str(i), '%', '%', '%', '%')
+            css += temp % (str(i), str(topic[0]), '%', '%', '%', '%')
             i += 1
         css += "</style>"
         return css
