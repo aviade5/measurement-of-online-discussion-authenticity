@@ -2676,9 +2676,7 @@ class DB():
 
     def get_unlabeled_predictions(self):
         query = """
-                SELECT unlabeled_predictions.author_screen_name,
-                        unlabeled_predictions.predicted,
-                        unlabeled_predictions.prediction
+                SELECT *
                 FROM unlabeled_predictions
                 """
         query = text(query)

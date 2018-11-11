@@ -338,9 +338,9 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         cursor = self._db.get_unlabeled_predictions()
         unlabeled_predictions_generator = self._db.result_iter(cursor)
         for tuple in unlabeled_predictions_generator:
-            author_name = tuple[0]
-            predicted = tuple[1]
-            prediction = tuple[2]
+            author_name = tuple[1]
+            predicted = tuple[2]
+            prediction = tuple[3]
             self._fill_author_classification(author_name, predicted, prediction, author_classification)
 
         return author_classification
