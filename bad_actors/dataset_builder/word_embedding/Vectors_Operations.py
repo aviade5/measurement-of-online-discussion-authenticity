@@ -35,7 +35,7 @@ class Vector_Operations():
 
     @staticmethod
     def create_features_from_word_embedding_dict(author_guid_word_embedding_dict, targeted_table, targeted_field_name,
-                                                 targeted_word_embedding_type,window_start, window_end, db, commit_treshold):
+                                                 targeted_word_embedding_type,window_start, window_end, db, commit_treshold, prefix=''):
         authors_features = []
         counter = 0
         for author_guid in author_guid_word_embedding_dict.keys():
@@ -50,16 +50,17 @@ class Vector_Operations():
                                                                                                        feature_name,
                                                                                                        author_guid,
                                                                                                        window_start,
-                                                                                                       window_end)
+                                                                                                       window_end,
+                                                                                                       prefix)
             authors_features = authors_features + dimentions_feature_for_author
         db.add_author_features(authors_features)
         db.commit()
         authors_features = []
 
     @staticmethod
-    def create_author_feature_for_each_dimention(vector, feature_name, author_guid, window_start, window_end):
+    def create_author_feature_for_each_dimention(vector, feature_name, author_guid, window_start, window_end,
+                                                 prefix_name=u''):
         authors_features = []
-        prefix_name = u'word_embeddings_'
         dimension_counter = 0
         for dimension in vector:
             dimension = round(dimension, 4)

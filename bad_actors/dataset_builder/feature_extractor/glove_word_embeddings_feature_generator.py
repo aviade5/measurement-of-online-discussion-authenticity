@@ -8,7 +8,7 @@ import logging.config
 from dataset_builder.word_embedding.Vectors_Operations import Vector_Operations
 
 
-class Word_Embeddings_Feature_Generator(BaseFeatureGenerator):
+class GloveWordEmbeddingsFeatureGenerator(BaseFeatureGenerator):
     def __init__(self, db, **kwargs):
         BaseFeatureGenerator.__init__(self, db, **kwargs)
         self._targeted_author_word_embeddings = self._config_parser.eval(self.__class__.__name__, "targeted_author_word_embeddings")
@@ -29,7 +29,7 @@ class Word_Embeddings_Feature_Generator(BaseFeatureGenerator):
                 len(self._targeted_author_word_embeddings)))
 
             author_guid_word_embeding_dict = self._db.get_author_guid_word_embedding_vector_dict(targeted_table, targeted_field_name, targeted_word_embedding_type)
-            Vector_Operations.create_features_from_word_embedding_dict(author_guid_word_embeding_dict, targeted_table, targeted_field_name, targeted_word_embedding_type, self._window_start, self._window_end, self._db, self._max_objects_without_saving)
+            Vector_Operations.create_features_from_word_embedding_dict(author_guid_word_embeding_dict, targeted_table, targeted_field_name, targeted_word_embedding_type, self._window_start, self._window_end, self._db, self._max_objects_without_saving,self.__class__.__name__ + '_')
             # if len(authors_features) % self._max_objects_without_saving == 0:
             #     print('\n Beginning merging author_features objects')
             #     for author_features_row in authors_features:
