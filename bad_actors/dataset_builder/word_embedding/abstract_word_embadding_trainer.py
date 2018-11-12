@@ -134,7 +134,7 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
     def _fill_results_dataframe(self, author_id, targeted_fields_dict, transposed):
         table_name = targeted_fields_dict['source']["table_name"]
         id_field = targeted_fields_dict['source']["id"]
-        if 'destination' in targeted_fields_dict:
+        if 'destination' in targeted_fields_dict and targeted_fields_dict['destination'] != {}:
             targeted_field_name = targeted_fields_dict['destination']["target_field"]
             where_clauses = targeted_fields_dict['destination']["where_clauses"]
         else:
