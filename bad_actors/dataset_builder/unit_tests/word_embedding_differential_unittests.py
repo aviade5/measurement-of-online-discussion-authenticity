@@ -8,7 +8,7 @@ from dataset_builder.word_embedding.word_embedding_differential_feature_generato
 from dataset_builder.word_embedding.glove_word_embedding_model_creator import GloveWordEmbeddingModelCreator
 
 
-class Word_Embeddings_Differential_Feature_Generator_Unittests(unittest.TestCase):
+class Word_Embedding_Differential_Feature_Generator_Unittests(unittest.TestCase):
     def setUp(self):
         self._config_parser = getConfig()
         self._db = DB()
@@ -35,17 +35,17 @@ class Word_Embeddings_Differential_Feature_Generator_Unittests(unittest.TestCase
         was_vec_d1 = self._get_word_dimension(u'was', 0)
         expected_val = was_vec_d1-is_vec1
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_differential_sum_target_articles_title_to_posts_content_d0").attribute_value
+                                             u"Word_Embedding_Differential_Feature_Generator_differential_sum_target_articles_title_to_posts_content_d0").attribute_value
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
         expected_val = was_vec_d1 - is_vec1
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_differential_np.mean_target_articles_title_to_posts_content_d0").attribute_value
+                                             u"Word_Embedding_Differential_Feature_Generator_differential_np.mean_target_articles_title_to_posts_content_d0").attribute_value
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
         is_vec = self._words[u'is']
         was_vec = self._words['was']
         expected_val = commons.euclidean_distance(is_vec,was_vec)
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_differential_distance_function_euclidean_distance_target_articles_title_np.mean_TO_posts_content_np.mean").attribute_value
+                                             u"Word_Embedding_Differential_Feature_Generator_differential_distance_function_euclidean_distance_target_articles_title_np.mean_TO_posts_content_np.mean").attribute_value
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
     def test_few_words(self):
@@ -62,7 +62,7 @@ class Word_Embeddings_Differential_Feature_Generator_Unittests(unittest.TestCase
         tot2 = was_vec_d1+that_vec_d1
         expected_val = tot2-tot1
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_differential_sum_target_articles_title_to_posts_content_d"+str(dimension)).attribute_value
+                                             u"Word_Embedding_Differential_Feature_Generator_differential_sum_target_articles_title_to_posts_content_d"+str(dimension)).attribute_value
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
         dimension = 140
         is_vec1 = self._get_word_dimension(u'is', dimension)
@@ -73,7 +73,7 @@ class Word_Embeddings_Differential_Feature_Generator_Unittests(unittest.TestCase
         tot2 = was_vec_d1+that_vec_d1
         expected_val = tot2-tot1
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_differential_sum_target_articles_title_to_posts_content_d"+str(dimension)).attribute_value
+                                             u"Word_Embedding_Differential_Feature_Generator_differential_sum_target_articles_title_to_posts_content_d"+str(dimension)).attribute_value
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
     def test_opposite(self):
@@ -90,7 +90,7 @@ class Word_Embeddings_Differential_Feature_Generator_Unittests(unittest.TestCase
         tot2 = was_vec_d1+that_vec_d1
         expected_val = tot1-tot2
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_differential_sum_target_articles_title_to_posts_content_d"+str(dimension)).attribute_value
+                                             u"Word_Embedding_Differential_Feature_Generator_differential_sum_target_articles_title_to_posts_content_d"+str(dimension)).attribute_value
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
     def test_empty_word(self):
         self._add_post(u'of to a for', u'')

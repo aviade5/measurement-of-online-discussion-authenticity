@@ -13,13 +13,14 @@ from commons.commons import *
 import os
 import timeit
 
-from post_importer import PostImporter
+from preprocessing_tools.post_importer import PostImporter
 
 
 # from _mysql import NULL
 
 class XMLImporter(PostImporter):
     def __init__(self, db):
+
         PostImporter.__init__(self, db)
         config_parser = getConfig()
         self.xmlPath = config_parser.get(self.__class__.__name__, "xml_path")
@@ -132,7 +133,7 @@ class XMLImporter(PostImporter):
                                 try:
                                     if art_child.tagName == 'author':
                                         dictionary.update(
-                                            {'author': createunicodedata(art_child.firstChild.data)})
+                                            {'author': createunicodedata(cleanForAuthor(art_child.firstChild.data))})
                                         author = True
                                 except:
                                     # the author will be NULL
@@ -143,7 +144,7 @@ class XMLImporter(PostImporter):
                                     if art_child.tagName == 'authorGuid':
                                         dictionary.update({'author_guid': art_child.firstChild.data})
                                         if (author == False):
-                                            dictionary.update({'author': art_child.firstChild.data})
+                                            dictionary.update({'author': cleanForAuthor(art_child.firstChild.data)})
                                 except:
                                     self.logger.error("missing author GUID in file: {0}".format(file_path))
 

@@ -436,6 +436,7 @@ class Claim(Base):
     keywords = Column(Unicode, default=None)
     domain = Column(Unicode, default=None)
     verdict = Column(Unicode, default=None)
+    category = Column(Unicode, default=None)
 
     def __repr__(self):
         return "<Claim(claim_id='%s', title='%s', description='%s', url='%s', vardict_date='%s', keywords='%s', domain='%s', verdicy='%s')>" % (

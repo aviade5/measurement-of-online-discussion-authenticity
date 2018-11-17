@@ -1,12 +1,8 @@
-#Written by Lior Bass 3/22/2018
+# Written by Lior Bass 3/22/2018
 from __future__ import print_function
 
 import logging
-
-from DB.schema_definition import DB
 import numpy as np
-import pandas as pd
-
 from commons import commons
 from dataset_builder.feature_extractor.base_feature_generator import BaseFeatureGenerator
 from dataset_builder.word_embedding.Vectors_Operations import Vector_Operations
@@ -22,10 +18,13 @@ class Word_Embedding_Differential_Feature_Generator(AbstractController):
         self._aggregation_functions = self._config_parser.eval(self.__class__.__name__, "aggregation_functions")
         self._pairs_targets = self._config_parser.eval(self.__class__.__name__, "pairs_targets")
         self._distance_functions = self._config_parser.eval(self.__class__.__name__, "distance_functions")
+
     def setUp(self):
         pass
+
     def tearDown(self):
         pass
+
     def is_well_defined(self):
         return True
 
@@ -46,19 +45,21 @@ class Word_Embedding_Differential_Feature_Generator(AbstractController):
 
                         feature_name = self._get_feature_names(target1, target2, aggregation_function)
 
-                        features = features + Vector_Operations.create_author_feature_for_each_dimention(subtraction_vec, feature_name, id, self._window_start, self._window_end)
-                        features= features + self.create_distance_features(id, aggregation_function, dif1_word_embedding,
-                                                      dif2_word_embedding, target1, target2)
+                        features = features + Vector_Operations.create_author_feature_for_each_dimention(
+                            subtraction_vec, feature_name, id, self._window_start, self._window_end,
+                            self.__class__.__name__ + '_')
+                        features = features + self.create_distance_features(id, aggregation_function,
+                                                                            dif1_word_embedding,
+                                                                            dif2_word_embedding, target1, target2, self.__class__.__name__ + '_')
                     except Exception as e1:
                         logging.info(e1)
             self._db.add_author_features(features)
 
     def create_distance_features(self, author_id, aggregation_function, word_embedding_vector1, dif2_word_embedding,
-                                 target1, target2):
+                                 target1, target2, prefix=u''):
         distance_features = []
         for distance_function in self._distance_functions:
-
-            feature_name = u'word_embeddings_differential_' + u"distance_function_" + distance_function + '_' + target1[
+            feature_name = prefix + u'differential_' + u"distance_function_" + distance_function + '_' + target1[
                 'table_name'] + "_" + target1['targeted_field_name'] + "_" + str(aggregation_function) + "_TO_" \
                            + target2['table_name'] + "_" + target2['targeted_field_name'] + "_" + str(
                 aggregation_function)
@@ -77,9 +78,9 @@ class Word_Embedding_Differential_Feature_Generator(AbstractController):
         vector1 = self._collect_word_vector(word_set_1, aggregation_function)
         vector2 = self._collect_word_vector(word_set_2, aggregation_function)
         if vector1 == []:
-            vector1 =[0]*300
+            vector1 = [0] * 300
         if vector2 == []:
-            vector2= [0]*300
+            vector2 = [0] * 300
         subtraction_vector = list(vector1[i] - vector2[i] for i in range(len(vector1)))
         return vector1, vector2, subtraction_vector
 
@@ -95,11 +96,11 @@ class Word_Embedding_Differential_Feature_Generator(AbstractController):
         name_prefix = 'differential'
         name1 = self._get_key_string_from_target_dict(target1)
         name2 = self._get_key_string_from_target_dict(target2)
-        result1 = name_prefix+'_'+str(aggregation_function)+'_'+name1+'_to_'+name2
+        result1 = name_prefix + '_' + str(aggregation_function) + '_' + name1 + '_to_' + name2
         return result1
 
     def _get_key_string_from_target_dict(self, target):
-        s = target['table_name']+'_'+target['targeted_field_name']
+        s = target['table_name'] + '_' + target['targeted_field_name']
         return s
 
     def _get_differentials(self, set1, set2):
@@ -110,14 +111,15 @@ class Word_Embedding_Differential_Feature_Generator(AbstractController):
             return set(text.split(" "))
         except:
             return set()
+
     def _get_records_by_target_dict(self, targeted_fields_dict):
         table_name = targeted_fields_dict["table_name"]
         id_field = targeted_fields_dict["id_field"]
         targeted_field_name = targeted_fields_dict["targeted_field_name"]
         where_clauses = targeted_fields_dict["where_clauses"]
-        tupples =  self._db.get_records_by_id_targeted_field_and_table_name(id_field, targeted_field_name, table_name,
-                                                                            where_clauses)
-        result = {tuple[0]:tuple[1] for tuple in tupples}
+        tupples = self._db.get_records_by_id_targeted_field_and_table_name(id_field, targeted_field_name, table_name,
+                                                                           where_clauses)
+        result = {tuple[0]: tuple[1] for tuple in tupples}
         return result
 
     def _collect_word_vector(self, words, aggregation_function):
@@ -132,7 +134,6 @@ class Word_Embedding_Differential_Feature_Generator(AbstractController):
                     word_vector = self._word_vector_dict[clean_word]
                     word_vectors.append(word_vector)
         word_vectors = zip(*word_vectors)
-        function =eval(aggregation_function)
+        function = eval(aggregation_function)
         result = map(function, word_vectors)
         return result
-

@@ -38,7 +38,7 @@ class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
         max_val = max(of_vec_d1, the_vec_d1)
         min_val = min(of_vec_d1, the_vec_d1)
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                              u"word_embeddings_subtraction_posts_content_min_TO_posts_content_max_d1").attribute_value
+                                              u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_content_min_TO_posts_content_max_d1").attribute_value
         expected_val = min_val - max_val
         self.assertAlmostEqual(float(db_val), float(expected_val), places=4)
 
@@ -47,14 +47,14 @@ class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
         max_val = max(of_vec_d150, the_vec_d150)
         min_val = min(of_vec_d150, the_vec_d150)
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                              u"word_embeddings_subtraction_posts_content_min_TO_posts_content_max_d150").attribute_value
+                                              u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_content_min_TO_posts_content_max_d150").attribute_value
         expected_val = min_val - max_val
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
     def test_no_words(self):
         self._add_post(u'Title1', u'')
         self._setup_test()
-        db_val = self._db.get_author_feature(self._author.author_guid, u"word_embeddings_subtraction_posts_content_min_TO_posts_content_max_d1").attribute_value
+        db_val = self._db.get_author_feature(self._author.author_guid, u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_content_min_TO_posts_content_max_d1").attribute_value
         self.assertEquals(float(db_val), 0.0) # need to create real assert
 
     def test_two_posts(self):
@@ -67,7 +67,7 @@ class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
         max_val = max(of_vec_d1, the_vec_d1)
         min_val = min(of_vec_d1, the_vec_d1)
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_content_min_TO_posts_content_max_d1").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_content_min_TO_posts_content_max_d1").attribute_value
         expected_val = min_val - max_val
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
@@ -76,7 +76,7 @@ class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
         max_val = max(of_vec_d150, the_vec_d150)
         min_val = min(of_vec_d150, the_vec_d150)
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_content_min_TO_posts_content_max_d150").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_content_min_TO_posts_content_max_d150").attribute_value
         expected_val = min_val - max_val
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
@@ -90,7 +90,7 @@ class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
         max_val = max(of_vec_d1, the_vec_d1)
         min_val = min(of_vec_d1, the_vec_d1)
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_title_min_TO_posts_content_max_d1").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_title_min_TO_posts_content_max_d1").attribute_value
         expected_val = min_val - max_val
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
@@ -101,27 +101,27 @@ class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
         the_vec = self._words[u'the']
 
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_jaccard_index").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_jaccard_index").attribute_value
         expected_val = jaccard_index(of_vec, the_vec)
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_euclidean_distance").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_euclidean_distance").attribute_value
         expected_val = euclidean_distance(of_vec, the_vec)
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_euclidean_distance").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_euclidean_distance").attribute_value
         expected_val = euclidean_distance(of_vec, the_vec)
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_manhattan_distance").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_manhattan_distance").attribute_value
         expected_val = manhattan_distance(of_vec, the_vec)
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"word_embeddings_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_minkowski_distance").attribute_value
+                                             u"Word_Embeddings_Comparison_Feature_Generator_subtraction_posts_title_min_TO_posts_content_max_DISTANCE-FUNCTION_minkowski_distance").attribute_value
         expected_val = minkowski_distance(of_vec, the_vec)
         self.assertAlmostEqual(float(db_val), expected_val, places=4)
 

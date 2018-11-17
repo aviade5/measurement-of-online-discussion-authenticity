@@ -48,6 +48,8 @@ class BaseFeatureGenerator(ArgumentParser):
         pass
 
     def execute(self, window_start=None):
+        self.authors = self._db.get_authors_by_domain(self._domain)
+        self.author_guid_posts_dict = self._db.get_posts_by_domain(self._domain)
         start_time = time.time()
         info_msg = "execute started for " + self.__class__.__name__
         logging.info(info_msg)

@@ -45,12 +45,12 @@ class Word_Embeddings_Comparison_Feature_Generator(BaseFeatureGenerator):
                         first_author_guid_word_embedding_vector_dict, second_author_guid_word_embedding_vector_dict,
                         first_table_name, first_targeted_field_name, first_word_embedding_type,
                         second_table_name, second_targeted_field_name, second_word_embedding_type,
-                        self._window_start, self._window_end)
+                        self._window_start, self._window_end, self.__class__.__name__ + '_')
                 else:
                     authors_features = Vector_Operations.create_authors_feature_from_two_vectors(
                         function, first_author_guid_word_embedding_vector_dict,
                         second_author_guid_word_embedding_vector_dict, first_table_name, first_targeted_field_name,
                         first_word_embedding_type, second_table_name, second_targeted_field_name,
-                        second_word_embedding_type, self._window_start, self._window_end)
+                        second_word_embedding_type, self._window_start, self._window_end, self.__class__.__name__ + '_')
 
                 self.insert_author_features_to_db(authors_features)  # create in batches

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 
 import commons
@@ -11,10 +12,10 @@ class Vector_Operations():
                                                 first_table_name,
                                                 first_targeted_field_name, first_word_embedding_type, second_table_name,
                                                 second_targeted_field_name, second_word_embedding_type, window_start,
-                                                window_end):
+                                                window_end, prefix=u''):
         authors_features = []
         for author_id in first_author_vector_dict.keys():
-            feature_name = u'word_embeddings_subtraction_'+first_table_name + "_" + first_targeted_field_name + "_" + first_word_embedding_type + "_TO_" \
+            feature_name = prefix + u'subtraction_'+first_table_name + "_" + first_targeted_field_name + "_" + first_word_embedding_type + "_TO_" \
                            + second_table_name + "_" + second_targeted_field_name + "_" + second_word_embedding_type + "_DISTANCE-FUNCTION_" + func
             first_vector = first_author_vector_dict[author_id]
             second_vector = second_author_vector_dict[author_id]
@@ -38,7 +39,10 @@ class Vector_Operations():
                                                  targeted_word_embedding_type,window_start, window_end, db, commit_treshold, prefix=''):
         authors_features = []
         counter = 0
-        for author_guid in author_guid_word_embedding_dict.keys():
+        author_guids = author_guid_word_embedding_dict.keys()
+        for i, author_guid in enumerate(author_guids):
+            msg = "\rCalculating word embeddings features: {0}/{1}:{2}".format(i, len(author_guids), author_guid)
+            print(msg, end="")
             counter +=1
             if counter%commit_treshold==0:
                 db.add_author_features(authors_features)
@@ -79,7 +83,7 @@ class Vector_Operations():
                                                                 first_table_name, first_targeted_field_name,
                                                                 first_word_embedding_type, second_table_name,
                                                                 second_targeted_field_name, second_word_embedding_type,
-                                                                window_start, window_end):
+                                                                window_start, window_end, prefix=u''):
         author_features = []
         for author_guid in first_author_guid_word_embedding_vector_dict.keys():
             first_vector = first_author_guid_word_embedding_vector_dict[author_guid]
@@ -93,7 +97,7 @@ class Vector_Operations():
                                                                                               second_targeted_field_name,
                                                                                               second_word_embedding_type,
                                                                                               window_start, window_end,
-                                                                                              author_guid)
+                                                                                              author_guid, prefix)
             author_features = author_features + current_authors_feature
         return author_features
 
@@ -101,9 +105,9 @@ class Vector_Operations():
     def create_subtruction_dimention_features(vector_1, vector_2, first_table_name, first_targeted_field_name,
                                               first_word_embedding_type, second_table_name,
                                               second_targeted_field_name, second_word_embedding_type,
-                                              window_start, window_end, author_guid):
+                                              window_start, window_end, author_guid, prefix=u''):
         result_vector = tuple(map(sub, vector_1, vector_2))
-        feature_name = "subtraction_"+first_table_name + "_" + first_targeted_field_name + "_" + first_word_embedding_type +"_TO_" + \
+        feature_name = prefix + "subtraction_"+first_table_name + "_" + first_targeted_field_name + "_" + first_word_embedding_type +"_TO_" + \
                        second_table_name + "_" + second_targeted_field_name + "_" + second_word_embedding_type
         feature_id = author_guid
         author_features = Vector_Operations.create_author_feature_for_each_dimention(result_vector, feature_name,
