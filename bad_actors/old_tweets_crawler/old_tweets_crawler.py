@@ -9,6 +9,7 @@ from DB.schema_definition import Post, Claim_Tweet_Connection
 from commons.commons import compute_post_guid, date_to_str, compute_author_guid_by_author_name
 from commons.method_executor import Method_Executor
 from vendors.GetOldTweets.got import manager
+import threading
 
 __author__ = "Aviad Elyashar"
 
@@ -28,6 +29,7 @@ class OldTweetsCrawler(Method_Executor):
         self._posts = []
         self._claim_post_connections = []
         self._retrieved = 0
+        self._lock = threading.Lock()
 
     def get_old_tweets_by_claims_content(self):
         self._base_retrieve_tweets_from_claims(self._retrieve_tweets_from_claims_by_content)
@@ -44,8 +46,13 @@ class OldTweetsCrawler(Method_Executor):
 
     def _retrieve_tweets_from_claims_by_keywords(self, claims):
         num_of_claims = len(claims)
+        threads = []
         for i, claim in enumerate(claims):
-            self._get_tweets_for_claim_by_keywords(claim, i, num_of_claims)
+            t = threading.Thread(target=self._get_tweets_for_claim_by_keywords, args=(claim, i, num_of_claims,))
+            threads.append(t)
+            t.start()
+            # self._get_tweets_for_claim_by_keywords(claim, i, num_of_claims)
+        [t.join() for t in threads]
 
     def _get_tweets_for_claim_by_keywords(self, claim, i, num_of_claims):
         keywords_str = claim.keywords
@@ -53,7 +60,7 @@ class OldTweetsCrawler(Method_Executor):
         retrieved_tweets_count = 0
         for keyword in keywords:
             tweets = self._retrieve_old_tweets(claim, keyword.lower().strip())
-            retrieved_tweets_count += self._retrieved
+            retrieved_tweets_count += len(set([tweet.id for tweet in tweets]))
             print('\rtweets retrieved {0}'.format(retrieved_tweets_count), end='')
         msg = "\nProcessing claims {0}/{1}, Retreived {2} tweets".format(str(i + 1), num_of_claims,
                                                                          retrieved_tweets_count)
@@ -79,7 +86,9 @@ class OldTweetsCrawler(Method_Executor):
         if self._limit_end_date:
             tweetCriteria = tweetCriteria.setUntil(until)
         tweets = manager.TweetManager.getTweets(tweetCriteria)
+        self._lock.acquire()
         self._add_tweets_and_connections_to_db(claim, tweets)
+        self._lock.release()
         return tweets
 
     def _add_tweets_and_connections_to_db(self, claim, tweets):
@@ -162,10 +171,12 @@ class OldTweetsCrawler(Method_Executor):
     def _retrieve_tweets_between_dates(self, claim, content, start_date, current_date):
         original_claim_id = unicode(claim.claim_id)
         tweets = self._get_and_add_tweets_by_content_and_date(claim, content, start_date, current_date)
+        self._lock.acquire()
         for tweet in tweets:
             if tweet.date < claim.verdict_date:
                 self._claim_id_tweets_id_before_dict[original_claim_id].add(tweet.id)
             else:
                 self._claim_id_tweets_id_after_dict[original_claim_id].add(tweet.id)
+        self._lock.release()
         return tweets
     # content can be keyword or full content

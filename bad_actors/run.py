@@ -110,10 +110,10 @@ modules_dict["FeatureExtractor"] = FeatureExtractor
 modules_dict["BadActorsCollector"] = BadActorsCollector
 modules_dict["DataExporter"] = DataExporter
 modules_dict["LinkPredictionEvaluator"] = LinkPredictionEvaluator
-modules_dict["ExperimentalEnvironment"] = ExperimentalEnvironment
-modules_dict["Predictor"] = Predictor
 modules_dict["KNNWithLinkPrediction"] = KNNWithLinkPrediction
+modules_dict["Predictor"] = Predictor
 modules_dict["Kernel_Performance_Evaluator"] = Kernel_Performance_Evaluator
+modules_dict["ExperimentalEnvironment"] = ExperimentalEnvironment
 modules_dict["TopicDistrobutionVisualizationGenerator"] = TopicDistrobutionVisualizationGenerator
 
 ###############################################################

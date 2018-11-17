@@ -1,3 +1,4 @@
+from __future__ import print_function
 import cookielib
 import datetime
 import json
@@ -33,7 +34,9 @@ class TweetManager:
 
         seen_tweets = set()
         continued = 0
+
         while active:
+            print("\rtweets retrieved: {0}, skipped: {1}".format(len(seen_tweets), continued), end='')
             json = TweetManager.getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy)
             if len(json['items_html'].strip()) == 0:
                 break
@@ -46,7 +49,7 @@ class TweetManager:
 
             if len(tweets) == 0:
                 break
-
+            tweet_ids = []
             for tweetHTML in tweets:
                 tweetPQ = PyQuery(tweetHTML)
                 tweet = models.Tweet()
@@ -60,6 +63,8 @@ class TweetManager:
                 dateSec = int(tweetPQ("small.time span.js-short-timestamp").attr("data-time"))
                 id = tweetPQ.attr("data-tweet-id")
                 permalink = tweetPQ.attr("data-permalink-path")
+
+                tweet_ids.append(id)
 
                 geo = ''
                 geoSpan = tweetPQ('span.Tweet-geo')
@@ -97,9 +102,10 @@ class TweetManager:
                     active = False
                     break
 
+            refreshCursor = 'TWEET-{0}-{1}'.format(tweet_ids[0], tweet_ids[-1])
         if receiveBuffer and len(resultsAux) > 0:
             receiveBuffer(resultsAux)
-
+        print()
         return results
 
     @staticmethod
@@ -151,8 +157,8 @@ class TweetManager:
             response = opener.open(url)
             jsonResponse = response.read()
         except:
-            print "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.quote(
-                urlGetData)
+            print ("Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.quote(
+                urlGetData))
             sys.exit()
             return
 

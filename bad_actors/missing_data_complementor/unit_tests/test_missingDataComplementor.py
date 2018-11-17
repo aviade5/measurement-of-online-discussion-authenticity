@@ -5,7 +5,7 @@ from configuration.config_class import getConfig
 from missing_data_complementor.missing_data_complementor import MissingDataComplementor
 
 
-class MissingDataComplementorTests(TestCase):
+class MissingDataComplemntorTests(TestCase):
     def setUp(self):
         self.config = getConfig()
         self._db = DB()
@@ -13,7 +13,7 @@ class MissingDataComplementorTests(TestCase):
         self._minimal_num_of_posts = self.config.eval("MissingDataComplementor", "minimal_num_of_posts")
         self._missing_data_complemntor = MissingDataComplementor(self._db)
 
-        self._author_guid1 = compute_author_guid_by_author_name(u'BillGates')
+        self._author_guid1 = u'64205a8170453edc8cf5a9f316116573'
         author = Author()
         author.name = u'BillGates'
         author.domain = u'Microblog'
@@ -44,7 +44,7 @@ class MissingDataComplementorTests(TestCase):
             post.xml_importer_insertion_date = datetime.datetime.now()
             self._db.addPost(post)
 
-        self._author_guid2 = compute_author_guid_by_author_name(u'ZachServideo')
+        self._author_guid2 = u'3824f889f6e435c7bbd482faf0b6d2de'
         author = Author()
         author.name = u'ZachServideo'
         author.domain = u'Microblog'
@@ -75,7 +75,7 @@ class MissingDataComplementorTests(TestCase):
             post.xml_importer_insertion_date = datetime.datetime.now()
             self._db.addPost(post)
 
-        self._author_guid3 = compute_author_guid_by_author_name(u'AyexBee')
+        self._author_guid3 = u'3ac92c5a478b3bf79a6f72b947aacbee'
         author = Author()
         self._author_3_name = u'AyexBee'
         author.name = self._author_3_name
@@ -112,8 +112,7 @@ class MissingDataComplementorTests(TestCase):
         author.name = u"philkernick"
         author.domain = u'Microblog'
         author.protected = 0
-
-        author.author_guid = compute_author_guid_by_author_name(u"philkernick")
+        author.author_guid = u"8b06558548043d97903ab5b5c87bf254"
         author.author_screen_name = u"philkernick"
         author.author_full_name = u"Phil Kernick"
         author.xml_importer_insertion_date = datetime.datetime.now()
@@ -152,7 +151,7 @@ class MissingDataComplementorTests(TestCase):
         day = datetime.timedelta(1)
         post.date = datetime.datetime.strptime(tempDate, '%Y-%m-%d %H:%M:%S') + day * 1
         post.domain = u'Microblog'
-        post.author_guid = compute_author_guid_by_author_name(u"philkernick")
+        post.author_guid = u"8b06558548043d97903ab5b5c87bf254"
         post.title = u"RT @virturity: I noticed there is no good visualization of the real Information Security triad, so i made one. You're welcome. #infosec htt"
         post.content = u"RT @virturity: I noticed there is no good visualization of the real &lt;em&gt;Information&lt;/em&gt; &lt;em&gt;Security&lt;/em&gt; triad, so i made one. You're welcome. #infosec htt"
         post.xml_importer_insertion_date = datetime.datetime.now()
@@ -214,7 +213,7 @@ class MissingDataComplementorTests(TestCase):
 
     def test_fill_data_for_sources(self):
         self._missing_data_complemntor.fill_data_for_sources()
-        author = self._db.get_author_by_author_guid(compute_author_guid_by_author_name(u"philkernick"))
+        author = self._db.get_author_by_author_guid(compute_author_guid_by_author_name(u'philkernick'))
         self.assertNotEqual(author.author_osn_id, None)
         self.assertEqual(author.missing_data_complementor_insertion_date,
                          date_to_str(self._missing_data_complemntor._window_start))
@@ -260,3 +259,4 @@ class MissingDataComplementorTests(TestCase):
         self.assertEqual(author.author_sub_type, "private")
         self.assertEqual(author.author_type, "good_actor")
         self._db.session.close()
+
