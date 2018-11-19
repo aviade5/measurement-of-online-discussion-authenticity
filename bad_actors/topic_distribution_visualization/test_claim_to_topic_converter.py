@@ -2,7 +2,7 @@ from collections import defaultdict
 from unittest import TestCase
 
 from DB.schema_definition import Post, Claim_Tweet_Connection, Author, DB, Claim
-from commons.commons import clean_tweet, convert_str_to_unicode_datetime
+from commons.commons import clean_tweet, convert_str_to_unicode_datetime, clean_content_by_nltk_stopwords
 from topic_distribution_visualization.claim_to_topic_converter import ClaimToTopicConverter
 from topic_distribution_visualization.topic_distribution_visualization_generator import \
     TopicDistrobutionVisualizationGenerator
@@ -24,7 +24,6 @@ class TestClaimToTopicConverter(TestCase):
         self._db.session.close()
 
     def test_generate_topics_no_topics(self):
-        claim_id_posts_dict = self._db.get_claim_id_posts_dict()
         self._preprocess_visualization.generate_topics_tables()
         topics = self._db.get_topics()
         self.assertEqual(topics, [])
@@ -32,9 +31,15 @@ class TestClaimToTopicConverter(TestCase):
     def test_generate_topics_from_1_claim(self):
         self._add_claim(u'claim1', u'claim1 content')
         self._db.session.commit()
-        claim_id_posts_dict = self._db.get_claim_id_posts_dict()
         self._preprocess_visualization.generate_topics_tables()
         self.assertTopicInserted(u'claim1', [u'claim1', u'content'])
+
+    def test_generate_topics_from_1_claim_and_remove_stop_words(self):
+        self._add_claim(u'claim1', u'claim1 go to the house')
+        self._db.session.commit()
+        self._preprocess_visualization._remove_stop_words = True
+        self._preprocess_visualization.generate_topics_tables()
+        self.assertTopicInserted(u'claim1', [u'claim1', u'go', u'house'])
 
     def test_generate_topics_from_5_claims(self):
         self._add_claim(u'claim1', u'claim1 content')
@@ -196,6 +201,8 @@ class TestClaimToTopicConverter(TestCase):
         topic_id = self._preprocess_visualization.get_claim_id_topic_dictionary()[claim_id]
         claim = self._claim_dictionary[claim_id]
         expected = set(clean_tweet(claim.description).split(' '))
+        if self._preprocess_visualization._remove_stop_words:
+            expected = set(clean_content_by_nltk_stopwords(claim.description).split(' '))
         self.assertIn(topic_id, topic_dict)
         self.assertSetEqual(expected, topic_dict[topic_id])
         self.assertSetEqual(set(expected_terms), topic_dict[topic_id])

@@ -19,7 +19,6 @@ from commons.consts import DB_Insertion_Type, Author_Type, Author_Connection_Typ
 from commons.consts import Domains
 from configuration.config_class import getConfig
 
-
 Base = declarative_base()
 
 configInst = getConfig()
@@ -163,8 +162,8 @@ class Post(Base):
 
     media_path = Column(Unicode, default=None)
 
-    #keywords = Column(Unicode, default=None)
-    #paragraphs = Column(Unicode, default=None)
+    # keywords = Column(Unicode, default=None)
+    # paragraphs = Column(Unicode, default=None)
     post_osn_guid = Column(Unicode, default=None)
     post_type = Column(Unicode, default=None)
     post_format = Column(Unicode, default=None)
@@ -276,6 +275,7 @@ class AuthorFeatures(Base):
         self.attribute_name = _attribute_name
         self.attribute_value = _attribute_value
 
+
 class Post_to_pointers_scores(Base):
     __tablename__ = 'posts_to_pointers_scores'
     post_id_to = Column(Integer, ForeignKey("post_citations.post_id_to"), primary_key=True)
@@ -320,8 +320,9 @@ class AnchorAuthor(Base):
     author_type = Column(Unicode, default=None)
 
     def __init__(self, _author_guid, _author_type):
-        self.author_guid=_author_guid
-        self.author_type=_author_type
+        self.author_guid = _author_guid
+        self.author_type = _author_type
+
     def __repr__(self):
         return "<TestAuthors(author_guid='%s', author_type='%s')>" % \
                (self.author_guid, self.author_type)
@@ -393,6 +394,7 @@ class Topic(Base):
     term_id = Column(Integer, ForeignKey("terms.term_id"), primary_key=True)
     probability = Column(FLOAT, default=None)
 
+
 class Text_From_Image(Base):
     __tablename__ = 'image_hidden_texts'
 
@@ -418,6 +420,7 @@ class Image_Tags(Base):
         return "<Image_Tags(post_id='%s', author_guid='%s', media_path='%s', tags='%s')>" % (
             self.post_id, self.author_guid, self.media_path, self.tags)
 
+
 class Claim_Tweet_Connection(Base):
     __tablename__ = "claim_tweet_connection"
 
@@ -440,7 +443,8 @@ class Claim(Base):
 
     def __repr__(self):
         return "<Claim(claim_id='%s', title='%s', description='%s', url='%s', vardict_date='%s', keywords='%s', domain='%s', verdicy='%s')>" % (
-            self.claim_id, self.title, self.description, self.url, self.verdict_date, self.keywords, self.domain, self.verdict)
+            self.claim_id, self.title, self.description, self.url, self.verdict_date, self.keywords, self.domain,
+            self.verdict)
 
 
 class DB():
@@ -584,16 +588,18 @@ class DB():
         records = list(cursor.fetchall())
         return len(records) > 0
 
-    def get_topic_to_author_mapping(self):
+    def get_topic_to_author_mapping(self, target_author_field):
         '''
         :return: a mapping of <topic_id> -> <author name> -> <number of posts in the topic> for each topic
         '''
         ans = {}
-        query = text("select max_topic_id, author, count(*) as posts_in_topic_count " \
-                     "from post_topic_mapping join posts on post_topic_mapping.post_id = posts.post_id " \
-                     "where posts.domain = 'Microblog' " \
-                     "group by max_topic_id, author " \
-                     "order by max_topic_id")
+        query = text("""select max_topic_id, authors.{0}, count(*) as posts_in_topic_count 
+                         from post_topic_mapping , posts  , authors 
+                         where posts.domain = 'Microblog' 
+                         and post_topic_mapping.post_id = posts.post_id 
+                         and authors.author_guid = posts.author_guid 
+                         group by max_topic_id, author 
+                         order by max_topic_id""".format(target_author_field))
         result = self.session.execute(query)
         for topic_id, author, posts_in_topic_count in result:
             if not topic_id in ans:
@@ -932,6 +938,7 @@ class DB():
     def get_authors(self):
         result = self.session.query(Author).all()
         return result
+
     def get_all_authors(self):
         result = self.session.query(Author).all()
         return result
@@ -1095,7 +1102,6 @@ class DB():
         self.session.execute(q, params=dict(window_start=win_start, window_end=win_end))
         self.commit()
 
-
         ###########################################################
         # author_features
         ###########################################################
@@ -1140,7 +1146,7 @@ class DB():
         for var in globals():
             class_obj = globals()[var]
             try:
-                if issubclass(class_obj, Base) and class_obj. __tablename__ == table_name:
+                if issubclass(class_obj, Base) and class_obj.__tablename__ == table_name:
                     return class_obj
             except:
                 pass
@@ -1172,7 +1178,6 @@ class DB():
         connection_conditions = self._get_connection_conditions(connection_where_clauses, destination_table,
                                                                 source_table)
 
-
         source_conditions = self._get_conditions_from_where_cluases(source_table, source_where_clauses)
         destination_conditions = self._get_conditions_from_where_cluases(destination_table, destination_where_clauses)
         conditions = source_conditions + destination_conditions + connection_conditions
@@ -1181,9 +1186,9 @@ class DB():
         connection_target_attr = getattr(connection_table, connection_targeted_id)
         destination_id_attr = getattr(destination_table, destination_id)
 
-        table_elements = self.session.query(connection_source_attr, destination_table)\
-            .join(source_table, connection_source_attr == source_id_attr)\
-            .join(destination_table, connection_target_attr == destination_id_attr)\
+        table_elements = self.session.query(connection_source_attr, destination_table) \
+            .join(source_table, connection_source_attr == source_id_attr) \
+            .join(destination_table, connection_target_attr == destination_id_attr) \
             .filter(and_(condition for condition in conditions)).yield_per(100).enable_eagerloads(False)
 
         return table_elements
@@ -1379,7 +1384,6 @@ class DB():
             i += 1
             self.update_target_articles(target_article)
         self.commit()
-
 
     def add_image_hidden_texts(self, image_hidden_texts):
         logging.info("image_hidden_texts inserted to DB: " + str(len(image_hidden_texts)))
@@ -1591,7 +1595,8 @@ class DB():
         return suspended_authors
 
     def get_not_suspended_authors(self, domain):
-        result = self.session.query(Author).filter(and_(Author.is_suspended_or_not_exists == None, Author.domain == domain)).all()
+        result = self.session.query(Author).filter(
+            and_(Author.is_suspended_or_not_exists == None, Author.domain == domain)).all()
         return result
 
     def get_followers_or_friends_candidats(self, connection_type, domain, limit):
@@ -1736,7 +1741,6 @@ class DB():
                     screen_name = optional_screen_names[0]
                     screen_names.append(screen_name)
         return screen_names
-
 
     def add_author_connection(self, author_connection):
         self.session.merge(author_connection)
@@ -1937,7 +1941,6 @@ class DB():
         created_date = date(year, month, day)
         return created_date
 
-
     ###########################################################
     # Views creation
     ###########################################################
@@ -1959,7 +1962,6 @@ class DB():
             t.max_topic_id\
             ;")
         self.session.commit()
-
 
     def create_total_url_frequency_view(self):
         '''
@@ -3311,16 +3313,15 @@ class DB():
         result = cursor.fetchall()[0]
         return result
 
-
     def get_dict_idfield_to_item(self, targeted_fields_dict):
         id_field = targeted_fields_dict['id_field']
-        query = 'select * from '+targeted_fields_dict['table_name']
+        query = 'select * from ' + targeted_fields_dict['table_name']
         answer = self.session.execute(text(query))
         return dict((getattr(item, id_field), item) for item in self.result_iter(answer))
 
     def get_author_id_by_field_id(self, field_id, id_val):
-        if field_id=="post_id":
-            query = 'SELECT author_guid FROM posts WHERE post_id='+id_val
+        if field_id == "post_id":
+            query = 'SELECT author_guid FROM posts WHERE post_id=' + id_val
             answer = self.session.execute(text(query))
             cursor = answer.cursor
             result = cursor.fetchall()[0]
@@ -3370,7 +3371,8 @@ class DB():
                 AND authors.{2} = '{3}'
                 ORDER BY RANDOM()
                 LIMIT {4}
-                """.format(min_posts_count, domain, authors_table_field_name, authors_table_value, num_of_random_authors)
+                """.format(min_posts_count, domain, authors_table_field_name, authors_table_value,
+                           num_of_random_authors)
         query = text(query)
         result = self.session.execute(query, params=dict(min_posts_count=min_posts_count, domain=domain,
                                                          num_of_random_authors=num_of_random_authors))
@@ -3466,16 +3468,20 @@ class DB():
         return author
 
     def get_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type):
-        query = self._get_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name, word_embedding_type)
+        query = self._get_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name,
+                                                                       word_embedding_type)
         result = self.session.execute(query, params=dict(table_name=table_name, targeted_field_name=targeted_field_name,
                                                          word_embedding_type=word_embedding_type))
         return self._create_author_guid_word_embedding_vector_dict_by_query(result)
 
-    def get_random_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type, num_of_random_authors_for_graph):
+    def get_random_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type,
+                                                          num_of_random_authors_for_graph):
         query = self._get_random_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name,
-                                                                               word_embedding_type, num_of_random_authors_for_graph)
+                                                                              word_embedding_type,
+                                                                              num_of_random_authors_for_graph)
         result = self.session.execute(query, params=dict(table_name=table_name, targeted_field_name=targeted_field_name,
-                                                         word_embedding_type=word_embedding_type, num_of_random_authors_for_graph=num_of_random_authors_for_graph))
+                                                         word_embedding_type=word_embedding_type,
+                                                         num_of_random_authors_for_graph=num_of_random_authors_for_graph))
         return self._create_author_guid_word_embedding_vector_dict_by_query(result)
 
     def _get_word_embeddings_types(self):
@@ -3495,7 +3501,8 @@ class DB():
                 """
         return query
 
-    def _get_random_author_guid_word_embedding_vector_full_query(self,table_name, targeted_field_name, word_embedding_type, num_of_random_authors_for_graph):
+    def _get_random_author_guid_word_embedding_vector_full_query(self, table_name, targeted_field_name,
+                                                                 word_embedding_type, num_of_random_authors_for_graph):
         query = """
                 SELECT *
                 FROM author_word_embeddings
@@ -3541,7 +3548,9 @@ class DB():
     def get_author_word_embedding(self, author_guid, table_name, target_field_name):
         ans = {}
         columns = self._get_word_embeddings_types()
-        ans ={unicode(col):self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, col)[author_guid] for col in columns}
+        ans = {
+        unicode(col): self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, col)[author_guid]
+        for col in columns}
         # ans[u'min'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'min')[author_guid]
         # ans[u'max'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'max')[author_guid]
         # ans[u'np.mean'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'np.mean')[author_guid]

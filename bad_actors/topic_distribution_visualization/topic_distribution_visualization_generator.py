@@ -15,6 +15,7 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         self.prediction_csv_path = self._config_parser.eval(self.__class__.__name__, "prediction_csv_path")
         self._viz_output_path = self._config_parser.eval(self.__class__.__name__, "output_dir")
         self._buckets = self._config_parser.eval(self.__class__.__name__, "buckets")
+        self._target_author_field = self._config_parser.eval(self.__class__.__name__, "target_author_field")
         self._include_unlabeled_predictions = self._config_parser.eval(self.__class__.__name__,
                                                                        "include_unlabeled_predictions")
         self._include_labeled_authors_in_visualization = self._config_parser.eval(self.__class__.__name__,
@@ -280,7 +281,7 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         '''
         topic_post_distribution = {}
         topic_authors_distribution_dict = {}
-        topic_to_author_mapping = self._db.get_topic_to_author_mapping()
+        topic_to_author_mapping = self._db.get_topic_to_author_mapping(self._target_author_field)
         j = 1
         for topic_id in topic_to_author_mapping:
             msg = "\nTopic [{}/{}]".format(str(j), str(len(topic_to_author_mapping)))
@@ -348,14 +349,15 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
     def _fill_author_classification_from_csv_file(self):
         author_classification = {}
         print("Load authors predications CSV")
-        with open(self.prediction_csv_path) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                print(row)
-                author_name = row['author_screen_name']
-                predicted = row['predicted']
-                prediction = float(row['prediction'])
-                self._fill_author_classification(author_name, predicted, prediction, author_classification)
+        prediction_csv = pd.DataFrame.from_csv(self.prediction_csv_path)
+        prediction_csv.reset_index(inplace=True)
+        prediction_rows = list(prediction_csv.iterrows())
+        for row in prediction_rows:
+            print(row[1])
+            author_name = row[1][0]
+            predicted = row[1][1]
+            prediction = float(row[1][2])
+            self._fill_author_classification(author_name, predicted, prediction, author_classification)
         return author_classification
 
     def _write_topic_statistics(self, topic_and_data):

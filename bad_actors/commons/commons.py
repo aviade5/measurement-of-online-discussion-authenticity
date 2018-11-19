@@ -20,7 +20,7 @@ from nltk.stem.snowball import GermanStemmer, EnglishStemmer
 from nltk.tokenize.simple import SpaceTokenizer
 from scipy.spatial import distance
 from sklearn.feature_extraction.text import CountVectorizer
-
+from nltk.corpus import stopwords
 
 def str_to_date(datestring, formate="%Y-%m-%d %H:%M:%S"):
     return datetime.datetime.strptime(datestring, formate)
@@ -317,7 +317,7 @@ def clean_content_to_set_of_words(stopwords_file, content, stemmerLanguage):
     content = " ".join(words)
     words = c.findall(content)
 
-    words = [word for word in words if word not in stopwords]
+    words = clean_words_from_stopwords(stopwords, words)
 
     words = [stem(word, stemmers) for word in words]
 
@@ -325,6 +325,15 @@ def clean_content_to_set_of_words(stopwords_file, content, stemmerLanguage):
 
     return words
 
+
+def clean_words_from_stopwords(stopwords, words):
+    return [word for word in words if word not in stopwords]
+
+
+def clean_content_by_nltk_stopwords(topic_content):
+    stopWords = set(stopwords.words('english'))
+    topic_content = ' '.join(clean_words_from_stopwords(stopWords, topic_content.split(' ')))
+    return topic_content
 
 def set_stemmer(stemmer_language):
     if (stemmer_language == "GER"):

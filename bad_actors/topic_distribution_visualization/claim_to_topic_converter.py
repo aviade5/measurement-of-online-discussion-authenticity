@@ -1,14 +1,16 @@
 from __future__ import print_function
 import json
 from DB.schema_definition import AuthorConnection
-from commons.commons import clean_tweet
+from commons.commons import clean_tweet, clean_words_from_stopwords, clean_content_by_nltk_stopwords
 from dataset_builder.feature_extractor.feature_argument_parser import ArgumentParser
+from nltk.corpus import stopwords
 
 
 class ClaimToTopicConverter(ArgumentParser):
     def __init__(self, db):
         super(ClaimToTopicConverter, self).__init__(db)
         self._output_path = self._config_parser.eval(self.__class__.__name__, "output_path")
+        self._remove_stop_words = self._config_parser.eval(self.__class__.__name__, "remove_stop_words")
         self.term_dictionary = {}
         self._last_term_index = 0
         self._num_topics = 0
@@ -37,6 +39,7 @@ class ClaimToTopicConverter(ArgumentParser):
 
     def generate_topics_tables(self):
         claims = self._db.get_claims()
+
         terms = []
         topic_items = []
         for i, claim in enumerate(claims):
@@ -91,6 +94,8 @@ class ClaimToTopicConverter(ArgumentParser):
     def _generate_terms_and_topic_items(self, claim, topic_items, terms):
         claim_id = claim.claim_id
         topic_content = clean_tweet(claim.description)
+        if self._remove_stop_words:
+            topic_content = clean_content_by_nltk_stopwords(topic_content)
         topic_terms = topic_content.split(' ')
         self._update_term_to_term_id_dict(topic_terms)
         term_count = float(len(topic_terms))
