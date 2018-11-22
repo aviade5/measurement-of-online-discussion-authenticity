@@ -700,7 +700,7 @@ class DB():
     def get_posts_by_domain(self, domain):
         posts_by_user = {}
         query = text("select posts.author_guid, posts.date, posts.content from posts where posts.domain = :domain "
-                     "and length(posts.content)>0 and posts.date IS NOT NULL")
+                     "and posts.date IS NOT NULL")
         counter = 0
         print("schema_definition.get_posts_by_domain before executing query..")
         result = self.session.execute(query, params=dict(domain=domain))
@@ -2713,6 +2713,7 @@ class DB():
     def insert_or_update_authors_from_posts(self, domain, author_classify_dict, author_probability_dict):
         authors_to_update = []
         posts = self.session.query(Post).filter(Post.domain == domain).all()
+        author_guids_set = set(self.get_author_guids())
         logging.info("Insert or update_authors from app importer")
         logging.info("total Posts: " + str(len(posts)))
         i = 1
@@ -2723,7 +2724,7 @@ class DB():
             author_guid = post.author_guid
             # domain = post.domain
 
-            if not self.is_author_exists(author_guid, domain):
+            if author_guid not in author_guids_set:
                 author = Author()
                 author_name = post.author
                 author.name = author_name
@@ -2756,7 +2757,7 @@ class DB():
 
 
     def get_author_guids(self):
-        result = self.session.query(Author.author_guid).filter(Author.author_osn_id.isnot(None)).all()
+        result = self.session.query(Author.author_guid).all()
         ids = [res[0] for res in result]
         return ids
 

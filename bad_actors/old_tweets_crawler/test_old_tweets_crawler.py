@@ -58,13 +58,13 @@ class TestOldTweetsCrawler(TestCase):
         until_date = str_to_date(u"2017-03-03 00:00:00")
         self.tweets_crawler._limit_start_date = True
         self.tweets_crawler._limit_end_date = True
-        self.tweets_crawler._max_num_tweets = 133
+        self.tweets_crawler._max_num_tweets = 10
         self.tweets_crawler._month_interval = 1
         tweets = self.tweets_crawler._retrieve_old_tweets(self._claims[u"post0"], u"The Rock Running for President")
 
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([since_date <= date < until_date for date in tweets_date]))
-        self.assertGreaterEqual(133, len(tweets))
+        self.assertGreaterEqual(self.tweets_crawler._max_num_tweets, len(tweets))
 
     def test_retrieve_tweets_by_content_between_dates_no_limit_after(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00")
@@ -73,13 +73,13 @@ class TestOldTweetsCrawler(TestCase):
         until_date = str_to_date(u"2017-03-03 00:00:00")
         self.tweets_crawler._limit_start_date = True
         self.tweets_crawler._limit_end_date = False
-        self.tweets_crawler._max_num_tweets = 250
+        self.tweets_crawler._max_num_tweets = 25
         self.tweets_crawler._month_interval = 1
         tweets = self.tweets_crawler._retrieve_old_tweets(self._claims[u"post0"], u"The Rock Running for President")
 
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([since_date <= date for date in tweets_date]))
-        self.assertGreaterEqual(250, len(tweets))
+        self.assertGreaterEqual(self.tweets_crawler._max_num_tweets, len(tweets))
 
     def test_retrieve_tweets_by_content_between_dates_no_limit_before(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00")
@@ -88,13 +88,13 @@ class TestOldTweetsCrawler(TestCase):
         until_date = str_to_date(u"2017-03-03 00:00:00")
         self.tweets_crawler._limit_start_date = False
         self.tweets_crawler._limit_end_date = True
-        self.tweets_crawler._max_num_tweets = 250
+        self.tweets_crawler._max_num_tweets = 25
         self.tweets_crawler._month_interval = 1
         tweets = self.tweets_crawler._retrieve_old_tweets(self._claims[u"post0"], u"The Rock Running for President")
 
         tweets_date = map(lambda tweet: tweet.date, tweets)
         self.assertTrue(all([date < until_date for date in tweets_date]))
-        self.assertGreaterEqual(250, len(tweets))
+        self.assertGreaterEqual(self.tweets_crawler._max_num_tweets, len(tweets))
 
     def test_execute_retrieve_tweets_by_full_content_1_month_interval(self):
         self._add_claim(u"post0", u"The Rock Running for President", u"2017-02-03 00:00:00",
@@ -102,7 +102,7 @@ class TestOldTweetsCrawler(TestCase):
         self._db.commit()
         self.tweets_crawler._limit_start_date = True
         self.tweets_crawler._limit_end_date = True
-        self.tweets_crawler._max_num_tweets = 133
+        self.tweets_crawler._max_num_tweets = 13
         self.tweets_crawler._month_interval = 1
         self.tweets_crawler._actions = ['get_old_tweets_by_claims_content']
         self.tweets_crawler.execute()
@@ -111,7 +111,7 @@ class TestOldTweetsCrawler(TestCase):
         tweets_after = self.tweets_crawler._claim_id_tweets_id_after_dict[u"post0"]
         self.assertEqual(0, len(tweets_before & tweets_after))
         tweets_retrieved = len(tweets_before) + len(tweets_after)
-        self.assertGreaterEqual(133, tweets_retrieved)
+        self.assertGreaterEqual(self.tweets_crawler._max_num_tweets, tweets_retrieved)
         self.assertEqual(tweets_retrieved, len(self._db.get_posts()))
         self.assertEqual(tweets_retrieved, len(self._db.get_claim_tweet_connections()))
         self.assertLess(0, tweets_retrieved)
@@ -122,7 +122,7 @@ class TestOldTweetsCrawler(TestCase):
         self._db.commit()
         self.tweets_crawler._limit_start_date = True
         self.tweets_crawler._limit_end_date = True
-        self.tweets_crawler._max_num_tweets = 141
+        self.tweets_crawler._max_num_tweets = 14
         self.tweets_crawler._month_interval = 1
         self.tweets_crawler._actions = ['get_old_tweets_by_claims_keywords']
         self.tweets_crawler.execute()
@@ -131,7 +131,7 @@ class TestOldTweetsCrawler(TestCase):
         tweets_after = self.tweets_crawler._claim_id_tweets_id_after_dict[u"post0"]
         self.assertEqual(0, len(tweets_before & tweets_after))
         tweets_retrieved = len(tweets_before) + len(tweets_after)
-        self.assertGreaterEqual(141 * 3, tweets_retrieved)
+        self.assertGreaterEqual(self.tweets_crawler._max_num_tweets * 3, tweets_retrieved)
         self.assertEqual(tweets_retrieved, len(self._db.get_posts()))
         self.assertEqual(tweets_retrieved, len(self._db.get_claim_tweet_connections()))
         self.assertLess(0, tweets_retrieved)

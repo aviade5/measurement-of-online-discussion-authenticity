@@ -16,9 +16,11 @@ and finally writing this data into a ARFF file
 
 
 class ArffWriter():
-    def __init__(self, db, author_type_classes):
+    def __init__(self, db, author_type_classes, target_type_attr_name):
         self._db = db
         self._author_type_classes = author_type_classes
+        self._target_type_attr_name = target_type_attr_name
+
 
     def setUp(self):
         pass
@@ -51,6 +53,8 @@ class ArffWriter():
 
             elif col == "author_sub_type":
                 header += '@ATTRIBUTE '+col+' {private, company, news_feed, crowdturfer, spammer, bot} \n'
+            elif col == self._target_type_attr_name:
+                header += '@ATTRIBUTE ' + col + ' {' + ','.join(map(str, self._author_type_classes)) + '} \n'
             else:
                 header += '@ATTRIBUTE '+col+' numeric \n '
 

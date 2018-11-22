@@ -11,13 +11,14 @@ class DataExporter(AbstractExecutor):
         AbstractExecutor.__init__(self, db)
         self.output_filename = self._config_parser.eval(self.__class__.__name__, "arff_file")
         self._author_type_classes = self._config_parser.eval(self.__class__.__name__, "author_type_classes")
+        self._target_type_attr_name = self._config_parser.eval(self.__class__.__name__, "target_type_attr_name")
 
     def setUp(self):
         pass
 
     def execute(self, window_start):
         logging.info("Data exporter started !!!!")
-        writer = ArffWriter(self._db, self._author_type_classes)
+        writer = ArffWriter(self._db, self._author_type_classes, self._target_type_attr_name)
         writer.write_author_features_to_arff(self.output_filename)
         logging.info("Data exporter Finished !!!!")
 

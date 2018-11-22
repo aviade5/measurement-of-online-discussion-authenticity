@@ -1,4 +1,6 @@
 from __future__ import print_function
+
+import json
 from webbrowser import open_new_tab
 from scipy.misc import imread
 import csv
@@ -25,11 +27,26 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
         # if you have problem with config - this is it
         # font = "topic_distribution_visualization/Mukadimah.ttf"
         self._font_path = self._config_parser.eval(self.__class__.__name__, "font_path")
+        self.include_topic_labels = self._config_parser.eval(self.__class__.__name__, "include_topic_labels")
+        self.claim_to_topic_connection_json = self._config_parser.eval(self.__class__.__name__,
+                                                                       "claim_to_topic_connection_json")
+        self.topic_classification_table_args = self._config_parser.eval(self.__class__.__name__,
+                                                                        "topic_classification_table_args")
+        self._topic_to_type = {}
 
     def setUp(self):
         pass
 
     def execute(self, window_start=None):
+        if self.include_topic_labels:
+            table_name = self.topic_classification_table_args['table']
+            table_id = self.topic_classification_table_args['id']
+            type_field = self.topic_classification_table_args['type_field']
+            table_id_table_elements_dict = self._db.get_table_dictionary(table_name, table_id)
+            claim_to_topic_json = open(self.claim_to_topic_connection_json)
+            claim_to_topic_connection = json.load(claim_to_topic_json)
+            for claim_id, topic_id in claim_to_topic_connection.iteritems():
+                self._topic_to_type[str(topic_id)] = getattr(table_id_table_elements_dict[claim_id], type_field)
         self.create_topic_data_list()
 
     def red_to_green_colors(self, number_of_colors):
@@ -88,7 +105,10 @@ class TopicDistrobutionVisualizationGenerator(AbstractController):
                             }
                         };
                         """
-            top = '"Topic :' + topic[0] + '"'
+            verdict = ''
+            if self.include_topic_labels:
+                verdict = self._topic_to_type[topic[0]]
+            top = '"Topic :' + topic[0] + ' Verdict: {0}"'.format(verdict)
             script += config % (str(i), self.create_dataset_for_chart(topic[1]), str(topic[2]), top)
             i += 1
         script += "\nwindow.onload = function (){\n"

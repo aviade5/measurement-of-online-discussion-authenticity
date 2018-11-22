@@ -49,8 +49,9 @@ class LDATopicModel(AbstractExecutor):
         post_id_to_ngrams = {}
         for doc_id, content in post_id_to_content.iteritems():
             if content is not None:
-                words = clean_content_to_set_of_words(self.stopword_file, content, self.stemlanguage)
-                words = ' '.join(words)
+                content = clean_tweet(content)
+                words = clean_content_by_nltk_stopwords(content, self.stemlanguage)
+                words = stem_content_using_stemmer(self.stemlanguage, words)
                 post_id_to_ngrams[doc_id] = calc_ngrams(words, 1, 1)
         return post_id_to_ngrams
 

@@ -7,6 +7,8 @@ import time
 from account_properties_feature_generator import AccountPropertiesFeatureGenerator
 from behavior_feature_generator import BehaviorFeatureGenerator
 from configuration.config_class import getConfig
+from dataset_builder.feature_extractor.sentiment_feature_generator import Sentiment_Feature_Generator
+from dataset_builder.feature_extractor.tf_idf_feature_generator import TF_IDF_Feature_Generator
 from dataset_builder.feature_extractor.word_embeddings_comparison_feature_generator import \
     Word_Embeddings_Comparison_Feature_Generator
 from dataset_builder.feature_extractor.glove_word_embeddings_feature_generator import GloveWordEmbeddingsFeatureGenerator
@@ -40,6 +42,8 @@ class FeatureExtractor(AbstractExecutor):
         module_dict["SyntaxFeatureGenerator"] = SyntaxFeatureGenerator
         module_dict["BehaviorFeatureGenerator"] = BehaviorFeatureGenerator
         module_dict["GraphFeatureGenerator_1"] = GraphFeatureGenerator
+        module_dict["TF_IDF_Feature_Generator"] = TF_IDF_Feature_Generator
+        module_dict["Sentiment_Feature_Generator"] = Sentiment_Feature_Generator
         module_dict["AccountPropertiesFeatureGenerator"] = AccountPropertiesFeatureGenerator
         module_dict["GraphFeatureGenerator_2"] = GraphFeatureGenerator
         module_dict["DistancesFromTargetedClassFeatureGenerator"] = DistancesFromTargetedClassFeatureGenerator
