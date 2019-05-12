@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(mes
 # from bad_actors_collector.unit_tests.bad_actor_collector_unittests import TestBadActorCollector
 # from missing_data_complementor.unit_tests.test_missingDataComplementor import MissingDataComplementorTests
 # from twitter_crawler.unittests.twitter_crawler_tests import TwitterCrawlerTests
-from dataset_builder.lda_topic_model_test import TestLDATopicModel
+#from dataset_builder.lda_topic_model_test import TestLDATopicModel
 
 # from timeline_overlap_visualization.test_timelineOverlapVisualizationGenerator import TestTimelineOverlapVisualizationGenerator
 # from DB.unit_tests.posts_unittests import TestPost
@@ -36,5 +36,7 @@ from dataset_builder.lda_topic_model_test import TestLDATopicModel
 # from topic_distribution_visualization.test_claim_to_topic_converter import TestClaimToTopicConverter
 # from dataset_builder.unit_tests.tf_idf_feature_generator_unittests import TF_IDF_Feature_Generator_Unittests
 # from dataset_builder.unit_tests.sentiment_feature_generator_unittest import Sentiment_Feature_Generator_Unittest
+from preprocessing_tools.unit_tests.test_google_link_importer import TestGoogleLinkImporter
+from preprocessing_tools.unit_tests.test_instagram_crawler import TestInstagramCrawler
 if __name__ == "__main__":
     unittest.main()
