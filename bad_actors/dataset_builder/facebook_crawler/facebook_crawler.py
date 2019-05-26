@@ -1,8 +1,10 @@
 ## Aviad Imports
 
 from __future__ import print_function
-from commons.method_executor import Method_Executor
+
 from commons import commons
+from commons.method_executor import Method_Executor
+
 ## Nitzan Imports
 from telnetlib import EC
 from datetime import datetime
@@ -14,6 +16,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from DB.schema_definition import Author, AuthorConnection
+
+
+### ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******
+### ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******
+
+# Public methods begin with name "extract" and they include logging into facebook - beginning a logged in session
+
+# Make sure you know that (above) when using this class.
+
+### ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******
+### ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******    ******
+
 
 
 __author__ = "Nitzan Maarek"
@@ -33,7 +47,6 @@ class FacebookCrawler(Method_Executor):
         self.driver = webdriver.Firefox(executable_path=r'C:\Python27\geckodriver.exe', firefox_options=options)
         self.driverWait = WebDriverWait(self.driver, 10)   # Waiting threshold for loading page is 10 seconds
 
-
     def _facebook_login(self):
         """
         Method logs into facebook in facebook homepage.
@@ -43,15 +56,18 @@ class FacebookCrawler(Method_Executor):
         self.driver.find_element_by_xpath("//input[@id='pass']").send_keys(self._account_user_pw)
         self.driver.find_element_by_xpath("//input[starts-with(@id, 'u_0_')][@value='Log In']").click()
 
-
     def extract_number_of_friends(self):
         """
         Method extract number of friends of all member in the group in config.ini
         Updates/Saves number of friends to facebook_author table.
         """
-        #TODO: debug this
+        self._facebook_login()
         records = self._db.get_authors_by_facebook_group(self._group_id)
-        print(records)
+        for record in records:
+            user_id = record.destination_author_guid
+            num_of_friends = self._get_number_of_friends(user_id)
+            print("User id is: " + user_id + " ; Number of friends: " + num_of_friends)
+            #TODO: Need to check with aviad about the author table - Need to add number of friends to DB.
 
     def _get_number_of_friends(self, user_id):
         """
@@ -82,39 +98,17 @@ class FacebookCrawler(Method_Executor):
 
     def extract_members_from_group(self):
         """
-        Method extracts members from given group in config.ini
+        Method logs in to facebook and extracts members from given group in config.ini
         Saves all members (Users, pages) of the group and the group itself as Authors.
         Saves connection from group to member as Group-Member.
         """
-        user_names, user_ids = self._get_members_from_group()
-        authors = self._convert_group_members_to_authors(user_names, user_ids)
-        group_as_author = self._convert_group_to_author()
-        authors.append(group_as_author)
+        self._facebook_login()
+        users_id_to_name_dict = self._get_members_from_group('https://www.facebook.com/groups/' + self._group_id + '/members/', number_of_scrolls=3)
+        authors = self._convert_group_members_to_author(users_id_to_name_dict)
+        authors.append(self._convert_group_to_author())
         self._db.addPosts(authors)  # Add members to Authors table in DB
-        connections = self._convert_group_and_members_to_connections(user_ids)
-        self._db.addPosts(connections)  # Add group to member connections to AuthorConnection table in DB
-
-
-
-    def _convert_group_and_members_to_connections(self, user_id_list):
-        """
-        Method creates connection objects for group in config.ini with given user_id list.
-        Appends all connections created to a list and returns it.
-        :return: List of AuthorConnection: src = group_id, dst = member_id
-        """
-        connection_list = []
-        for user_id in user_id_list:
-            connection = AuthorConnection()
-            group_author_guid = self._get_guid_by_osn_id(self._group_id)
-            connection.source_author_guid = group_author_guid
-            user_author_osn_id = self._get_guid_by_osn_id(user_id)
-            connection.destination_author_guid = user_author_osn_id
-            connection.connection_type = 'Group-Member'  #TODO: Check with aviad that this connection type is good.
-            now = datetime.now()
-            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-            connection.insertion_date = dt_string
-            connection_list.append(connection)
-        return connection_list
+        group_to_members_connections = self._convert_group_and_members_to_connections(users_id_to_name_dict)
+        self._db.addPosts(group_to_members_connections)  # Add group to member connections to AuthorConnection table in DB
 
     def _get_guid_by_osn_id(self, osn_id):
         """
@@ -123,8 +117,31 @@ class FacebookCrawler(Method_Executor):
         :return: author_guid
         """
         records = self._db.get_author_guid_by_facebook_osn_id(osn_id)
-        print(records)
-        return records[0].author_guid
+        first_record = records[0]
+        # print(records)
+        return first_record.author_guid
+
+    def _convert_group_and_members_to_connections(self, users_id_to_name_dict):
+        """
+        Method creates connection objects for group in config.ini with given user_id to user_name dictionary.
+        Appends all connections created to a list and returns it.
+        :return: List of AuthorConnection: src = group_id, dst = member_id
+        """
+
+        connections = []
+        for user_id in users_id_to_name_dict:
+            connection = AuthorConnection()
+            group_author_guid = self._get_guid_by_osn_id(self._group_id)
+            connection.source_author_guid = group_author_guid
+            user_author_osn_id = self._get_guid_by_osn_id(user_id)
+            connection.destination_author_guid = user_author_osn_id
+            connection.connection_type = 'Group-Member'
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            connection.insertion_date = dt_string
+            connections.append(connection)
+        return connections
+
 
     def _convert_group_to_author(self):
         """
@@ -138,50 +155,78 @@ class FacebookCrawler(Method_Executor):
         author.author_type = "Group"
         return author
 
-    def _convert_group_members_to_authors(self, user_names_list, user_id_list):
+    def _convert_group_members_to_author(self, users_id_to_name_dict):
         """
         :return: a list of Author objects ready to be added to DB.
         """
         authors = []
-        for i in range(0, len(user_names_list)):
+        for user_id in users_id_to_name_dict:
             author = Author()
-            author.name = user_names_list[i]
+            author.name = users_id_to_name_dict[user_id]
             author.author_guid = commons.compute_author_guid_by_author_name(author.name)
-            author.author_osn_id = user_id_list[i]
+            author.author_osn_id = user_id
             author.domain = self._domain
             author.author_type = "User"
             authors.append(author)
         return authors
 
-    def _get_members_from_group(self):
+
+    def extract_group_admins(self):
         """
-        Method goes to the members page of group.
-        Scrolls number of 'iterations' down the page
-        Extracts list of user names and user id's (May include pages as users who are members of the group)
-        :return: two coordinated lists of user_id and user_name
+        Method logs in to facebook and extracts admin members from the group_id in config.ini
+        :return: dictionary (key = user_id, value = user_name)
         """
         self._facebook_login()
-        iterations = 1
+        users_id_to_name_dict = self._get_members_from_group('https://www.facebook.com/groups/'
+                                                                     + self._group_id + '/admins/')
+        return users_id_to_name_dict
+
+    def _get_group_number_of_members(self):
+        """
+        Method gets from span tag in class "_grt _50f8" the text = number of members
+        :return: string number of members
+        """
         self.driver.get('https://www.facebook.com/groups/' + self._group_id + '/members/')
-        for i in range(0, iterations):
+        num_of_members = self.driver.find_elements_by_xpath("//span[@class='_grt _50f8']")[0].text
+        return num_of_members
+
+    def _get_members_from_group(self, link, number_of_scrolls=3):
+        """
+        Method goes to the members page of group.
+        Scrolls number of 'number of scrolls' down the page
+        Extracts dictionary user_id to user_name(May include pages as users who are members of the group)
+        :return: dictionary: key = user_id, value = user_name
+        """
+        self.driver.get(link)
+        for i in range(0, number_of_scrolls):
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(3)  # Seconds between each scroll (think of the page reloading)
 
-        divs_list = self.driver.find_elements_by_xpath("//div[@class='uiProfileBlockContent _61ce']")
-        user_names_list = []
-        user_id_list = []
-        for div in divs_list:
+        divs = self.driver.find_elements_by_xpath("//div[@class='uiProfileBlockContent _61ce']")
+        users_id_to_name_dict = {}
+
+        for div in divs:
             div_children = div.find_elements_by_xpath(".//*")  # List all children elements
             txt_to_parse = div_children[4].get_attribute("ajaxify")  # ajaxify attr contains member_id and group_id.
-            user_id = self._ajaxify_parse_member_id(txt_to_parse)
-            username = div.text
-            if username.find("\n") > 0:
-                username = username[0:username.find("\n")]
-            user_names_list.append(username)
-            user_id_list.append(user_id)
-        print(user_names_list, user_id_list)
-        return user_names_list, user_id_list
+            user_id = self.parse_member_id(txt_to_parse)
+            user_name = div.text
+            if user_name.find("\n") > 0:
+                user_name = user_name[0:user_name.find("\n")]
+            users_id_to_name_dict[user_id] = user_name
 
+        return users_id_to_name_dict
+
+    def extract_about_info_from_user(self):
+        self._facebook_login()
+        records = self._db.get_authors_by_facebook_group(self._group_id)
+        about_info = None
+        for record in records:
+            user_id = record.destination_author_guid
+            about_info = self._collect_about_info_from_user(user_id)
+            #TODO: Need to save about info in DB here.
+            print(about_info)
+
+        #TODO: Need to fix the authors table so that we can save about data.
 
     def _collect_about_info_from_user(self, user_id):
         """
@@ -190,27 +235,25 @@ class FacebookCrawler(Method_Executor):
         :return: dictionary: Keys = the about tabs. Values = dictionary: keys = subjects, values = values.
         example: {education: {COLLEGE: University of..., HIGH SCHOOL: Vernon Hills High School}, living: {...}..}
         """
+        #TODO: Need to fix "Life Events"
         about_tabs = {'education': {}, 'living': {}, 'contact-info': {}, 'relationship': {}, 'bio': {}, 'year-overviews': {}}
         for tab in about_tabs:
             self.driver.get('https://www.facebook.com/' + user_id + '/about?section=' + tab)
-            info_list = self.driver.find_elements_by_xpath("//div[@class='_4qm1']")
+            user_about_info = self.driver.find_elements_by_xpath("//div[@class='_4qm1']")
             parsed_info_dic = {}
-            for info in info_list:
+            for info in user_about_info:
                 txt = info.text
-                txt.split('\n')
+                txt = txt.split('\n')
                 parsed_info_dic[txt[0]] = txt[1]    # txt[0] = COLLEGE, txt[1] = University of Illinois at Urbana-Champaign
             about_tabs[tab] = parsed_info_dic
         return about_tabs
 
-    def _ajaxify_parse_member_id(self, txt):
+    def parse_member_id(self, txt):
+        """
+        Method parses member id from ajaxify tag
+        """
         indx_member_id = txt.find("member_id=")
         indx_ref = txt.find("&ref")
         return txt[indx_member_id + 10: indx_ref]
 
 
-    def _delete_this_function(self):
-        """
-        Delete me
-        :return:
-        """
-        return "delete this method now."
