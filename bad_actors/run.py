@@ -62,6 +62,7 @@ from topic_distribution_visualization.claim_to_topic_converter import ClaimToTop
 from topic_distribution_visualization.topic_distribution_visualization_generator import \
     TopicDistrobutionVisualizationGenerator
 from twitter_crawler.twitter_crawler import Twitter_Crawler
+from dataset_builder.facebook_crawler.facebook_crawler import FacebookCrawler
 
 ###############################################################
 # MODULES
@@ -78,6 +79,7 @@ modules_dict["FakeNewsSnopesImporter"] = FakeNewsSnopesImporter
 modules_dict["GDLET_News_Importer"] = GDLET_News_Importer
 modules_dict["Twitter_Crawler"] = Twitter_Crawler
 modules_dict["OldTweetsCrawler"] = OldTweetsCrawler
+modules_dict["FacebookCrawler"] = FacebookCrawler
 modules_dict["MissingDataComplementor"] = MissingDataComplementor
 modules_dict["Load_Datasets"] = Load_Datasets
 modules_dict["Image_Tags_Extractor"] = Image_Tags_Extractor

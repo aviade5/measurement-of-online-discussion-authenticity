@@ -84,6 +84,21 @@ class Author(Base):
 
     media_path = Column(Unicode, default=None)
 
+    #Facebook fields
+    work = Column(Unicode, default=None)
+    education = Column(Unicode, default=None)
+    professional_skills = Column(Unicode, default=None)
+    current_residence = Column(Unicode, default=None)
+    past_residence = Column(Unicode, default=None)
+    birth_day = Column(Unicode, default=None)
+    gender = Column(Unicode, default=None)
+    email = Column(Unicode, default=None)
+    relationship_status = Column(Unicode, default=None)
+    #family_members = Column(Unicode, default=None)
+    about_me = Column(Unicode, default=None)
+    #nicknames = Column(Unicode, default=None)
+    #life_events = Column(Unicode, default=None)
+
     author_type = Column(Unicode, default=None)
     bad_actors_collector_insertion_date = Column(Unicode, default=None)
     xml_importer_insertion_date = Column(Unicode, default=None)
@@ -445,6 +460,16 @@ class Claim(Base):
         return "<Claim(claim_id='%s', title='%s', description='%s', url='%s', vardict_date='%s', keywords='%s', domain='%s', verdicy='%s')>" % (
             self.claim_id, self.title, self.description, self.url, self.verdict_date, self.keywords, self.domain,
             self.verdict)
+
+
+# class FacebookGroupMembers(Base):
+#     __tablename__ = "facebook_groups"
+#     group_id = Column(Unicode, primary_key=True)
+#     name = Column(Unicode, default=None)
+#     hyper_link = Column(Unicode, default=None)
+#     members_table_link = Column(Unicode, default=None)
+
+
 
 
 class DB():
@@ -947,6 +972,16 @@ class DB():
         result = self.session.query(Author).filter(and_(Author.domain == unicode(domain)),
                                                    ).all()
 
+        return result
+
+    def get_authors_by_facebook_group(self, group_id):
+        result = self.session.query(AuthorConnection).filter(and_(AuthorConnection.source_author_guid == unicode(group_id)),
+                                                   ).all()
+        return result
+
+    def get_author_guid_by_facebook_osn_id(self, author_osn_id, domain="Facebook"):
+        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_osn_id == author_osn_id),
+            ).all()
         return result
 
     def get_author_guid_to_author_dict(self):
