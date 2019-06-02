@@ -95,7 +95,7 @@ class Author(Base):
     email = Column(Unicode, default=None)
     relationship_status = Column(Unicode, default=None)
     #family_members = Column(Unicode, default=None)
-    about_me = Column(Unicode, default=None)
+    #about_me = Column(Unicode, default=None)
     #nicknames = Column(Unicode, default=None)
     #life_events = Column(Unicode, default=None)
 
@@ -981,6 +981,11 @@ class DB():
 
     def get_author_guid_by_facebook_osn_id(self, author_osn_id, domain="Facebook"):
         result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_osn_id == author_osn_id),
+            ).all()
+        return result
+
+    def get_facebook_author_by_author_guid(self, author_guid, domain="Facebook"):
+        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_guid == author_guid, Author.author_type == 'User'),
             ).all()
         return result
 

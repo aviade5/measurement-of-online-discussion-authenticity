@@ -39,8 +39,9 @@ class FacebookCrawler(Method_Executor):
         self._account_user_pw = self._config_parser.eval(self.__class__.__name__, "account_user_pw")
         self._group_id = self._config_parser.eval(self.__class__.__name__, "group_id")
         self._group_name = self._config_parser.eval(self.__class__.__name__, "group_name")
-        self._user_id = self._config_parser.eval(self.__class__.__name__, "user_id")
+        self.osn_ids = self._config_parser.eval(self.__class__.__name__, "osn_ids")
         self._domain = 'Facebook'
+        self._author_guid_author_dict = {}
 
         options = webdriver.FirefoxOptions()
         options.set_preference("dom.push.enabled", False)  # Setting firefox options to disable push notifications
@@ -48,6 +49,7 @@ class FacebookCrawler(Method_Executor):
         self.driverWait = WebDriverWait(self.driver, 10)   # Waiting threshold for loading page is 10 seconds
 
     def __del__(self):
+        self.driver.quit()
         print("FacebookCrawler destroyed.")
 
     def _facebook_login(self):
@@ -56,6 +58,7 @@ class FacebookCrawler(Method_Executor):
         """
         if self.driver.current_url == 'about:blank':
             cookie_loaded = self._load_cookies()
+            time.sleep(2)
             if cookie_loaded == 'Failed':
                 self.driver.get("https://www.facebook.com/")
                 self.driver.find_element_by_xpath("//input[@id='email']").send_keys(self._account_user_name)
@@ -112,7 +115,7 @@ class FacebookCrawler(Method_Executor):
         Saves connection from group to member as Group-Member.
         """
         self._facebook_login()
-        users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/' + self._group_id + '/members/', number_of_scrolls=3, id='groupsMemberSection_recently_joined')
+        users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/' + self._group_id + '/members/', number_of_scrolls=0, id='groupsMemberSection_recently_joined')
         authors = self._convert_group_members_to_author(users_id_to_name_dict)
         authors.append(self._convert_group_to_author())
         self._db.addPosts(authors)  # Add members to Authors table in DB
@@ -157,8 +160,8 @@ class FacebookCrawler(Method_Executor):
         """
         author = Author()
         author.name = self._group_name
-        author.author_guid = commons.compute_author_guid_by_author_name(author.name)
         author.author_osn_id = self._group_id
+        author.author_guid = commons.compute_author_guid_by_osn_id(author.author_osn_id)
         author.domain = self._domain
         author.author_type = "Group"
         return author
@@ -171,8 +174,8 @@ class FacebookCrawler(Method_Executor):
         for user_id in users_id_to_name_dict:
             author = Author()
             author.name = users_id_to_name_dict[user_id]
-            author.author_guid = commons.compute_author_guid_by_author_name(author.name)
             author.author_osn_id = user_id
+            author.author_guid = commons.compute_author_guid_by_osn_id(author.author_osn_id)
             author.domain = self._domain
             author.author_type = "User"
             authors.append(author)
@@ -199,7 +202,7 @@ class FacebookCrawler(Method_Executor):
         num_of_members = self.driver.find_elements_by_xpath("//span[@class='_grt _50f8']")[0].text
         print(num_of_members)
 
-    def _get_users_from_group_link(self, link, number_of_scrolls=10, id='groupsMemberSection_recently_joined'):
+    def _get_users_from_group_link(self, link, number_of_scrolls=1, id='groupsMemberSection_recently_joined'):
         """
         Method goes to the members page of group.
         Scrolls number of 'number of scrolls' down the page
@@ -228,72 +231,78 @@ class FacebookCrawler(Method_Executor):
     def get_about_info_from_group_members(self):
         self._facebook_login()
         group_author_guid = self._db.get_author_guid_by_facebook_osn_id(self._group_id)[0].author_guid
-        records = self._db.get_authors_by_facebook_group(group_author_guid)
-        authors = []
-        for record in records:
-            user_author_guid = record.destination_author_guid
-            user_id = self._db.get_facebook_author_by_author_guid(user_author_guid)[0].author_osn_id
-            author = self.get_about_info_from_user(user_id, get_from_one_user=False)
-            authors.append(author)
+        group_member_connections = self._db.get_authors_by_facebook_group(group_author_guid)
+
+        group_member_guids = [group_member_connection.destination_author_guid for group_member_connection in group_member_connections]
+        facebook_authors = self._db.get_authors_by_domain(self._domain)
+
+        for facebook_author in facebook_authors:
+            author_guid = facebook_author.author_guid
+            if author_guid in group_member_guids:
+                self._author_guid_author_dict[author_guid] = facebook_author
+
+        # author_guids = self._author_guid_author_dict.keys()
+        authors = self._author_guid_author_dict.values()
+
+        # authors = [self._author_guid_author_dict[author_guid] for author_guid in author_guids]
+        self._get_about_info_for_authors(authors)
         self._db.addPosts(authors)
 
-    def get_about_info_from_user(self, user_id=None, get_from_one_user=True):
+    def get_about_info_from_users(self):
+        self._facebook_login()
+        authors = []
+        for author_osn_id in self.osn_ids:
+            author = Author()
+            author.domain = self._domain
+            author.author_osn_id = author_osn_id
+            author.author_type = 'User'
+            author.education = 'User Blocked'
+            author.professional_skills = 'User Blocked'
+            author.past_residence = 'User Blocked'
+            author.birth_day = 'User Blocked'
+            author.gender = 'User Blocked'
+            author.gender = 'User Blocked'
+            author.email = 'User Blocked'  # Need to add the rest of the features with User Blocked as default.
+            author.work = 'User Blocked'
+            self.driver.get('https://www.facebook.com/' + author_osn_id)
+            name = self.driver.find_element_by_xpath("//a[@class='_2nlw _2nlv']").text  # Extracting name
+            author.name = name
+            author.author_guid = commons.compute_author_guid_by_osn_id(author_osn_id)
+            authors.append(author)
+        self._get_about_info_for_authors(authors)
+        self._db.addPosts(authors)
+
+    def _get_about_info_for_authors(self, authors):
         """
         Method browses the About page in user profile.
         Collects all details from all tabs.
         :return: Author with all 'about' info in it
         example: {education: {COLLEGE: University of..., HIGH SCHOOL: Vernon Hills High School}, living: {...}..}
         """
-        self._facebook_login()
-        if user_id is None:
-            user_id = self._user_id
         about_tabs = {'education': {}, 'living': {}, 'contact-info': {}, 'relationship': {}, 'bio': {}}
-        for tab in about_tabs:
-            self.driver.get('https://www.facebook.com/' + user_id + '/about?section=' + tab)
-            if self.driver.current_url.__contains__('www.facebook.com/pg/'):
-                return
-            user_about_info = self.driver.find_elements_by_xpath("//div[starts-with(@class, '_4qm1')]")
-            parsed_info_dic = {}
-            for info in user_about_info:
-                txt = info.text
-                txt = txt.split('\n')
-                parsed_info_dic[txt[0]] = txt[1:]    # txt[0] = COLLEGE, txt[1] = University of Illinois at Urbana-Champaign
-            about_tabs[tab] = parsed_info_dic
-        print(about_tabs)
-        time.sleep(3) #TODO: Play with this to avoid blocking.
-        author = self._convert_about_info_to_author(user_id, about_tabs)
-        if get_from_one_user:
-            authors = [author]
-            self._db.addPosts(authors)  # Add group to member connections to AuthorConnection table in DB
-        else:
-            return author
+        for author in authors:
+            time.sleep(10)
+            for tab in about_tabs:
+                time.sleep(5)  # Sleeping between tabs.
+                author_osn_id = author.author_osn_id
+                self.driver.get('https://www.facebook.com/' + author_osn_id + '/about?section=' + tab)
+                user_about_info = self.driver.find_elements_by_xpath("//div[starts-with(@class, '_4qm1')]")
+                parsed_info_dic = {}
+                for info in user_about_info:
+                    txt = info.text
+                    txt = txt.split('\n')
+                    parsed_info_dic[txt[0]] = txt[1:]    # txt[0] = COLLEGE, txt[1] = University of Illinois at Urbana-Champaign
+                about_tabs[tab] = parsed_info_dic
+            print("User ID:" + author.author_osn_id + " :: collected:") #TODO remove prints
+            print(about_tabs)
+            self._update_author_about_info(author, about_tabs)
+        # return authors
 
-    def _convert_about_info_to_author(self, user_id, about_info_dict):
+    def _update_author_about_info(self, author, about_info_dict):
         """
-        Method converts given about details to Author object.
+        Method adds about information to given author object.
         :return: Author
         """
-        author = Author()
-        author.domain = self._domain
-        author.author_osn_id = user_id
-        author.author_type = 'User'
-        author.education = 'User Blocked'
-        author.professional_skills = 'User Blocked'
-        author.past_residence = 'User Blocked'
-        author.birth_day = 'User Blocked'
-        author.gender = 'User Blocked'
-        author.gender = 'User Blocked'
-        author.email = 'User Blocked'
-
-        records = self._db.get_author_guid_by_facebook_osn_id(user_id)
-        if len(records) > 0:
-            author.name = records[0].name
-            author.author_guid = records[0].author_guid
-        else:
-            self.driver.get('https://www.facebook.com/' + user_id)
-            name = self.driver.find_element_by_xpath("//a[@class='_2nlw _2nlv']").text     #Extracting name
-            author.name = name
-            author.author_guid = commons.compute_author_guid_by_author_name(author.name)
 
         if 'WORK' in about_info_dict['education']:
             work_info = about_info_dict['education']['WORK'][0:]
@@ -313,27 +322,28 @@ class FacebookCrawler(Method_Executor):
         if 'OTHER PLACES LIVED' in about_info_dict['living']:
             author.past_residence = about_info_dict['living']['OTHER PLACES LIVED'][0]
 
-        if 'Birth Date' in about_info_dict['contact-info']['BASIC INFORMATION'] or 'Birth Year' in about_info_dict['contact-info']['BASIC INFORMATION']:
-            birth_date_index = about_info_dict['contact-info']['BASIC INFORMATION'].index('Birth Date')
-            birth_year_index = about_info_dict['contact-info']['BASIC INFORMATION'].index('Birth Year')
-            birth_day = ""
-            if birth_date_index > -1:
-                birth_day = about_info_dict['contact-info']['BASIC INFORMATION'][birth_date_index + 1]
-            if birth_year_index > -1:
-                birth_day += about_info_dict['contact-info']['BASIC INFORMATION'][birth_date_index + 1]
-            author.birth_day = birth_day
+        if 'BASIC INFORMATION' in about_info_dict['contact-info']:
+            if 'Birth Date' in about_info_dict['contact-info']['BASIC INFORMATION'] or 'Birth Year' in about_info_dict['contact-info']['BASIC INFORMATION']:
+                birth_date_index = about_info_dict['contact-info']['BASIC INFORMATION'].index('Birth Date')
+                birth_year_index = about_info_dict['contact-info']['BASIC INFORMATION'].index('Birth Year')
+                birth_day = ""
+                if birth_date_index > -1:
+                    birth_day = about_info_dict['contact-info']['BASIC INFORMATION'][birth_date_index + 1]
+                if birth_year_index > -1:
+                    birth_day += about_info_dict['contact-info']['BASIC INFORMATION'][birth_date_index + 1]
+                author.birth_day = birth_day
 
-        if 'Gender' in about_info_dict['contact-info']['BASIC INFORMATION']:
-            gender_index = about_info_dict['contact-info']['BASIC INFORMATION'].index('Gender')
-            author.gender = about_info_dict['contact-info']['BASIC INFORMATION'][gender_index + 1]
+            if 'Gender' in about_info_dict['contact-info']['BASIC INFORMATION']:
+                gender_index = about_info_dict['contact-info']['BASIC INFORMATION'].index('Gender')
+                author.gender = about_info_dict['contact-info']['BASIC INFORMATION'][gender_index + 1]
 
-        if 'Email' in about_info_dict['contact-info']['CONTACT INFORMATION']:
-            email_index = about_info_dict['contact-info']['BASIC INFORMATION'].index('Email')
-            author.email = about_info_dict['contact-info']['BASIC INFORMATION'][email_index + 1]
+        if 'CONTACT INFORMATION' in about_info_dict['contact-info']:
+            if 'Email' in about_info_dict['contact-info']['CONTACT INFORMATION']:
+                email_index = about_info_dict['contact-info']['CONTACT INFORMATION'].index('Email')
+                author.email = about_info_dict['contact-info']['CONTACT INFORMATION'][email_index + 1]
 
-        author.relationship_status = about_info_dict['relationship']['RELATIONSHIP'][0]
-
-        return author
+        if 'RELATIONSHIP' in about_info_dict['relationship']:
+            author.relationship_status = about_info_dict['relationship']['RELATIONSHIP'][0]
 
     def parse_member_id(self, txt):
         """

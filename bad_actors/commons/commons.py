@@ -128,6 +128,21 @@ def compute_author_guid_by_author_name(author_name):
 
     return str_author_guid
 
+def compute_author_guid_by_osn_id(osn_id):
+    from configuration.config_class import getConfig
+    configInst = getConfig()
+    prefix_osn_url = configInst.eval("DEFAULT", "social_network_url")
+    author_url = prefix_osn_url + osn_id
+
+    # bytes = get_bytes(author_url)
+
+    class NULL_NAMESPACE:
+        bytes = b''
+
+    author_guid = uuid.uuid3(NULL_NAMESPACE, author_url.encode('utf-8'))
+    str_author_guid = unicode(str(author_guid))
+
+    return str_author_guid
 
 def generate_random_guid():
     guid = uuid.uuid4()
