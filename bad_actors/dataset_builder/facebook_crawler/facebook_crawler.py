@@ -77,7 +77,7 @@ class FacebookCrawler(Method_Executor):
             user_id = record.destination_author_guid
             num_of_friends = self.get_number_of_friends_from_user(user_id)
             print("User id is: " + user_id + " ; Number of friends: " + num_of_friends)
-            #TODO: Need to check with aviad about the author table - Need to add number of friends to DB.
+            #TODO: Need to check with aviad about the author table - Need to add number of friends to DB
 
     def get_number_of_friends_from_user(self, user_id):
         """

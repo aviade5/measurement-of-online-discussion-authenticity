@@ -95,9 +95,6 @@ class Author(Base):
     email = Column(Unicode, default=None)
     relationship_status = Column(Unicode, default=None)
     #family_members = Column(Unicode, default=None)
-    #about_me = Column(Unicode, default=None)
-    #nicknames = Column(Unicode, default=None)
-    #life_events = Column(Unicode, default=None)
 
     author_type = Column(Unicode, default=None)
     bad_actors_collector_insertion_date = Column(Unicode, default=None)

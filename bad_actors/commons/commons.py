@@ -133,7 +133,6 @@ def compute_author_guid_by_osn_id(osn_id):
     configInst = getConfig()
     prefix_osn_url = configInst.eval("DEFAULT", "social_network_url")
     author_url = prefix_osn_url + osn_id
-
     # bytes = get_bytes(author_url)
 
     class NULL_NAMESPACE:
