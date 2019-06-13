@@ -42,6 +42,8 @@ class FacebookCrawler(Method_Executor):
         self.osn_ids = self._config_parser.eval(self.__class__.__name__, "osn_ids")
         self._domain = 'Facebook'
         self._author_guid_author_dict = {}
+        self._number_of_scrolls = int(self._config_parser.eval(self.__class__.__name__, "number_of_scrolls"))
+        #TODO: consider renaming this var _num_of_scrolls_in_group_members_page
 
         options = webdriver.FirefoxOptions()
         options.set_preference("dom.push.enabled", False)  # Setting firefox options to disable push notifications
@@ -127,7 +129,7 @@ class FacebookCrawler(Method_Executor):
         Saves connection from group to member as Group-Member.
         """
         self._facebook_login()
-        users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/' + self._group_id + '/members/', number_of_scrolls=10, id='groupsMemberSection_recently_joined')
+        users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/' + self._group_id + '/members/', id='groupsMemberSection_recently_joined')
         authors = self._convert_group_members_to_author(users_id_to_name_dict)
         author = self._convert_group_to_author()
         authors.append(author)
@@ -255,7 +257,7 @@ class FacebookCrawler(Method_Executor):
         #     self._db.addPosts([author])                 # Update group
         return num_of_members
 
-    def _get_users_from_group_link(self, link, number_of_scrolls=1, id='groupsMemberSection_recently_joined'):
+    def _get_users_from_group_link(self, link, id='groupsMemberSection_recently_joined'):
         """
         Method goes to the members page of group.
         Scrolls number of 'number of scrolls' down the page
@@ -263,7 +265,7 @@ class FacebookCrawler(Method_Executor):
         :return: dictionary: key = user_id, value = user_name
         """
         self.driver.get(link)
-        for i in range(0, number_of_scrolls):
+        for i in range(0, self._number_of_scrolls):
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(3)  # Seconds between each scroll (think of the page reloading)
         divs = self.driver.find_elements_by_xpath("//div[@id='" + id + "']")
