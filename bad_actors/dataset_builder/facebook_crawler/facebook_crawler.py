@@ -37,7 +37,8 @@ class FacebookCrawler(Method_Executor):
         Method_Executor.__init__(self, db)
         self._account_user_name = self._config_parser.eval(self.__class__.__name__, "account_user_name")
         self._account_user_pw = self._config_parser.eval(self.__class__.__name__, "account_user_pw")
-        self._group_id = self._config_parser.eval(self.__class__.__name__, "group_id")
+        # self._group_id = self._config_parser.eval(self.__class__.__name__, "group_id")
+        self._group_osn_ids = self._config_parser.eval(self.__class__.__name__, "group_osn_ids")
         self._group_name = None
         self.osn_ids = self._config_parser.eval(self.__class__.__name__, "osn_ids")
         self._domain = 'Facebook'
@@ -86,19 +87,19 @@ class FacebookCrawler(Method_Executor):
         self.get_group_members()
         self.get_group_admins()
 
-
     def get_number_of_friends_from_group_members(self):
         """
         Method extract number of friends of all member in the group in config.ini
         Updates/Saves number of friends to facebook_author table.
         """
         self._facebook_login()
-        records = self._db.get_authors_by_facebook_group(self._group_id)
-        for record in records:
-            user_id = record.destination_author_guid
-            num_of_friends = self.get_number_of_friends_from_user(user_id)
-            print("User id is: " + user_id + " ; Number of friends: " + num_of_friends)
-            #TODO: Need to check with aviad about the author table - Need to add number of friends to DB
+        for group_osn_id in self._group_osn_ids:
+            records = self._db.get_authors_by_facebook_group(self._group_id)
+            for record in records:
+                user_id = record.destination_author_guid
+                num_of_friends = self.get_number_of_friends_from_user(user_id)
+                print("User id is: " + user_id + " ; Number of friends: " + num_of_friends)
+                #TODO: Need to check with aviad about the author table - Need to add number of friends to DB
 
     def get_number_of_friends_from_user(self, user_id):
         """
@@ -136,13 +137,14 @@ class FacebookCrawler(Method_Executor):
         Saves connection from group to member as Group-Member.
         """
         self._facebook_login()
-        users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/' + self._group_id + '/members/', id='groupsMemberSection_recently_joined')
-        authors = self._convert_group_members_to_author(users_id_to_name_dict)
-        author = self._convert_group_to_author()
-        authors.append(author)
-        self._db.addPosts(authors)  # Add members to Authors table in DB
-        group_to_members_connections = self._convert_group_and_members_to_connections(users_id_to_name_dict, connection_type='Group-Member')
-        self._db.addPosts(group_to_members_connections)  # Add group to member connections to AuthorConnection table in DB
+        for group_osn_id in self._group_osn_ids:
+            users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/' + group_osn_id + '/members/', id='groupsMemberSection_recently_joined')
+            authors = self._convert_group_members_to_author(users_id_to_name_dict)
+            author = self._convert_group_to_author(group_osn_id=group_osn_id)
+            authors.append(author)
+            self._db.addPosts(authors)  # Add members to Authors table in DB
+            group_to_members_connections = self._convert_group_and_members_to_connections(users_id_to_name_dict, connection_type='Group-Member', group_osn_id=group_osn_id)
+            self._db.addPosts(group_to_members_connections)  # Add group to member connections to AuthorConnection table in DB
 
     def get_group_admins(self):
         """
@@ -151,39 +153,46 @@ class FacebookCrawler(Method_Executor):
         :return: dictionary (key = user_id, value = user_name)
         """
         self._facebook_login()
-        users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/'
-                                                                + self._group_id + '/admins/',
-                                                                id='groupsMemberSection_admins_moderators')
+        for group_osn_id in self._group_osn_ids:
+            users_id_to_name_dict = self._get_users_from_group_link('https://www.facebook.com/groups/'
+                                                                    + group_osn_id + '/admins/',
+                                                                    id='groupsMemberSection_admins_moderators')
 
-        authors = self._convert_group_members_to_author(users_id_to_name_dict)
-        self._db.addPosts(authors)
-        group_to_admins_connections = self._convert_group_and_members_to_connections(users_id_to_name_dict,
-                                                                                     connection_type='Group-Admin')
-        self._db.addPosts(
-            group_to_admins_connections)  # Add group to admins connections to AuthorConnection table in DB
+            authors = self._convert_group_members_to_author(users_id_to_name_dict)
+            self._db.addPosts(authors)
+            group_to_admins_connections = self._convert_group_and_members_to_connections(users_id_to_name_dict,
+                                                                                         connection_type='Group-Admin', group_osn_id=group_osn_id)
+            self._db.addPosts(
+                group_to_admins_connections)  # Add group to admins connections to AuthorConnection table in DB
 
-    def get_group_name(self):
+    def get_group_name(self, group_osn_id):
         """
         Method extracts name of the group from home page of the group
         :return: string of group name
         """
-        if self._group_name is None:
-            self._facebook_login()
-            self.driver.get("https://www.facebook.com/groups/" + self._group_id + "/")
-            header_element = self.driver.find_element_by_xpath("//h1[@id='seo_h1_tag']")
-            group_name = header_element.text
-            self._group_name = group_name
-            return group_name
-        else:
-            return self._group_id
+        self._facebook_login()
+        self.driver.get("https://www.facebook.com/groups/" + group_osn_id + "/")
+        header_element = self.driver.find_element_by_xpath("//h1[@id='seo_h1_tag']")
+        group_name = header_element.text
+        self._group_name = group_name
+        return group_name
+        # if self._group_name is None:
+        #     self._facebook_login()
+        #     self.driver.get("https://www.facebook.com/groups/" + self._group_id + "/")
+        #     header_element = self.driver.find_element_by_xpath("//h1[@id='seo_h1_tag']")
+        #     group_name = header_element.text
+        #     self._group_name = group_name
+        #     return group_name
+        # else:
+        #     return self._group_id
 
-    def get_group_level_of_activity(self):
+    def get_group_level_of_activity(self, group_osn_id=None):
         """
         Level of activity: 'Closed Group' or 'Public Group'
         :return: string 'Closed Group' or 'Public Group'
         """
         self._facebook_login()
-        self.driver.get("https://www.facebook.com/groups/" + self._group_id + "/")
+        self.driver.get("https://www.facebook.com/groups/" + group_osn_id + "/")
         div_element = self.driver.find_element_by_xpath("//div[@class='_19s_']")
         level_of_activity = div_element.text
         return level_of_activity
@@ -199,17 +208,16 @@ class FacebookCrawler(Method_Executor):
         # print(records)
         return first_record.author_guid
 
-    def _convert_group_and_members_to_connections(self, users_id_to_name_dict, connection_type='Group-Member'):
+    def _convert_group_and_members_to_connections(self, users_id_to_name_dict, group_osn_id, connection_type='Group-Member'):
         """
         Method creates connection objects for group in config.ini with given user_id to user_name dictionary.
         Appends all connections created to a list and returns it.
         :return: List of AuthorConnection: src = group_id, dst = member_id
         """
-
         connections = []
         for user_id in users_id_to_name_dict:
             connection = AuthorConnection()
-            group_author_guid = self._get_guid_by_osn_id(self._group_id)
+            group_author_guid = self._get_guid_by_osn_id(group_osn_id)
             connection.source_author_guid = group_author_guid
             user_author_osn_id = self._get_guid_by_osn_id(user_id)
             connection.destination_author_guid = user_author_osn_id
@@ -240,18 +248,18 @@ class FacebookCrawler(Method_Executor):
             connections.append(connection)
         return connections
 
-    def _convert_group_to_author(self):
+    def _convert_group_to_author(self, group_osn_id):
         """
         Method takes given group_id from config.ini and creates Author object for it.
         """
         author = Author()
-        author.name = self.get_group_name()
-        author.author_osn_id = self._group_id
+        author.name = self.get_group_name(group_osn_id)
+        author.author_osn_id = group_osn_id
         author.author_guid = commons.compute_author_guid_by_osn_id(author.author_osn_id)
         author.domain = self._domain
         author.author_type = "Group"
-        author.followers_count = self.get_group_number_of_members()
-        author.author_sub_type = self.get_group_level_of_activity()
+        author.followers_count = self.get_group_number_of_members(group_osn_id)
+        author.author_sub_type = self.get_group_level_of_activity(group_osn_id)
         return author
 
     def _convert_group_members_to_author(self, users_id_to_name_dict):
@@ -261,13 +269,13 @@ class FacebookCrawler(Method_Executor):
         authors = []
         for user_id in users_id_to_name_dict:
             author = Author()
-            name_and_screen_name = users_id_to_name_dict[user_id]
-            author.name = name_and_screen_name[0]
-            author.author_screen_name = name_and_screen_name[1]
+            name_and_screen_name_and_author_type = users_id_to_name_dict[user_id]
+            author.name = name_and_screen_name_and_author_type[0]
+            author.author_screen_name = name_and_screen_name_and_author_type[1]
             author.author_osn_id = user_id
             author.author_guid = commons.compute_author_guid_by_osn_id(author.author_osn_id)
             author.domain = self._domain
-            author.author_type = "User"
+            author.author_type = name_and_screen_name_and_author_type[2]
             authors.append(author)
         return authors
 
@@ -288,13 +296,13 @@ class FacebookCrawler(Method_Executor):
             authors.append(author)
         return authors
 
-    def get_group_number_of_members(self):
+    def get_group_number_of_members(self, group_osn_id):
         """
         Method gets from span tag in class "_grt _50f8" the text = number of members
         :return: string number of members
         """
         self._facebook_login()
-        self.driver.get('https://www.facebook.com/groups/' + self._group_id + '/members/')
+        self.driver.get('https://www.facebook.com/groups/' + group_osn_id + '/members/')
         num_of_members = self.driver.find_elements_by_xpath("//span[@class='_grt _50f8']")[0].text
         # authors = self._db.get_author_guid_by_facebook_osn_id(self._group_id)
         # if len(authors) > 0:           #TODO: Aviad needs to check this out: assumption should be group already exists in DB or not???
@@ -393,29 +401,35 @@ class FacebookCrawler(Method_Executor):
             div_children = div.find_elements_by_xpath(".//*")  # List all children elements
             txt_to_parse_for_name = div_children[4].get_attribute("ajaxify")  # ajaxify attr contains member_id and group_id.
             txt_to_parse_for_unique_user_name = div_children[4].get_attribute("href")
+            txt_to_parse_for_author_type = div_children[4].get_attribute("data-hovercard")
+            author_type = "User"
+            if "page.php" in txt_to_parse_for_author_type:
+                author_type = "Page"
+            #TODO: div_children[4] has attribute data-hovercard which contains the string "page.php" or "user.php"
+            #TODO: Need to see how we can use the data-hovercard to classify users from pages in this early stage.
             unique_user_name = self._parse_unique_user_name(txt_to_parse_for_unique_user_name)
             user_id = self.parse_member_id(txt_to_parse_for_name)
             user_name = div.text
             if user_name.find("\n") > 0:
                 user_name = user_name[0:user_name.find("\n")]
-            users_id_to_name_dict[user_id] = [user_name, unique_user_name]
+            users_id_to_name_dict[user_id] = [user_name, unique_user_name, author_type]
 
         return users_id_to_name_dict
 
     def get_about_info_from_group_members(self):
         self._facebook_login()
-        authors = self._get_group_members_as_authors()
+        for group_id in self._group_osn_ids:
+            authors = self._get_group_members_as_authors(group_id)
+            # authors = [self._author_guid_author_dict[author_guid] for author_guid in author_guids]
+            self._get_about_info_for_authors(authors)
+            self._db.addPosts(authors)
 
-        # authors = [self._author_guid_author_dict[author_guid] for author_guid in author_guids]
-        self._get_about_info_for_authors(authors)
-        self._db.addPosts(authors)
-
-    def _get_group_members_as_authors(self):
+    def _get_group_members_as_authors(self, group_osn_id):
         """
         Method selects from DB all group members according to given group_id in config.ini
         :return: Members as Author in list.
         """
-        group_author_guid = self._db.get_author_guid_by_facebook_osn_id(self._group_id)[0].author_guid
+        group_author_guid = self._db.get_author_guid_by_facebook_osn_id(group_osn_id)[0].author_guid
         group_member_connections = self._db.get_authors_by_facebook_group(group_author_guid)
 
         group_member_guids = [group_member_connection.destination_author_guid for group_member_connection in group_member_connections]
