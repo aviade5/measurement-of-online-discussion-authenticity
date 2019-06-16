@@ -42,7 +42,8 @@ class FacebookCrawler(Method_Executor):
         self.osn_ids = self._config_parser.eval(self.__class__.__name__, "osn_ids")
         self._domain = 'Facebook'
         self._author_guid_author_dict = {}
-        self._number_of_scrolls = int(self._config_parser.eval(self.__class__.__name__, "number_of_scrolls"))
+        self._number_of_scrolls = self._config_parser.eval(self.__class__.__name__, "number_of_scrolls")
+        self._number_of_liked_pages_to_collect = self._config_parser.eval(self.__class__.__name__, "number_of_liked_pages_to_collect")
         #TODO: consider renaming this var _num_of_scrolls_in_group_members_page
 
         options = webdriver.FirefoxOptions()
@@ -66,14 +67,13 @@ class FacebookCrawler(Method_Executor):
         if self.driver.current_url == 'about:blank':
             cookie_loaded = self._load_cookies()
             time.sleep(4)
+            print("Cookies loadad:" + cookie_loaded)
             if cookie_loaded != 'Success':
-                self.driver.get("https://www.facebook.com/")
-                time.sleep(2)
                 self.driver.find_element_by_xpath("//input[@id='email']").send_keys(self._account_user_name)
                 self.driver.find_element_by_xpath("//input[@id='pass']").send_keys(self._account_user_pw)
                 self.driver.find_element_by_xpath("//input[starts-with(@id, 'u_0_')][@value='Log In']").click()
-                self._save_cookies()
                 time.sleep(5)
+            self._save_cookies()
 
     def get_group_data(self):
         """
@@ -233,7 +233,7 @@ class FacebookCrawler(Method_Executor):
             page_author_guid = page_author.author_guid
             connection.source_author_guid = user_author_guid
             connection.destination_author_guid = page_author_guid
-            connection.connection_type = 'Likes-Page'
+            connection.connection_type = 'User-Likes-Page'
             now = datetime.now()
             dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
             connection.insertion_date = dt_string
@@ -261,7 +261,9 @@ class FacebookCrawler(Method_Executor):
         authors = []
         for user_id in users_id_to_name_dict:
             author = Author()
-            author.name = users_id_to_name_dict[user_id]
+            name_and_screen_name = users_id_to_name_dict[user_id]
+            author.name = name_and_screen_name[0]
+            author.author_screen_name = name_and_screen_name[1]
             author.author_osn_id = user_id
             author.author_guid = commons.compute_author_guid_by_osn_id(author.author_osn_id)
             author.domain = self._domain
@@ -305,11 +307,11 @@ class FacebookCrawler(Method_Executor):
         self._facebook_login()
         authors_group_members = self._get_group_members_as_authors()
         for author in authors_group_members:
-            pages_id_to_name_dict = self._get_liked_pages_from_user(author.author_osn_id)
+            pages_id_to_name_dict = self._get_liked_pages_from_user(author.author_osn_id, author.author_screen_name)
             page_authors = self._convert_pages_to_authors(pages_id_to_name_dict)
-            # self._db.addPosts(page_authors)
+            self._db.addPosts(page_authors)
             connections = self._convert_page_and_user_to_connection(page_authors, author)
-            # self._db.addPosts(connections)
+            self._db.addPosts(connections)
 
     def get_liked_pages_from_user(self):
         """
@@ -321,52 +323,35 @@ class FacebookCrawler(Method_Executor):
             author = Author()
             self.driver.get('https://www.facebook.com/' + osn_id)
             time.sleep(2)
-            name = self.driver.find_element_by_xpath("//a[@class='_2nlw _2nlv']").text  # Extracting name
+            a_element = self.driver.find_element_by_xpath("//a[@class='_2nlw _2nlv']")
+            href_attribute = a_element.get_attribute('href')
+            name = a_element.text  # Extracting name
+            unique_user_name = self._parse_unique_user_name(href_attribute)
             author.name = name
+            author.author_screen_name = unique_user_name
             author.author_osn_id = osn_id
             author.author_guid = commons.compute_author_guid_by_osn_id(author.author_osn_id)
             author.domain = self._domain
             author.author_type = "User"
-            pages_id_to_name_dict = self._get_liked_pages_from_user(author.author_osn_id)
+            pages_id_to_name_dict = self._get_liked_pages_from_user(osn_id, unique_user_name)
             page_authors = self._convert_pages_to_authors(pages_id_to_name_dict)
             page_authors.append(author)     # Adding user created author to page author list to add to DB
             self._db.addPosts(page_authors)
             connections = self._convert_page_and_user_to_connection(page_authors, author)
             self._db.addPosts(connections)
 
-    def _get_user_liked_page_url(self, author_osn_id):
-        self.driver.get('https://www.facebook.com/' + author_osn_id + '/about?')
-        time.sleep(2)
-        while True:
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            try:
-                self.driverWait.until(EC.presence_of_element_located((By.ID, 'pagelet_timeline_medley_likes')))
-                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(1)
-                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(1)
-                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                break
-            except TimeoutException:
-                print("Likes not loaded - 1 scroll down done.")
-        likes_div = self.driver.find_element_by_xpath("//div[@id='pagelet_timeline_medley_likes']")
-        # self.driverWait.until(EC.presence_of_element_located((By.CLASS_NAME, '_3t3')))
-        see_all_button_element = likes_div.find_element_by_xpath(".//a[@class='_3t3']")
-        liked_pages_link = see_all_button_element.get_attribute('href')
-        return liked_pages_link
+    def _get_user_liked_page_url(self, author_osn_id, author_screen_name):
+        if author_screen_name == 'profile.php':
+            return 'https://www.facebook.com/profile.php?id=' + author_osn_id + '&sk=likes'
+        else:
+            return 'https://www.facebook.com/' + author_screen_name + '/likes'
+
 
     def _get_liked_pages_div_elements(self, liked_pages_link):
         self.driver.get(liked_pages_link)
-        pause_threshold = 15
-        pause_counter = 0
-        while True:
-            if pause_counter == pause_threshold:
-                pause_counter = 0
-                time.sleep(9)
-            time.sleep(0.5)
+        for i in range(0, self._number_of_liked_pages_to_collect / 10): #about 10 pages load per scroll
+            time.sleep(1.5)
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            pause_counter += 1
-            # TODO: Consider adding sleep() here.
             try:
                 self.driverWait.until(EC.presence_of_element_located((By.XPATH, "//img[starts-with(@class,'_359')]")))
             except TimeoutException:
@@ -375,9 +360,9 @@ class FacebookCrawler(Method_Executor):
         liked_pages_divs = self.driver.find_elements_by_xpath("//div[@class='clearfix _5t4y _5qo4']")
         return liked_pages_divs
 
-    def _get_liked_pages_from_user(self, author_osn_id):
+    def _get_liked_pages_from_user(self, author_osn_id, author_screen_name):
         pages_id_to_name_dict = {}
-        liked_pages_link = self._get_user_liked_page_url(author_osn_id)
+        liked_pages_link = self._get_user_liked_page_url(author_osn_id, author_screen_name)
         liked_pages_divs = self._get_liked_pages_div_elements(liked_pages_link=liked_pages_link)
         for div in liked_pages_divs:
             text_div = div.find_element_by_xpath(".//div[starts-with(@class,'fsl fwb fcb')]")
@@ -386,7 +371,7 @@ class FacebookCrawler(Method_Executor):
             data_hover_attribute = a_element.get_attribute('data-hovercard')
             page_id = self._parse_page_id(data_hover_attribute)
             pages_id_to_name_dict[page_id] = page_name
-            print(page_name + ":" + page_id + "\n")
+            # print(page_name + ":" + page_id + "\n")
         return pages_id_to_name_dict
 
     def _get_users_from_group_link(self, link, id='groupsMemberSection_recently_joined'):
@@ -407,14 +392,13 @@ class FacebookCrawler(Method_Executor):
         for div in divs:
             div_children = div.find_elements_by_xpath(".//*")  # List all children elements
             txt_to_parse_for_name = div_children[4].get_attribute("ajaxify")  # ajaxify attr contains member_id and group_id.
-            #todo: get also href attribute and parse and extract the unique user name.
             txt_to_parse_for_unique_user_name = div_children[4].get_attribute("href")
             unique_user_name = self._parse_unique_user_name(txt_to_parse_for_unique_user_name)
             user_id = self.parse_member_id(txt_to_parse_for_name)
             user_name = div.text
             if user_name.find("\n") > 0:
                 user_name = user_name[0:user_name.find("\n")]
-            users_id_to_name_dict[user_id] = user_name
+            users_id_to_name_dict[user_id] = [user_name, unique_user_name]
 
         return users_id_to_name_dict
 
@@ -463,8 +447,12 @@ class FacebookCrawler(Method_Executor):
             author.email = 'User Blocked'  # Need to add the rest of the features with User Blocked as default.
             author.work = 'User Blocked'
             self.driver.get('https://www.facebook.com/' + author_osn_id)
-            name = self.driver.find_element_by_xpath("//a[@class='_2nlw _2nlv']").text  # Extracting name
+            a_element = self.driver.find_element_by_xpath("//a[@class='_2nlw _2nlv']")
+            href_attribute = a_element.get_attribute('href')
+            name = a_element.text  # Extracting name
+            unique_user_name = self._parse_unique_user_name(href_attribute)
             author.name = name
+            author.author_screen_name = unique_user_name
             author.author_guid = commons.compute_author_guid_by_osn_id(author_osn_id)
             authors.append(author)
         self._get_about_info_for_authors(authors)
@@ -581,8 +569,9 @@ class FacebookCrawler(Method_Executor):
             fp_name = '{}.ProfileName'.format(self._account_user_name.replace('@', '_'))
             self.open_if_not_exists(fp_name)
             self.driver.get('http://www.facebook.com')
-            pickle.dump(self.driver.get_cookies(), open("{}/Cookies.pkl".format(fp_name), "wb"))
-            return 'Success'
+            with open("{}/Cookies.pkl".format(fp_name), "wb") as cookie_file:
+                pickle.dump(self.driver.get_cookies(), cookie_file)
+                return 'Success'
         except:
             return 'Failed'
 
@@ -590,10 +579,11 @@ class FacebookCrawler(Method_Executor):
         try:
             fp_name = '{}.ProfileName'.format(self._account_user_name.replace('@', '_'))
             self.driver.get('http://www.facebook.com')
-            for cookie in pickle.load(open("{}/Cookies.pkl".format(fp_name), "rb")):
-                self.driver.add_cookie(cookie)
-            print('Cookies loaded successfully')
-            return 'Success'
+            with open("{}/Cookies.pkl".format(fp_name), "rb") as cookie_file:
+                for cookie in pickle.load(cookie_file):
+                    self.driver.add_cookie(cookie)
+                print('Cookies loaded successfully')
+                return 'Success'
         except:
             print('Failed to load cookies')
             return 'Failed'
