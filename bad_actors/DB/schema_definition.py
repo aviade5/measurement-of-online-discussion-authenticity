@@ -458,6 +458,46 @@ class Claim(Base):
             self.claim_id, self.title, self.description, self.url, self.verdict_date, self.keywords, self.domain,
             self.verdict)
 
+class InstagramPost(Base):
+    __tablename__ = 'instagram_posts'
+    id = Column(Unicode, primary_key=True)
+    display_url = Column(Unicode, default=None)
+    comments_disabled = Column(Boolean, default=None)
+    likes = Column(Integer, default=None)
+    # body = Column(Unicode, default=None)
+    comment_count = Column(Integer, default=None)
+    is_video = Column(Boolean, default=None)
+    # owner_id = Column(Unicode, default=None)
+    shortcode = Column(Unicode, default=None)
+    # taken_at_timestamp = Column(Integer, default=None)
+    thumbnail_resources = Column(Unicode, default=None)
+    media_preview = Column(Unicode, default=None)
+    gating_info = Column(Unicode, default=None)
+    dimensions = Column(Unicode, default=None)
+    instagram_typename = Column(Unicode, default=None)
+    hashtag = Column(Unicode, default=None)
+
+class InstagramAuthor(Base):
+    __tablename__ = 'instagram_authors'
+    id = Column(Unicode, primary_key=True)
+    # username = Column(Unicode, default=None)
+    # full_name = Column(Unicode, default=None)
+    # biography = Column(Unicode, default=None)
+    followers_count = Column(Integer, default=None)
+    following_count = Column(Integer, default=None)
+    posts_count = Column(Integer, default=None)
+    is_business_account = Column(Boolean, default=None)
+    is_joined_recently = Column(Boolean, default=None)
+    is_private = Column(Boolean, default=None)
+    # profile_pic_url = Column(Unicode, default=None)
+
+class GooglePostKeywords(Base):
+    __tablename__ = 'google_post_keywords'
+
+    post_id = Column(Integer, primary_key=True)
+    keywords = Column(Unicode, primary_key=True)
+    insertion_date = Column(Unicode, default=None)
+
 
 # class FacebookGroupMembers(Base):
 #     __tablename__ = "facebook_groups"
