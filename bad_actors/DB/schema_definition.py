@@ -968,7 +968,11 @@ class DB():
     def get_authors_by_domain(self, domain):
         result = self.session.query(Author).filter(and_(Author.domain == unicode(domain)),
                                                    ).all()
+        return result
 
+    def get_authors_by_domain_and_type(self, domain, type):
+        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_type == type),
+            ).all()
         return result
 
     def get_authors_by_facebook_group(self, group_id):

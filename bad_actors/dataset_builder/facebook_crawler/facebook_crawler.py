@@ -37,15 +37,15 @@ class FacebookCrawler(Method_Executor):
         Method_Executor.__init__(self, db)
         self._account_user_name = self._config_parser.eval(self.__class__.__name__, "account_user_name")
         self._account_user_pw = self._config_parser.eval(self.__class__.__name__, "account_user_pw")
-        # self._group_id = self._config_parser.eval(self.__class__.__name__, "group_id")
         self._group_osn_ids = self._config_parser.eval(self.__class__.__name__, "group_osn_ids")
         self._group_name = None
         self.osn_ids = self._config_parser.eval(self.__class__.__name__, "osn_ids")
         self._domain = 'Facebook'
         self._author_guid_author_dict = {}
         self._number_of_scrolls = self._config_parser.eval(self.__class__.__name__, "number_of_scrolls")
+        # TODO: consider renaming this var _num_of_scrolls_in_group_members_page
         self._number_of_liked_pages_to_collect = self._config_parser.eval(self.__class__.__name__, "number_of_liked_pages_to_collect")
-        #TODO: consider renaming this var _num_of_scrolls_in_group_members_page
+        self._number_of_scrolls_until_sleep = 11
 
         options = webdriver.FirefoxOptions()
         options.set_preference("dom.push.enabled", False)  # Setting firefox options to disable push notifications
@@ -60,11 +60,7 @@ class FacebookCrawler(Method_Executor):
         """
         Method logs into facebook in facebook homepage.
         """
-        # self.driver.get("https://www.facebook.com/")
-        # time.sleep(2)
-        # self.driver.find_element_by_xpath("//input[@id='email']").send_keys(self._account_user_name)
-        # self.driver.find_element_by_xpath("//input[@id='pass']").send_keys(self._account_user_pw)
-        # self.driver.find_element_by_xpath("//input[starts-with(@id, 'u_0_')][@value='Log In']").click()
+
         if self.driver.current_url == 'about:blank':
             cookie_loaded = self._load_cookies()
             time.sleep(4)
@@ -94,9 +90,9 @@ class FacebookCrawler(Method_Executor):
         """
         self._facebook_login()
         for group_osn_id in self._group_osn_ids:
-            records = self._db.get_authors_by_facebook_group(self._group_id)
-            for record in records:
-                user_id = record.destination_author_guid
+            authors = self._db.get_authors_by_facebook_group(group_osn_id)
+            for author in authors:
+                user_id = author.destination_author_guid
                 num_of_friends = self.get_number_of_friends_from_user(user_id)
                 print("User id is: " + user_id + " ; Number of friends: " + num_of_friends)
                 #TODO: Need to check with aviad about the author table - Need to add number of friends to DB
@@ -176,15 +172,7 @@ class FacebookCrawler(Method_Executor):
         group_name = header_element.text
         self._group_name = group_name
         return group_name
-        # if self._group_name is None:
-        #     self._facebook_login()
-        #     self.driver.get("https://www.facebook.com/groups/" + self._group_id + "/")
-        #     header_element = self.driver.find_element_by_xpath("//h1[@id='seo_h1_tag']")
-        #     group_name = header_element.text
-        #     self._group_name = group_name
-        #     return group_name
-        # else:
-        #     return self._group_id
+
 
     def get_group_level_of_activity(self, group_osn_id=None):
         """
@@ -313,13 +301,14 @@ class FacebookCrawler(Method_Executor):
 
     def get_liked_pages_from_group_members(self):
         self._facebook_login()
-        authors_group_members = self._get_group_members_as_authors()
-        for author in authors_group_members:
-            pages_id_to_name_dict = self._get_liked_pages_from_user(author.author_osn_id, author.author_screen_name)
-            page_authors = self._convert_pages_to_authors(pages_id_to_name_dict)
-            self._db.addPosts(page_authors)
-            connections = self._convert_page_and_user_to_connection(page_authors, author)
-            self._db.addPosts(connections)
+        for group_osn_id in self._group_osn_ids:
+            authors_group_members = self._get_group_members_as_authors(group_osn_id)
+            for author in authors_group_members:
+                pages_id_to_name_dict = self._get_liked_pages_from_user(author.author_osn_id, author.author_screen_name)
+                page_authors = self._convert_pages_to_authors(pages_id_to_name_dict)
+                self._db.addPosts(page_authors)
+                connections = self._convert_page_and_user_to_connection(page_authors, author)
+                self._db.addPosts(connections)
 
     def get_liked_pages_from_user(self):
         """
@@ -353,7 +342,6 @@ class FacebookCrawler(Method_Executor):
             return 'https://www.facebook.com/profile.php?id=' + author_osn_id + '&sk=likes'
         else:
             return 'https://www.facebook.com/' + author_screen_name + '/likes'
-
 
     def _get_liked_pages_div_elements(self, liked_pages_link):
         self.driver.get(liked_pages_link)
@@ -392,7 +380,8 @@ class FacebookCrawler(Method_Executor):
         self.driver.get(link)
         for i in range(0, self._number_of_scrolls):
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(3)  # Seconds between each scroll (think of the page reloading)
+            if i % self._number_of_scrolls_until_sleep == 0:
+                time.sleep(3)  # Seconds between each scroll (think of the page reloading)
         divs = self.driver.find_elements_by_xpath("//div[@id='" + id + "']")
         divs = divs[0].find_elements_by_xpath(".//div[@class='uiProfileBlockContent _61ce']")
         users_id_to_name_dict = {}
@@ -405,8 +394,7 @@ class FacebookCrawler(Method_Executor):
             author_type = "User"
             if "page.php" in txt_to_parse_for_author_type:
                 author_type = "Page"
-            #TODO: div_children[4] has attribute data-hovercard which contains the string "page.php" or "user.php"
-            #TODO: Need to see how we can use the data-hovercard to classify users from pages in this early stage.
+
             unique_user_name = self._parse_unique_user_name(txt_to_parse_for_unique_user_name)
             user_id = self.parse_member_id(txt_to_parse_for_name)
             user_name = div.text
@@ -433,7 +421,8 @@ class FacebookCrawler(Method_Executor):
         group_member_connections = self._db.get_authors_by_facebook_group(group_author_guid)
 
         group_member_guids = [group_member_connection.destination_author_guid for group_member_connection in group_member_connections]
-        facebook_authors = self._db.get_authors_by_domain(self._domain)
+        # facebook_authors = self._db.get_authors_by_domain(self._domain)
+        facebook_authors = self._db.get_authors_by_domain_and_type(self._domain, 'User')
 
         for facebook_author in facebook_authors:
             author_guid = facebook_author.author_guid
