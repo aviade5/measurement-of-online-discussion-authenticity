@@ -34,7 +34,7 @@ Most of the argumant in the config.ini are intuitive such as:
 2. 4 is a number
 3. {'key': value} is a dict
 
-# Now sume of the moduls contains special argumant called *targeted_fields*
+# Some of the moduls contains special argumant called *targeted_fields*
 This argument purpose is to obtain the input data to a modul using the join operation between DB tables.
 This argument recieve list of dicts as followes:
 In case you want to use data from only one DB table the dict arg as follows:
