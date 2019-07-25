@@ -1,25 +1,26 @@
 # Created by aviade      
 # Time: 03/05/2016 09:00
 from __future__ import print_function
-
 import datetime
+import string
+from datetime import timedelta
+import time
+import urllib2
+import unicodedata
+import uuid
+import sys
 import logging
 import os
+
 import re
-import string
-import time
-import unicodedata
-import urllib2
-import uuid
-from datetime import timedelta
-from decimal import Decimal
 
 import numpy
-from networkx import Graph, DiGraph
+from decimal import Decimal
 from nltk.stem.snowball import GermanStemmer, EnglishStemmer
-from nltk.tokenize.simple import SpaceTokenizer
 from scipy.spatial import distance
 from sklearn.feature_extraction.text import CountVectorizer
+from nltk.tokenize.simple import SpaceTokenizer
+from networkx import Graph, DiGraph
 from nltk.corpus import stopwords
 
 
@@ -128,20 +129,6 @@ def compute_author_guid_by_author_name(author_name):
 
     return str_author_guid
 
-def compute_author_guid_by_osn_id(osn_id):
-    from configuration.config_class import getConfig
-    configInst = getConfig()
-    prefix_osn_url = configInst.eval("DEFAULT", "social_network_url")
-    author_url = prefix_osn_url + osn_id
-    # bytes = get_bytes(author_url)
-
-    class NULL_NAMESPACE:
-        bytes = b''
-
-    author_guid = uuid.uuid3(NULL_NAMESPACE, author_url.encode('utf-8'))
-    str_author_guid = unicode(str(author_guid))
-
-    return str_author_guid
 
 def generate_random_guid():
     guid = uuid.uuid4()
@@ -169,6 +156,24 @@ def compute_post_guid(post_url, author_name, str_publication_date):
     post_guid = uuid.uuid3(NULL_NAMESPACE, url.encode('utf-8'))
     str_author_guid = unicode(str(post_guid))
     return str_author_guid
+    '''
+
+    long_publication_date = convert_date_to_long(publicationDate);
+    String strLongPublicationDate = longPublicationDate.toString();
+
+    System.out.println("Post url = " + postUrl);
+    System.out.println("AuthorGuid = " + authorGuid);
+    System.out.println("strLongPublicationDate = " + strLongPublicationDate);
+    String url = postUrl + "#" + authorGuid + "#" + strLongPublicationDate;
+
+
+    byte[] urlBytes = url.getBytes();
+    UUID postGuid = UUID.nameUUIDFromBytes(urlBytes);
+    String strPostGuid = postGuid.toString();
+
+    System.out.println("Post: java.util.UUID .nameUUIDFromBytes((<URL> + \"#\" + <AUTHOR_GUID> + \"#\" + <PubDateAsLong>).getBytes())");
+    System.out.println("POST GUID: "+ strPostGuid);
+    '''
 
 
 def convert_date_to_long(str_date):
@@ -317,9 +322,11 @@ def clean_content_to_set_of_words(stopwords_file, content, stemmerLanguage):
     stemmers = set_stemmer(stemmerLanguage)
     p = "[A-Za-z']+".decode('utf-8')
 
-    c = re.compile(p)
+    # c = re.compile(p)
     content = content.lower()
-    stopwords = set_of_stopwords(stopwords_file)
+    content = clean_word(content)
+    # stop_words = set_of_stopwords(stopwords_file)
+    stop_words = set(stopwords.words('english'))
     tokens = [_ for _ in content.split(" ") if len(_) > 0]
     hrefs = []
     words = []
@@ -329,38 +336,25 @@ def clean_content_to_set_of_words(stopwords_file, content, stemmerLanguage):
         else:
             words.append(token)
 
-    content = " ".join(words)
-    words = c.findall(content)
+    words = tokens
+    # content = " ".join(words)
+    # words = c.findall(content)
+    words = re.sub(r'^https?:\/\/.*[\r\n]*', '', ' '.join(words), flags=re.MULTILINE).split()  # Remove urls.
 
-    words = clean_words_from_stopwords(stopwords, words)
+    words = [word for word in words if word not in stop_words]
 
-    words = stem_words_from_stemmer(stemmers, words)
+    words = [stem(word, stemmers) for word in words]
 
     words = [word for word in words if 2 <= len(word) <= 25]
 
     return words
 
 
-def stem_words_from_stemmer(stemmers, words):
-    return [stem(word, stemmers) for word in words]
-
-
-def stem_content_using_stemmer(stem_lang, content):
-    stemmers = set_stemmer(stem_lang)
-    return ' '.join(stem_words_from_stemmer(stemmers, content.split(' ')))
-
-
-def clean_words_from_stopwords(stopwords, words):
-    return [word for word in words if word not in stopwords]
-
-
-def clean_content_by_nltk_stopwords(topic_content, lang='ENG'):
-    if lang == 'GER':
-        stopWords = set(stopwords.words('german'))
-    else:
-        stopWords = set(stopwords.words('english'))
-    topic_content = ' '.join(clean_words_from_stopwords(stopWords, topic_content.split(' ')))
-    return topic_content
+def stem_tokens(tokens, stemmer):
+    stemmed = []
+    for item in tokens:
+        stemmed.append(stemmer.stem(item))
+    return stemmed
 
 
 def set_stemmer(stemmer_language):
@@ -375,7 +369,8 @@ def set_of_stopwords(filename):
     if not os.path.exists(filename):
         return set()
     with open(filename) as f:
-        return set((line.strip(' ') for line in f.readlines()))
+        return set(line.strip() for line in f.readlines())
+        # set((line.strip(' ') for line in f.readlines()))
 
 
 def stem(word, stemmer):
@@ -446,12 +441,17 @@ def manhattan_distance(vector_a, vector_b):
 def jaccard_index(vector_a, vector_b):
     set_1 = set(vector_a)
     set_2 = set(vector_b)
-    n = len(set_1.intersection(set_2))
-    return n / float(len(set_1) + len(set_2) - n)
+    union_size = len(set_1 | set_2)
+    if union_size:
+        return (len(set_1 & set_2)) / float(union_size)
+    else:
+        return 0.0
+    # n = len(set_1.intersection(set_2))
+    # return n / float(len(set_1) + len(set_2) - n)
 
 
 def clean_word(word):
-    return re.sub('[^a-zA-Z]+', '', word)
+    return re.sub('[^a-zA-Z ]+', '', word)
 
 
 # TODO: refactor code in link_prediction_feature_extractor
@@ -479,7 +479,44 @@ def fill_edges_to_graph(graph, tuples):
     graph.add_edges_from(edges)
 
 
-def clean_tweet(content):
+def distance_calculator(origin, destination):
+    """
+    Calculate the Haversine distance.
+
+    Parameters
+    ----------
+    origin : tuple of float
+        (lat, long)
+    destination : tuple of float
+        (lat, long)
+
+    Returns
+    -------
+    distance_in_km : float
+
+    Examples
+    --------
+    # origin = (48.1372, 11.5756)  # Munich
+    # destination = (52.5186, 13.4083)  # Berlin
+    # round(distance(origin, destination), 1)
+    504.2
+    """
+    lat1, lon1 = origin
+    lat2, lon2 = destination
+    radius = 6371  # approximately radius of earth
+
+    dlon = numpy.math.radians(lon2 - lon1)
+    dlat = numpy.math.radians(lat2 - lat1)
+    a = (numpy.math.sin(dlat / 2) * numpy.math.sin(dlat / 2) +
+         numpy.math.cos(numpy.math.radians(lat1)) * numpy.math.cos(numpy.math.radians(lat2)) *
+         numpy.math.sin(dlon / 2) * numpy.math.sin(dlon / 2))
+    c = 2 * numpy.math.atan2(numpy.math.sqrt(a), numpy.math.sqrt(1 - a))
+    d = radius * c
+
+    return d
+
+
+def clean_tweet(content, stemmer=None):
     content = content.lower()
     exclude = set(string.punctuation)
     content = ''.join(ch for ch in content if ch not in exclude)
@@ -490,11 +527,67 @@ def clean_tweet(content):
     content = content.replace('-', '')
     content = content.replace('.', '')
     content = re.sub(r'http\S+', '', content)
+    content = re.sub(r'www\S+', '', content)
+    if stemmer:
+        stemmers = set_stemmer(stemmer)
+        content = ' '.join([stem(word, stemmers) for word in content.split()])
     return content
 
 
-def stem_tokens(tokens, stemmer):
-    stemmed = []
-    for item in tokens:
-        stemmed.append(stemmer.stem(item))
-    return stemmed
+def convert_claim_to_post(claim):
+    from DB.schema_definition import Post
+    post = Post()
+    post.post_id = claim.claim_id
+    post.content = claim.title
+    post.description = claim.description
+    post.url = claim.url
+    post.date = claim.verdict_date
+    post.domain = u'Claim'
+    post.author = u'no author'
+    post.author_guid = u'no author'
+    post.guid = compute_post_guid(claim.url, post.author, date_to_str(post.date))
+    post.post_osn_guid = post.guid
+    post.tags = claim.keywords
+    post.post_type = claim.verdict
+    return post
+
+def clean_words_from_stopwords(stopwords, words):
+    return [word for word in words if word not in stopwords]
+
+
+def clean_content_by_nltk_stopwords(topic_content):
+    stopWords = set(stopwords.words('english'))
+    topic_content = ' '.join(clean_words_from_stopwords(stopWords, topic_content.split(' ')))
+    return topic_content
+
+
+def clean_claim_description(description, remove_stop_words):
+    description = " ".join(description.split())
+    description = description.replace('"', '').replace("'", '')
+    description = description.replace('.', '')
+    description = re.sub(r'http\S+', '', description)
+    description = description.replace('&amp;', '&')
+
+    for x in description:
+        if x not in string.printable:
+            description = description.replace(x, ' ')
+    description = clean_tweet(description)
+    if remove_stop_words:
+        return clean_content_by_nltk_stopwords(description)
+    else:
+        return description
+
+
+def calculate_correctly_and_not_correctly_instances(confusion_matrix):
+    num_of_correct_instances = 0
+    num_of_incorrect_instances = 0
+
+    dimension = confusion_matrix.shape[0]
+    for i in range(dimension):
+        for j in range(dimension):
+            if i == j:
+                num_of_correct_instances += confusion_matrix[i][j]
+            else:
+                num_of_incorrect_instances += confusion_matrix[i][j]
+
+    return num_of_correct_instances, num_of_incorrect_instances

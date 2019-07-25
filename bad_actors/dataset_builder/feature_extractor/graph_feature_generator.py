@@ -30,19 +30,16 @@ class GraphFeatureGenerator:
             raise Exception('Author object was not passed as parameter')
 
         if kwargs.viewkeys() >= {'graph_types', 'algorithms', 'aggregation_functions', 'neighborhood_sizes', 'graph_weights', 'graph_directed'}:
-            self.set_graph_vars(kwargs)
+            self._graph_types = kwargs['graph_types']
+            self._algorithms = kwargs['algorithms']
+            self._aggregations_functions = kwargs['aggregation_functions']
+            self._neighborhood_sizes = kwargs['neighborhood_sizes']
+            self._graph_weights = kwargs['graph_weights']
+            self._graph_directed = kwargs['graph_directed']
+            self._graphs = kwargs["graphs"]
+            self.load_graphs()
         else:
             raise Exception('Graph parameters for feature generation are missing or incomplete')
-
-    def set_graph_vars(self, kwargs):
-        self._graph_types = kwargs['graph_types']
-        self._algorithms = kwargs['algorithms']
-        self._aggregations_functions = kwargs['aggregation_functions']
-        self._neighborhood_sizes = kwargs['neighborhood_sizes']
-        self._graph_weights = kwargs['graph_weights']
-        self._graph_directed = kwargs['graph_directed']
-        self._graphs = kwargs["graphs"]
-        self.load_graphs()
 
     def load_graphs(self):
         graph_helper = GraphHelper(self._db)
@@ -115,6 +112,12 @@ class GraphFeatureGenerator:
                 self._db.update_author_features(author_features_row)
             self._db.commit()
 
+    '''
+        There is the same function in commons.
+        However, we get exception TypeError: create_author_dictionary() takes exactly 2 arguments (1 given)
+        Need to understand why!!
+    '''
+
     def _create_author_dictionary(self, authors):
         """
         Converts a list of Authors objects into a dictionary.
@@ -138,3 +141,5 @@ class GraphFeatureGenerator:
             author_dictionary[author_guid] = tuple
         return author_dictionary
 
+    def is_well_defined(self):
+        return True

@@ -1,0 +1,4 @@
+claim_id,content,type,total_comments,liar,lied,hilarious,kidding,a lie,ridiculous,fake,facts,nutshell,isn't,sum
+post5,the claim,FALSE,4,0,0,0,0,0,0,0,0,0,0,0
+post0,the claim,TRUE,4,3,0,0,0,0,0,0,0,0,0,3
+post10,the claim,unknown,4,3,0,0,0,0,0,0,0,0,0,3

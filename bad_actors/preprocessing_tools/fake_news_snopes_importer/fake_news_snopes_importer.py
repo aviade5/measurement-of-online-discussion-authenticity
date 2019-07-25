@@ -4,24 +4,29 @@
 from __future__ import print_function
 from DB.schema_definition import Post, date, Claim
 from commons.commons import compute_post_guid, compute_author_guid_by_author_name
-from preprocessing_tools.post_importer import PostImporter
+from commons.method_executor import Method_Executor
 import pandas as pd
+import re
+
 
 __author__ = "Aviad Elyashar"
 
 
-class FakeNewsSnopesImporter(PostImporter):
+class FakeNewsSnopesImporter(Method_Executor):
     def __init__(self, db):
-        PostImporter.__init__(self, db)
+        Method_Executor.__init__(self, db)
         self._input_csv_file = self._config_parser.eval(self.__class__.__name__, "input_csv_file")
 
         # There is no author so the website would be the author. We should not include this author in the analysis.
         self._author_name = unicode("snopes")
 
-    def execute(self, window_start=None):
-        self._read_file_and_create_claims()
 
-    def _read_file_and_create_claims(self):
+
+    #def execute(self, window_start=None):
+    #    self.read_file_and_create_claims()
+
+
+    def read_file_and_create_claims(self):
         snopes_csv_df = pd.read_csv(self._input_csv_file)
         num_of_records = snopes_csv_df.shape[0]
 
@@ -71,7 +76,7 @@ class FakeNewsSnopesImporter(PostImporter):
     def _convert_row_to_claim(self, row):
         claim = Claim()
 
-        claim_id = unicode(row['claim_id'])
+        # claim_id = unicode(row['claim_id'])
         title = unicode(row['title'], errors='replace')
         claim.title = title
 
@@ -81,10 +86,10 @@ class FakeNewsSnopesImporter(PostImporter):
         url = unicode(row['url'])
         claim.url = url
 
-        verdict_date = row['publication_date']
+        verdict_date = row['verdict_date']
         claim.verdict_date = date(verdict_date)
 
-        post_guid = compute_post_guid(self._social_network_url, claim_id, verdict_date)
+        post_guid = compute_post_guid(self._social_network_url, url, verdict_date)
         claim.claim_id = post_guid
 
         claim.domain = self._domain
@@ -92,8 +97,19 @@ class FakeNewsSnopesImporter(PostImporter):
         keywords = unicode(row['keywords'])
         claim.keywords = keywords
 
-        verdict = unicode(row['post_type'])
+        verdict = unicode(row['verdict'])
         claim.verdict = verdict
+
+        claim.category = unicode(row['main_category'])
+        claim.sub_category = unicode(row['secondary_category'])
 
         return claim
 
+
+    def convert_comma_to_or_in_keywords_claims(self):
+        claims = self._db.get_claims()
+        for claim in claims:
+            keywords_str = claim.keywords
+            new_keywords_str = re.sub(",", "||", keywords_str)
+            claim.keywords = new_keywords_str
+        self._db.addPosts(claims)

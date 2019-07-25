@@ -22,11 +22,11 @@ def get_file_text(filename):
 f = lambda self, url: jsons.setdefault(url, StubMockup(text=get_file_text('data/input/instagramCrawler/no_comments.json')))
 jsons = {
     'https://www.instagram.com/graphql/query/?query_hash=42323d64886122307be10013ad2dcc44&variables={"id":"491527077","first":50,"after":null}':
-        StubMockup(text=get_file_text('data/input/instagramCrawler/491527077.json')),
+        StubMockup(text=get_file_text('data/input/instagramCrawler/variables={id-491527077,first-50,after-null}.json')),
     'https://www.instagram.com/graphql/query/?query_hash=42323d64886122307be10013ad2dcc44&variables={"id":"491527077","first":50,"after":"QVFCam10VUF2c1hoY1RWMnhsd3J3TVVFRDNTVXVudkphMWlCZXV0SFEySnJmNU1ZdjVoaERJRzd0TmpCTzNmR1VQMlk1ZC0yZ2lRSnV3MENDdFJPTENzdg=="}':
-        StubMockup(text=get_file_text('data/input/instagramCrawler/491527077after.json')),
+        StubMockup(text=get_file_text('data/input/instagramCrawler/variables={id-491527077,first-50,after-QVFDS3RBT18xeWFtc01kcTlOUE1TMFNiakJ3R2hNMnU4OHZLel9yWWpYUndySkdBeVppU0VoN1VGTEtmZ0lxRUx4SkthN2NieU5VeThyNlVYSkFvWm9HaA==}.json')),
     'https://www.instagram.com/graphql/query/?query_hash=33ba35852cb50da46f5b5e889df7d159&variables={"shortcode":"BxWnbUcA3Ov","first"-50,"after":null}':
-        StubMockup(text=get_file_text('data/input/instagramCrawler/BxWnbUcA3Ov.json')),
+        StubMockup(text=get_file_text('data/input/instagramCrawler/variables={shortcode-BxWnbUcA3Ov,first-50,after-null}.json')),
     'https://www.instagram.com/manchesterunited/?__a=1':
         StubMockup(text=get_file_text('data/input/instagramCrawler/manchesterunited.json')),
     'https://www.instagram.com/chelseafc/?__a=1':

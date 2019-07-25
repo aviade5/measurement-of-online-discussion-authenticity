@@ -26,8 +26,6 @@ class Word_Embeddings_Comparison_Feature_Generator_Unittests(unittest.TestCase):
 
     def tearDown(self):
         self._db.session.close()
-        self._db.deleteDB()
-        self._db.session.close()
 
     def test_simple_case(self):
         self._add_post(u'of to a', u'of the')

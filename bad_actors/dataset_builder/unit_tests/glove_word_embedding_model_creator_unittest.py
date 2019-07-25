@@ -3,8 +3,6 @@ import unittest
 from DB.schema_definition import *
 from dataset_builder.word_embedding.glove_word_embedding_model_creator import GloveWordEmbeddingModelCreator
 import numpy as np
-import pandas as pd
-
 
 class GloveWordEmbeddingModelCreatorUnittest(unittest.TestCase):
     def setUp(self):
@@ -19,12 +17,17 @@ class GloveWordEmbeddingModelCreatorUnittest(unittest.TestCase):
         self._word_vector_dict_full_path = "data/output/word_embedding/"
         self._word_vector_dict = {}
 
+        dim = 300
+        self._author_embedding = u'author_word_embeddings_%s_%s_dim' % (self._table_name, dim)
+
         self._author = None
         self._set_author(u'test_user')
         self._counter = 0
         self._posts = []
 
     def tearDown(self):
+        self._db.session.close()
+        self._db.deleteDB()
         self._db.session.close()
 
     def test_case_basic(self):
@@ -131,7 +134,7 @@ class GloveWordEmbeddingModelCreatorUnittest(unittest.TestCase):
         is_word_vec = (-0.1749, 0.22956, 0.24924, -0.20512, -0.12294, 0.021297, -0.23815, 0.13737, -0.08913, -2.0607, 0.35843, -0.20365, -0.015518, 0.25628, 0.22963, 0.0011985, -0.89833, 0.13609, 0.18861, -0.33359, 0.018397, 0.62946, -0.13167, 0.64819, -0.2175, 0.093853, -0.03905, -0.50846, -0.2554, 0.32361, 0.23231, 0.49105, -0.41841, 0.073934, -0.65639, 0.48608, -0.11219, -0.29994, -0.72501, 0.085377, -0.050447, 0.23105, -0.064843, 0.0039056, 0.099742, -0.020334, 0.38845, 0.24464, -0.086308, -0.11308, 0.019281, -0.11205, 0.065642, 0.1812, -0.10949, 0.055968, -0.197, 0.49184, 0.61818, -0.03319, 0.073289, -0.022823, 0.66946, 0.18233, -0.40082, -0.33717, -0.28521, -0.28222, -0.044373, 0.14881, -0.42135, 0.051545, 0.27605, -0.19959, -0.29766, -0.087712, 0.4621, 0.16891, -0.19415, 0.28327, -0.25327, -0.063275, 0.090945, -0.18623, 0.28891, 0.043534, -0.10303, 0.39545, 0.088457, 0.054829, -0.45487, 0.38226, 0.15458, -0.42001, 0.20908, 0.0010261, -0.37166, 0.28856, -0.0072666, -0.23869, 0.18698, 0.21457, 0.0024625, -0.22166, -0.10549, 0.26366, 0.63795, -0.21856, -0.02476, 0.26296, -0.10332, -0.2183, -0.39545, -0.2069, 0.5254, -0.24287, -0.12601, -0.1683, -0.1337, -0.17463, -0.24256, 0.16015, -0.25534, -0.028585, 0.24915, -0.45177, 0.77189, 0.037554, 0.15222, -0.059098, 0.096185, -0.0036737, 0.23823, -0.21157, -0.10788, 0.10368, 0.069922, 0.078669, -0.017694, 0.14711, -0.1157, 0.3188, -0.16336, -0.016621, -0.33311, -0.57466, 0.15262, 0.037973, -0.3337, 0.29795, 0.27213, -0.47173, -0.0049383, 0.15796, 0.42384, -0.018251, 0.22948, -0.02412, -0.13726, 0.42183, 0.25098, -0.24748, 0.024097, -0.23881, -0.045085, -0.11757, 0.024051, 0.072332, 0.0023528, 0.04958, 0.32707, 0.13398, -0.86314, 0.16043, -0.014522, 0.17027, -0.53185, -0.44085, -0.11198, 0.16672, -0.1007, -0.13035, 0.035605, -0.015818, 0.1897, -0.35454, -0.12724, -0.28169, -0.12438, 0.45235, 0.13082, 0.47829, 0.11159, 0.20746, -0.55962, -0.018372, -0.10443, -0.45267, 0.098301, -0.28683, 1.2324, -0.0077764, -0.1972, -0.35824, 0.098736, 0.010953, -0.023358, -0.26791, -0.082025, -0.21353, 0.050866, -0.5375, 0.20151, -0.10377, 0.19563, 0.31699, -0.27754, -0.08434, -0.47337, 0.16286, -0.049013, -0.054793, -0.079239, -0.010989, 0.52198, -0.14411, 0.045905, 0.32172, -0.039952, -0.19748, 0.35732, -0.083146, 0.30254, 0.45123, -0.0075578, 0.14041, -0.073527, -0.0002206, -0.17764, 0.35673, 0.23883, 0.15452, 0.5127, -0.12761, -0.8158, 0.079303, 0.46277, 0.25961, 0.34596, -0.41715, 0.082716, 0.14205, -0.57492, -0.076417, -0.089484, -0.097053, -0.32071, -0.34892, 0.24133, -0.29925, -0.091908, 0.20075, 0.33906, 0.2012, -0.40629, 0.027334, 0.30098, 0.099071, 0.63656, 0.050048, -0.19518, -0.41454, -0.16104, 0.20477, -0.14608, 0.36813, -1.7321, -0.29467, 0.53281, 0.14033, 0.11016, -0.14307, -0.33054, 0.096295, -0.30065, 0.0887, -0.33432, 0.25402, 0.1337, 0.28222, 0.31357, -0.13407, 0.18465, 0.23426, 0.076272, 0.10502, 0.21521, -0.24131, -0.40402, 0.054744)
         expected_value = is_word_vec
         self._setup_test()
-        db_results = self._db.get_author_word_embedding(u'0', u'target_article_items', u"_type_paragraph_content") # check if this is ok with Aviad
+        db_results = self._db.get_author_word_embedding(u'0', u'target_article_items', u"_type_paragraph_content",self._author_embedding) # check if this is ok with Aviad
         db_results = db_results[u'min']
         self.assertEquals(expected_value, db_results)
 
@@ -144,7 +147,7 @@ class GloveWordEmbeddingModelCreatorUnittest(unittest.TestCase):
         self._word_embedding_model_creator.execute(None)
         self._word_embedding_model_creator._aggregation_functions_names = ['sum']
         self._word_embedding_model_creator.execute(None)
-        db_results = self._db.get_author_word_embedding(u'test_user', u'posts','title')  # check if
+        db_results = self._db.get_author_word_embedding(u'test_user', u'posts','title',self._author_embedding)  # check if
         #  this is ok with Aviad
         try:
             if db_results[u'sum'] is not None and db_results[u'np.mean'] is not None:
@@ -185,13 +188,14 @@ class GloveWordEmbeddingModelCreatorUnittest(unittest.TestCase):
     def _generic_test(self, expected_value, source_id=u""):
         if source_id == u"":
             source_id = self._author.author_guid
-        db_results = self._db.get_author_word_embedding(source_id, u'posts', u'content')
+
+        db_results = self._db.get_author_word_embedding(source_id, u'posts', u'content', self._author_embedding)
         self.assertEquals(expected_value[u'min'], db_results[u'min'])
         self.assertEquals(expected_value[u'max'], db_results[u'max'])
         self.assertEquals(expected_value[u'np.mean'], db_results[u'np.mean'])
 
     def _generic_non_equal_test(self, expected_value):
-        db_results = self._db.get_author_word_embedding(self._author.author_guid, u'posts', u'content')
+        db_results = self._db.get_author_word_embedding(self._author.author_guid, u'posts', u'content',self._author_embedding)
         self.assertNotEqual(expected_value[u'min'], db_results[u'min'])
         self.assertNotEqual(expected_value[u'max'], db_results[u'max'])
         self.assertNotEqual(expected_value[u'np.mean'], db_results[u'np.mean'])

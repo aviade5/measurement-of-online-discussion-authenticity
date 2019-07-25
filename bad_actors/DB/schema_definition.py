@@ -1,23 +1,32 @@
 # Created by aviade
 # Time: 31/03/2016 09:15
 from __future__ import print_function
+import logging
+import os
+import platform
 
-from collections import defaultdict
-from datetime import datetime
-
-from sqlalchemy import Boolean, Integer, Unicode, FLOAT
-from sqlalchemy import Column, func, and_, or_, not_
+import sqlalchemy
+from configuration.config_class import getConfig
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import aliased
 from sqlalchemy import event
+from sqlalchemy.sql.operators import ColumnOperators
+from sqlalchemy import Column, func, and_, or_, not_
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, aliased
-from sqlalchemy.sql import text
+from sqlalchemy import Boolean, Integer, Unicode, FLOAT
 from sqlalchemy.sql.schema import ForeignKey
-import pandas as pd
+from sqlalchemy.sql import text
+from datetime import datetime, timedelta
 from commons.commons import *
 from commons.consts import DB_Insertion_Type, Author_Type, Author_Connection_Type
-from commons.consts import Domains
-from configuration.config_class import getConfig
+import re
+import itertools
+from commons.consts import Domains, Social_Networks
+import pandas as pd
+import csv
+from collections import defaultdict
+from sqlalchemy.inspection import inspect
 
 Base = declarative_base()
 
@@ -84,7 +93,7 @@ class Author(Base):
 
     media_path = Column(Unicode, default=None)
 
-    #Facebook fields
+    # Facebook fields
     work = Column(Unicode, default=None)
     education = Column(Unicode, default=None)
     professional_skills = Column(Unicode, default=None)
@@ -94,7 +103,7 @@ class Author(Base):
     gender = Column(Unicode, default=None)
     email = Column(Unicode, default=None)
     relationship_status = Column(Unicode, default=None)
-    #family_members = Column(Unicode, default=None)
+    # family_members = Column(Unicode, default=None)
 
     author_type = Column(Unicode, default=None)
     bad_actors_collector_insertion_date = Column(Unicode, default=None)
@@ -155,21 +164,33 @@ class PostRetweeterConnection(Base):
             self.post_osn_id, self.retweeter_twitter_id, self.connection_type)
 
 
+class PostUserMention(Base):
+    __tablename__ = 'post_user_mentions'
+
+    post_guid = Column(Integer, primary_key=True)
+    user_mention_twitter_id = Column(Integer, primary_key=True)
+    user_mention_screen_name = Column(Unicode, default=None)
+
+    def __repr__(self):
+        return "<PostUserMention(post_guid='%s', user_mention_twitter_id='%s', user_mention_screen_name='%s')>" % (
+            self.post_guid, self.user_mention_twitter_id, self.user_mention_screen_name)
+
+
 class Post(Base):
     __tablename__ = 'posts'
 
     post_id = Column(Unicode, primary_key=True, index=True)
     author = Column(Unicode, default=None)
-    guid = Column(Unicode, unique=True, default=None)
+    guid = Column(Unicode, default=None)
     title = Column(Unicode, default=None)
-    url = Column(Unicode, unique=True, default=None)
+    url = Column(Unicode, default=None)
     date = Column(dt, default=None)
     content = Column(Unicode, default=None)
     description = Column(Unicode, default=None)
     is_detailed = Column(Boolean, default=True)
     is_LB = Column(Boolean, default=False)
     is_valid = Column(Boolean, default=True)
-    domain = Column(Unicode, default=None)
+    domain = Column(Unicode, primary_key=True, default=None)
     author_guid = Column(Unicode, default=None)
 
     media_path = Column(Unicode, default=None)
@@ -244,6 +265,32 @@ class Target_Article_Item(Base):
             self.post_id, self._author_guid, self.type, self.item_number, self.content)
 
 
+class Text_From_Image(Base):
+    __tablename__ = 'image_hidden_texts'
+
+    post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
+    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
+    media_path = Column(Unicode, default=None)
+    content = Column(Unicode, default=None)
+
+    def __repr__(self):
+        return "<Image_Hidden_Text(post_id='%s', author_guid='%s', media_path='%s', content='%s')>" % (
+            self.post_id, self.author_guid, self.media_path, self.content)
+
+
+class Image_Tags(Base):
+    __tablename__ = 'image_tags'
+
+    post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
+    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
+    media_path = Column(Unicode, default=None)
+    tags = Column(Unicode, default=None)
+
+    def __repr__(self):
+        return "<Image_Tags(post_id='%s', author_guid='%s', media_path='%s', tags='%s')>" % (
+            self.post_id, self.author_guid, self.media_path, self.tags)
+
+
 class AuthorCitation(Base):
     __tablename__ = 'author_citations'
     # author_id_from = Column(Integer,ForeignKey("authors.author_id",ondelete="CASCADE"),primary_key=True)
@@ -286,6 +333,32 @@ class AuthorFeatures(Base):
         self.window_end = _window_end
         self.attribute_name = _attribute_name
         self.attribute_value = _attribute_value
+
+
+class Author_boost_stats(Base):
+    __tablename__ = 'authors_boost_stats'
+
+    window_start = Column(dt, default=None, primary_key=True)
+    window_end = Column(dt, default=None)
+    # author_id = Column(Integer,ForeignKey("authors.author_id"),primary_key=True)
+    # author_id = Column(Integer,default=None) #@todo: remove field. use name and domain. reinsert author_id appropriately.
+    author_name = Column(Integer, default=None, primary_key=True)
+    author_domain = Column(Integer, default=None, primary_key=True)  # @todo: add domain values
+    boosting_timeslots_participation_count = Column(Integer, default=None)
+    count_of_authors_sharing_boosted_posts = Column(Integer, default=None)
+    num_of_pointers = Column(Integer, default=None)
+    num_of_pointed_posts = Column(Integer, default=None)
+    pointers_scores = Column(Unicode, default=None)
+    scores_sum = Column(FLOAT, default=None)
+    scores_avg = Column(FLOAT, default=None)
+    scores_std = Column(FLOAT, default=None)
+    author_guid = Column(Unicode, default=None)
+
+    def __repr__(self):
+        return "<Author_boost_stats(window_start='%s', window_end='%s',boosting_timeslots_participation_count='%s',count_of_authors_sharing_boosted_posts='%s',num_of_pointers='%s',num_of_pointed_posts='%s',pointers_scores='%s',scores_sum='%s',scores_avg='%s',scores_std='%s',author_guid='%s')>" % (
+            self.window_start, self.window_end, self.boosting_timeslots_participation_count,
+            self.count_of_authors_sharing_boosted_posts, self.num_of_pointers, self.num_of_pointed_posts,
+            self.pointers_scores, self.scores_sum, self.scores_avg, self.scores_std, self.author_guid)
 
 
 class Post_to_pointers_scores(Base):
@@ -407,30 +480,29 @@ class Topic(Base):
     probability = Column(FLOAT, default=None)
 
 
-class Text_From_Image(Base):
-    __tablename__ = 'image_hidden_texts'
+class Politifact_Liar_Dataset(Base):
+    __tablename__ = "politifact_liar_dataset"
 
-    post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
-    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
-    media_path = Column(Unicode, default=None)
-    content = Column(Unicode, default=None)
+    post_guid = Column(Unicode, ForeignKey("posts.guid"), primary_key=True)
+    original_id = Column(Integer, default=None)
+    statement = Column(Unicode, default=None)
+    targeted_label = Column(Unicode, default=None)
+    dataset_affiliation = Column(Unicode, default=None)
+    subject = Column(Unicode, default=None)
+    speaker = Column(Unicode, default=None)
+    speaker_job_title = Column(Unicode, default=None)
+    state_info = Column(Unicode, default=None)
+    party_affiliation = Column(Unicode, default=None)
+    barely_true_count = Column(Integer, default=None)
+    false_count = Column(Integer, default=None)
+    half_true_count = Column(Integer, default=None)
+    mostly_true_count = Column(Integer, default=None)
+    pants_on_fire_count = Column(Integer, default=None)
+    context = Column(Unicode, default=None)
 
     def __repr__(self):
-        return "<Image_Hidden_Text(post_id='%s', author_guid='%s', media_path='%s', content='%s')>" % (
-            self.post_id, self.author_guid, self.media_path, self.content)
-
-
-class Image_Tags(Base):
-    __tablename__ = 'image_tags'
-
-    post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
-    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
-    media_path = Column(Unicode, default=None)
-    tags = Column(Unicode, default=None)
-
-    def __repr__(self):
-        return "<Image_Tags(post_id='%s', author_guid='%s', media_path='%s', tags='%s')>" % (
-            self.post_id, self.author_guid, self.media_path, self.tags)
+        return "<Politifact_Liar_Dataset(post_guid='%s', original_id='%s', statement='%s',targeted_label='%s')>" % (
+            self.post_guid, self.original_id, self.statement, self.targeted_label)
 
 
 class Claim_Tweet_Connection(Base):
@@ -438,7 +510,6 @@ class Claim_Tweet_Connection(Base):
 
     claim_id = Column(Unicode, primary_key=True)  # PolitiFact post
     post_id = Column(Unicode, primary_key=True)  # crawled tweet by
-
 
 class Claim(Base):
     __tablename__ = "claims"
@@ -452,11 +523,51 @@ class Claim(Base):
     domain = Column(Unicode, default=None)
     verdict = Column(Unicode, default=None)
     category = Column(Unicode, default=None)
+    sub_category = Column(Unicode, default=None)
 
     def __repr__(self):
         return "<Claim(claim_id='%s', title='%s', description='%s', url='%s', vardict_date='%s', keywords='%s', domain='%s', verdicy='%s')>" % (
-            self.claim_id, self.title, self.description, self.url, self.verdict_date, self.keywords, self.domain,
-            self.verdict)
+            self.claim_id, self.title, self.description, self.url, self.verdict_date, self.keywords, self.domain, self.verdict)
+
+class Claim_Keywords_Connections(Base):
+    __tablename__ = "claim_keywords_connections"
+    claim_id = Column(Unicode, primary_key=True, index=True)
+    type = Column(Unicode, primary_key=True, index=True)
+    keywords = Column(Unicode, default=None)
+    score = Column(FLOAT, default=None)
+    tweet_count = Column(Integer, default=None)
+
+class RedditPostCommentConnection(Base):
+    __tablename__ = "reddit_post_comment_connection"
+    post_id = Column(Unicode, primary_key=True, index=True)
+    comment_id = Column(Unicode, primary_key=True, index=True)
+
+class RedditPost(Base):
+    __tablename__ = 'reddit_posts'
+    post_id = Column(Unicode, primary_key=True, index=True)
+    guid = Column(Unicode, default=None)
+    link_in_body = Column(Unicode, default=None)
+    ups = Column(Integer, default=0)
+    downs = Column(Integer, default=0)
+    score = Column(Integer, default=0)
+    upvote_ratio = Column(Integer, default=0)
+    number_of_comments = Column(Integer, default=None)
+    parent_id = Column(Unicode, default=None)
+    stickied = Column(Boolean, default=False)
+    is_submitter = Column(Boolean, default=False)
+    distinguished = Column(Unicode, default=None)
+
+class RedditAuthor(Base):
+    __tablename__ = 'reddit_authors'
+
+    name = Column(Unicode, primary_key=True)
+    author_guid = Column(Unicode, primary_key=True)
+    comments_count = Column(Integer,default=0)
+    comment_karma = Column(Integer,default=0)
+    link_karma = Column(Integer,default=0)
+    is_gold = Column(Boolean, default=False)
+    is_moderator = Column(Boolean, default=False)
+    is_employee = Column(Boolean, default=False)
 
 class InstagramPost(Base):
     __tablename__ = 'instagram_posts'
@@ -498,14 +609,39 @@ class GooglePostKeywords(Base):
     keywords = Column(Unicode, primary_key=True)
     insertion_date = Column(Unicode, default=None)
 
+class NewsArticle(Base):
+    __tablename__ = 'news_articles'
 
-# class FacebookGroupMembers(Base):
-#     __tablename__ = "facebook_groups"
-#     group_id = Column(Unicode, primary_key=True)
-#     name = Column(Unicode, default=None)
-#     hyper_link = Column(Unicode, default=None)
-#     members_table_link = Column(Unicode, default=None)
+    article_id = Column(Unicode, ForeignKey('claims.claim_id', ondelete="CASCADE"), primary_key=True)
+    author = Column(Unicode, default=None)
+    published_date = Column(dt, default=None)
+    domain = Column(Unicode, default=None)
+    url = Column(Unicode, default=None)
+    title = Column(Unicode, default=None)
+    description = Column(Unicode, default=None)
+    content = Column(Unicode, default=None)
+    url_to_image = Column(Unicode, default=None)
 
+
+    def __repr__(self):
+        return "<TargetArticle(post_id='%s', author_guid='%s', author='%s', published_date='%s', url='%s', title='%s', description='%s', keywords='%s')>" % (
+            self.post_id, self.author_guid, self.author, self.published_date, self.url, self.title, self.description, self.keywords)
+
+
+class News_Article_Item(Base):
+    __tablename__ = 'news_article_items'
+
+    post_id = Column(Unicode, ForeignKey('posts.post_id', ondelete="CASCADE"), primary_key=True)
+    author_guid = Column(Unicode, ForeignKey('posts.author_guid', ondelete="CASCADE"), primary_key=True)
+    source_newsapi_internal_id = Column(Unicode, default=None)
+    source_newsapi_internal_name = Column(Unicode, default=None)
+    content = Column(Unicode, default=None)
+    img_url = Column(Unicode, default=None)
+
+
+    def __repr__(self):
+        return "<Target_Article_Item(post_id='%s', author_guid='%s', source_newsapi_internal_id='%s', source_newsapi_internal_name='%s', content='%s', img_url='%s')>" % (
+            self.post_id, self._author_guid, self.source_newsapi_internal_id, self.source_newsapi_internal_name, self.content, self.img_url)
 
 
 
@@ -554,6 +690,9 @@ class DB():
             if (getConfig().eval("OperatingSystem", "linux")):
                 dbapi_connection.execute(
                     'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.so'))
+            if (getConfig().eval("OperatingSystem", "mac")):
+                dbapi_connection.execute(
+                    'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.dylib'))
 
             dbapi_connection.enable_load_extension(False)
 
@@ -726,6 +865,9 @@ class DB():
         return object
 
     def delete_post(self, post_id):
+        # delete_query = "DELETE FROM " + self.posts + " WHERE post_id=" + str(post_id)
+        # self.session.execute(delete_query)
+        # self.session.commit()
 
         self.session.query(Post).filter(Post.post_id == post_id).delete()
         self.session.commit()
@@ -734,6 +876,11 @@ class DB():
 
         query = self.session.query(Post).filter(Post.post_id == post_id)
         posts_result = query.all()
+
+        # query = "SELECT * FROM " + self.posts + " WHERE post_id=" + str(post_id)
+        # result = self.session.execute(query)
+        # cursor = result.cursor
+        # posts_result = cursor.fetchall()
 
         if len(posts_result):
             post = self.create_object(posts_result)
@@ -744,9 +891,164 @@ class DB():
         entries = self.session.query(Post).all()
         return entries
 
+    def get_claims(self):
+        return self.session.query(Claim).all()
+
+    def get_claims_by_domain(self, domain):
+        return self.session.query(Claim).filter(Claim.domain == domain).all()
+
+    def get_posts_with_no_dates(self):
+        records = self.session.query(Post).filter(Post.date == '2007-01-01 00:00:00').all()
+        return records
+
     def get_all_posts(self):
         entries = self.session.query(Post).all()
         return entries
+
+    def get_post_dictionary(self):
+        posts = self.session.query(Post).all()
+        post_id_post_dict = defaultdict()
+        for post in posts:
+            post_id = post.post_id
+            post_id_post_dict[post_id] = post
+        return post_id_post_dict
+
+    def get_elements_by_args(self, args):
+        source_table = args['source']['table_name']
+        source_id = args['source']['id']
+        source_where_clauses = []
+        if 'where_clauses' in args['source']:
+            source_where_clauses = args['source']['where_clauses']
+
+        connection_table_name = args['connection']['table_name']
+        connection_source_id = args['connection']['source_id']
+        connection_targeted_id = args['connection']['target_id']
+        connection_where_clauses = []
+        if 'where_clauses' in args['connection']:
+            connection_where_clauses = args['connection']['where_clauses']
+
+        destination_table_name = args['destination']['table_name']
+        destination_id = args['destination']['id']
+        destination_where_clauses = []
+        if 'where_clauses' in args['destination']:
+            destination_where_clauses = args['destination']['where_clauses']
+
+        source_table = aliased(self.get_table_by_name(source_table), name="source")
+        connection_table = self.get_table_by_name(connection_table_name)
+        destination_table = aliased(self.get_table_by_name(destination_table_name), name="dest")
+        connection_conditions = self._get_connection_conditions(connection_where_clauses, destination_table,
+                                                                source_table)
+
+
+        source_conditions = self._get_conditions_from_where_cluases(source_table, source_where_clauses)
+        destination_conditions = self._get_conditions_from_where_cluases(destination_table, destination_where_clauses)
+        conditions = source_conditions + destination_conditions + connection_conditions
+        source_id_attr = getattr(source_table, source_id)
+        connection_source_attr = getattr(connection_table, connection_source_id)
+        connection_target_attr = getattr(connection_table, connection_targeted_id)
+        destination_id_attr = getattr(destination_table, destination_id)
+
+        table_elements = self.session.query(connection_source_attr, destination_table)\
+            .join(source_table, connection_source_attr == source_id_attr)\
+            .join(destination_table, connection_target_attr == destination_id_attr)\
+            .filter(and_(condition for condition in conditions)).yield_per(10000).enable_eagerloads(False)
+
+        return table_elements
+
+    def _get_connection_conditions(self, connection_where_clauses, destination_table, source_table):
+        connection_conditions = []
+        for where_clause in connection_where_clauses:
+            val1 = where_clause["val1"]
+            val2 = where_clause["val2"]
+            val1_attr = self._get_table_attr_by_prefix(destination_table, source_table, val1)
+            val2_attr = self._get_table_attr_by_prefix(destination_table, source_table, val2)
+            op_name = where_clause["op"]
+            if op_name == "timeinterval":
+                delta = where_clause["delta"]
+                binary_exp1 = func.datetime(val1_attr, "-{0} day".format(delta)) <= val2_attr
+                binary_exp2 = func.datetime(val1_attr, "+{0} day".format(delta)) >= val2_attr
+                connection_conditions.append(binary_exp1)
+                connection_conditions.append(binary_exp2)
+
+            elif op_name == "before":
+                delta = where_clause["delta"]
+                binary_exp1 = func.datetime(val1_attr, "-{0} day".format(delta)) <= val2_attr
+                binary_exp2 = val1_attr > val2_attr
+                connection_conditions.append(binary_exp1)
+                connection_conditions.append(binary_exp2)
+            elif op_name == "after":
+                delta = where_clause["delta"]
+                binary_exp1 = val1_attr <= val2_attr
+                binary_exp2 = func.datetime(val1_attr, "+{0} day".format(delta)) >= val2_attr
+                connection_conditions.append(binary_exp1)
+                connection_conditions.append(binary_exp2)
+            else:
+
+                binary_exp = val1_attr.op(op_name)(val2_attr)
+                connection_conditions.append(binary_exp)
+        return connection_conditions
+
+    def _get_table_attr_by_prefix(self, destination_table, source_table, val1):
+        if "source" in val1:
+            val1_attr = getattr(source_table, val1.replace('source.', ''))
+        elif "dest" in val1:
+            val1_attr = getattr(destination_table, val1.replace('dest.', ''))
+        else:
+            val1_attr = val1
+        return val1_attr
+
+    def get_table_elements_by_ids(self, table_name, id_field, ids, where_cluases=[]):
+        table_elements = self.get_table_elements_by_where_cluases(table_name, where_cluases)
+        ids_set = set(ids)
+        table_elements = [element for element in table_elements if getattr(element, id_field) in ids_set]
+        return table_elements
+
+    def get_table_elements_by_where_cluases(self, table_name, where_cluases):
+        table = self.get_table_by_name(table_name)
+        conditions = self._get_conditions_from_where_cluases(table, where_cluases)
+        table_elements = self.session.query(table).filter(and_(condition for condition in conditions)).yield_per(10000).enable_eagerloads(False)
+        return table_elements
+
+    def _get_conditions_from_where_cluases(self, table, where_cluases):
+        conditions = []
+        for where_clause_dict in where_cluases:
+            field_name = where_clause_dict['field_name']
+            value = where_clause_dict['value']
+            op_name = '='
+            if 'op' in where_clause_dict:
+                op_name = where_clause_dict['op']
+            try:
+                table_attr = getattr(table, field_name)
+                binary_exp = table_attr.op(op_name)(value)
+            except:
+                table_attr = field_name
+                binary_exp = field_name == value
+            conditions.append(binary_exp)
+        return conditions
+
+    def get_table_dictionary(self, table_name, table_id):
+        table = self.get_table_by_name(table_name)
+        posts = self.session.query(table).all()
+        post_id_post_dict = defaultdict()
+        for post in posts:
+            post_id = getattr(post, table_id)
+            post_id_post_dict[post_id] = post
+        return post_id_post_dict
+
+    def get_author_dictionary(self):
+        authors = self.session.query(Author).yield_per(10000).enable_eagerloads(False)
+        author_id_author_dict = defaultdict()
+        for author in authors:
+            author_guid = author.author_guid
+            author_id_author_dict[author_guid] = author
+        return author_id_author_dict
+
+    def get_author_guid_posts_dict(self):
+        posts = self.session.query(Post).yield_per(10000).enable_eagerloads(False)
+        author_guid_posts_dict = defaultdict(list)
+        for post in posts:
+            author_guid_posts_dict[post.author_guid].append(post)
+        return author_guid_posts_dict
 
     def _get_posts_content_screen_name_tuples(self):
         logging.info("Get all post content")
@@ -758,11 +1060,14 @@ class DB():
         result = self.session.execute(query)
         cursor = result.cursor
         return cursor
+        # records = list(cursor.fetchall())
+        # return records
 
     def get_posts_by_domain(self, domain):
         posts_by_user = {}
+        # posts = self.session.query(Post).filter(Post.domain == unicode(domain)).slice(start,stop).all()
         query = text("select posts.author_guid, posts.date, posts.content from posts where posts.domain = :domain "
-                     "and posts.date IS NOT NULL")
+                     "and length(posts.content)>0 and posts.date IS NOT NULL")
         counter = 0
         print("schema_definition.get_posts_by_domain before executing query..")
         result = self.session.execute(query, params=dict(domain=domain))
@@ -773,6 +1078,10 @@ class DB():
         print("schema_definition.get_posts_by_domain after calling generator function")
 
         posts_by_user = self._create_user_posts_dictinary(posts)
+        # TODO added by lior, needs to verify that it doesn't break anything
+        if len(posts_by_user) == 0:
+            guid = self.get_author_guids()
+            posts_by_user = {author: () for author in guid}
         return posts_by_user
 
     def get_author_posts_dict_by_minimal_num_of_posts(self, domain, min_num_of_posts):
@@ -806,6 +1115,7 @@ class DB():
                   FROM random_authors_for_graphs
                 )
                 """
+        # posts = self.session.query(Post).filter(Post.domain == unicode(domain)).slice(start,stop).all()
         query = text(query)
         result = self.session.execute(query)
         cursor = result.cursor
@@ -845,13 +1155,6 @@ class DB():
     """
     if window_start and window_end is not given search in all DB
     """
-
-    def get_author_guid_post_dict(self):
-        author_guid_posts_dict = defaultdict(list)
-        posts = self.get_posts()
-        for post in posts:
-            author_guid_posts_dict[post.author_guid].append(post)
-        return author_guid_posts_dict
 
     def isPostExist(self, url, window_start=None, window_end=None):
 
@@ -1001,29 +1304,28 @@ class DB():
         result = self.session.query(Author).all()
         return result
 
+    def get_reddit_authors(self):
+        result = self.session.query(RedditAuthor).all()
+        return result
+
+    def get_reddit_posts(self):
+        result = self.session.query(RedditPost).all()
+        return result
+
     def get_all_authors(self):
         result = self.session.query(Author).all()
         return result
 
     def get_authors_by_domain(self, domain):
-        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain)),
+        targeted_social_network = getConfig().get("DEFAULT", "social_network_name")
+        # if targeted_social_network == Social_Networks.TWITTER:
+        #     result = self.session.query(Author).filter(and_(Author.domain == unicode(domain)),
+        #                                                 Author.author_osn_id.isnot(None),
+        #                                                 or_(Author.xml_importer_insertion_date.isnot(None), Author.mark_missing_bad_actor_retweeters_insertion_date.isnot(None))).all()
+        # else:
+        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain))
                                                    ).all()
 
-        return result
-
-    def get_authors_by_facebook_group(self, group_id):
-        result = self.session.query(AuthorConnection).filter(and_(AuthorConnection.source_author_guid == unicode(group_id)),
-                                                   ).all()
-        return result
-
-    def get_author_guid_by_facebook_osn_id(self, author_osn_id, domain="Facebook"):
-        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_osn_id == author_osn_id),
-            ).all()
-        return result
-
-    def get_facebook_author_by_author_guid(self, author_guid, domain="Facebook"):
-        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_guid == author_guid, Author.author_type == 'User'),
-            ).all()
         return result
 
     def get_author_guid_to_author_dict(self):
@@ -1031,12 +1333,25 @@ class DB():
         authors_dict = dict((aut.author_guid, aut) for aut in authors)
         return authors_dict
 
-    def get_authors(self, domain):
-        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain),
-                                                        Author.author_osn_id.isnot(None))
-                                                   ).all()
+    # def get_authors_by_domain(self, domain):
+    #     targeted_social_network = getConfig().get("DEFAULT", "social_network_name")
+    #     if targeted_social_network == Social_Networks.TWITTER:
+    #         result = self.session.query(Author).filter(and_(Author.domain == unicode(domain)),
+    #                                                     Author.author_osn_id.isnot(None),
+    #                                                     or_(Author.xml_importer_insertion_date.isnot(None), Author.mark_missing_bad_actor_retweeters_insertion_date.isnot(None))).all()
+    #     else:
+    #         result = self.session.query(Author).filter(and_(Author.domain == unicode(domain)),
+    #                                                    Author.author_osn_id.isnot(None)
+    #                                                    ).all()
+    #
+    #     return result
 
-        return result
+    # def get_authors(self, domain):
+    #     result = self.session.query(Author).filter(and_(Author.domain == unicode(domain),
+    #                                                     Author.author_osn_id.isnot(None))
+    #                                                ).all()
+    #
+    #     return result
 
     def get_number_of_targeted_osn_authors(self, domain):
         query = text("""SELECT COUNT(authors.author_guid)
@@ -1087,6 +1402,10 @@ class DB():
             return posts_count
         return None
 
+    def get_author_by_guid(self, guid):
+        ans = self.session.query(Author).filter(Author.author_guid == guid).all()
+        return ans[0]
+
     def getAuthorByName(self, name):
         logging.info("Name of given author is: " + name)
         return self.session.query(Author).filter(Author.name == name).all()
@@ -1134,6 +1453,10 @@ class DB():
 
     def update_author(self, author):
         self.session.merge(author)
+
+    def update_author_type_by_author_guid(self, guid, type):
+        self.session.query(Author).filter(Author.author_guid == guid).update({'author_type': type})
+        self.session.commit()
 
     def get_author_name_by_post_content(self, post_content):
         query = text("select posts.author from posts where posts.content like :post_content")
@@ -1199,223 +1522,9 @@ class DB():
     def get_author_features(self):
 
         result = self.session.query(AuthorFeatures).all()
-        if len(result) > 0:
-            return result
-        return None
-
-    def get_author_dictionary(self):
-        authors = self.session.query(Author).all()
-        author_id_author_dict = defaultdict()
-        for author in authors:
-            author_guid = author.author_guid
-            author_id_author_dict[author_guid] = author
-        return author_id_author_dict
-
-    def get_post_dictionary(self):
-        posts = self.session.query(Post).all()
-        post_id_post_dict = defaultdict()
-        for post in posts:
-            post_id = post.post_id
-            post_id_post_dict[post_id] = post
-        return post_id_post_dict
-
-    def get_table_by_name(self, table_name):
-        for var in globals():
-            class_obj = globals()[var]
-            try:
-                if issubclass(class_obj, Base) and class_obj.__tablename__ == table_name:
-                    return class_obj
-            except:
-                pass
-        return None
-
-    def get_elements_by_args(self, args):
-        source_table = args['source']['table_name']
-        source_id = args['source']['id']
-        source_where_clauses = []
-        if 'where_clauses' in args['source']:
-            source_where_clauses = args['source']['where_clauses']
-
-        connection_table_name = args['connection']['table_name']
-        connection_source_id = args['connection']['source_id']
-        connection_targeted_id = args['connection']['target_id']
-        connection_where_clauses = []
-        if 'where_clauses' in args['connection']:
-            connection_where_clauses = args['connection']['where_clauses']
-
-        destination_table_name = args['destination']['table_name']
-        destination_id = args['destination']['id']
-        destination_where_clauses = []
-        if 'where_clauses' in args['destination']:
-            destination_where_clauses = args['destination']['where_clauses']
-
-        source_table = aliased(self.get_table_by_name(source_table), name="source")
-        connection_table = self.get_table_by_name(connection_table_name)
-        destination_table = aliased(self.get_table_by_name(destination_table_name), name="dest")
-        connection_conditions = self._get_connection_conditions(connection_where_clauses, destination_table,
-                                                                source_table)
-
-        source_conditions = self._get_conditions_from_where_cluases(source_table, source_where_clauses)
-        destination_conditions = self._get_conditions_from_where_cluases(destination_table, destination_where_clauses)
-        conditions = source_conditions + destination_conditions + connection_conditions
-        source_id_attr = getattr(source_table, source_id)
-        connection_source_attr = getattr(connection_table, connection_source_id)
-        connection_target_attr = getattr(connection_table, connection_targeted_id)
-        destination_id_attr = getattr(destination_table, destination_id)
-
-        table_elements = self.session.query(connection_source_attr, destination_table) \
-            .join(source_table, connection_source_attr == source_id_attr) \
-            .join(destination_table, connection_target_attr == destination_id_attr) \
-            .filter(and_(condition for condition in conditions)).yield_per(100).enable_eagerloads(False)
-
-        return table_elements
-
-    def _get_connection_conditions(self, connection_where_clauses, destination_table, source_table):
-        connection_conditions = []
-        for where_clause in connection_where_clauses:
-            val1 = where_clause["val1"]
-            val2 = where_clause["val2"]
-            val1_attr = self._get_table_attr_by_prefix(destination_table, source_table, val1)
-            val2_attr = self._get_table_attr_by_prefix(destination_table, source_table, val2)
-            op_name = where_clause["op"]
-            if op_name == "timeinterval":
-                delta = where_clause["delta"]
-                binary_exp1 = func.datetime(val1_attr, "-{0} day".format(delta)) <= val2_attr
-                binary_exp2 = func.datetime(val1_attr, "+{0} day".format(delta)) >= val2_attr
-                connection_conditions.append(binary_exp1)
-                connection_conditions.append(binary_exp2)
-
-            elif op_name == "before":
-                delta = where_clause["delta"]
-                binary_exp1 = func.datetime(val1_attr, "-{0} day".format(delta)) <= val2_attr
-                binary_exp2 = val1_attr > val2_attr
-                connection_conditions.append(binary_exp1)
-                connection_conditions.append(binary_exp2)
-            elif op_name == "after":
-                delta = where_clause["delta"]
-                binary_exp1 = val1_attr <= val2_attr
-                binary_exp2 = func.datetime(val1_attr, "+{0} day".format(delta)) >= val2_attr
-                connection_conditions.append(binary_exp1)
-                connection_conditions.append(binary_exp2)
-            else:
-
-                binary_exp = val1_attr.op(op_name)(val2_attr)
-                connection_conditions.append(binary_exp)
-        return connection_conditions
-
-    def _get_table_attr_by_prefix(self, destination_table, source_table, val1):
-        if "source" in val1:
-            val1_attr = getattr(source_table, val1.replace('source.', ''))
-        elif "dest" in val1:
-            val1_attr = getattr(destination_table, val1.replace('dest.', ''))
-        else:
-            val1_attr = val1
-        return val1_attr
-
-    def get_table_elements_by_ids(self, table_name, id_field, ids, where_cluases=[]):
-        table_elements = self.get_table_elements_by_where_cluases(table_name, where_cluases)
-        ids_set = set(ids)
-        table_elements = [element for element in table_elements if getattr(element, id_field) in ids_set]
-        return table_elements
-
-    def get_table_elements_by_where_cluases(self, table_name, where_cluases):
-        table = self.get_table_by_name(table_name)
-        conditions = self._get_conditions_from_where_cluases(table, where_cluases)
-        table_elements = self.session.query(table).filter(and_(condition for condition in conditions)).all()
-        return table_elements
-
-    def _get_conditions_from_where_cluases(self, table, where_cluases):
-        conditions = []
-        for where_clause_dict in where_cluases:
-            field_name = where_clause_dict['field_name']
-            value = where_clause_dict['value']
-            op_name = '='
-            if 'op' in where_clause_dict:
-                op_name = where_clause_dict['op']
-            try:
-                table_attr = getattr(table, field_name)
-                binary_exp = table_attr.op(op_name)(value)
-            except:
-                table_attr = field_name
-                binary_exp = field_name == value
-            conditions.append(binary_exp)
-        return conditions
-
-    def get_claims(self):
-        return self.session.query(Claim).all()
-
-    def get_table_dictionary(self, table_name):
-        table = self.get_table_by_name(table_name)
-        posts = self.session.query(table).all()
-        post_id_post_dict = {}
-        for post in posts:
-            post_id = post.post_id
-            post_id_post_dict[post_id] = post
-        return post_id_post_dict
-
-    def get_word_vector_dictionary(self, table_name):
-        query = """
-                SELECT *
-                FROM {0}
-                """.format(table_name)
-        query = text(query)
-        result = self.session.execute(query)
-        cursor = result.cursor
-        tuples = self.result_iter(cursor)
-
-        word_vector_dict = defaultdict()
-        for tuple in tuples:
-            word = tuple[0]
-            vector = tuple[1:]
-            word_vector_dict[word] = vector
-        return word_vector_dict
-
-    def add_claim_connections(self, claim_connections):
-        i = 1
-        for claim in claim_connections:
-            if (i % 100 == 0):
-                msg = "\r Insert claim_connection to DB: [{}".format(i) + "/" + str(len(claim_connections)) + ']'
-                print(msg, end="")
-            i += 1
-            self.session.merge(claim)
-        msg = "\r Insert claim_connection to DB: [{}".format(i) + "/" + str(len(claim_connections)) + ']'
-        print(msg)
-        self.commit()
-
-    def get_claim_tweet_connections(self):
-        q = """
-            SELECT *
-            FROM claim_tweet_connection            
-            """
-        query = text(q)
-        result = self.session.execute(query)
-        return list(result)
-
-    def get_records_by_id_targeted_field_and_table_name(self, id_field, targeted_field_name, table_name, where_clauses):
-        query = """
-                SELECT {0}, {1}
-                FROM {2}
-                """.format(id_field, targeted_field_name, table_name)
-
-        is_first_condition = False
-        for where_clause_dict in where_clauses:
-            field_name = where_clause_dict['field_name']
-            value = where_clause_dict['value']
-            if is_first_condition == False:
-                condition_clause = """
-                                    WHERE {0} = {1}
-                                    """.format(field_name, value)
-                is_first_condition = True
-            else:
-                condition_clause = """
-                                    AND {0} = {1}
-                                    """.format(field_name, value)
-            query += condition_clause
-        query = text(query)
-        result = self.session.execute(query)
-        cursor = result.cursor
-        tuples = self.result_iter(cursor)
-        return tuples
+        # if len(result) > 0:
+        return result
+        # return None
 
     def get_author_features_labeled_authors_only(self):
         query = text('select author_features.*  \
@@ -1426,6 +1535,66 @@ class DB():
         result = self.session.execute(query)
         cursor = result.cursor
         author_features = cursor.fetchall()
+        return author_features
+
+    # def get_author_features_by_author_id_field(self, author_id_field, target_field, is_labeled, ):
+    #     logging.info("Start getting authors features")
+    #     if is_labeled:
+    #         query = text('select author_features.*, authors.'+target_field+' \
+    #                 from  \
+    #                   author_features  \
+    #                 inner join authors on (author_features.author_guid = authors.'+author_id_field+')  \
+    #                 where authors.author_type is not null')
+    #     #     query = text('select author_features.*, authors.'+target_field+' \
+    #     #             from  \
+    #     #               author_features  \
+    #     #             inner join authors on (author_features.author_guid = authors.name) where authors.author_type is not null')
+    #     else:
+    #         query = text('select author_features.*, authors.' + target_field + ' \
+    #                              from  \
+    #                                author_features  \
+    #                              inner join authors on (author_features.author_guid = authors.' + author_id_field + ')  \
+    #                              where authors.author_type is null')
+    #     result = self.session.execute(query)
+    #     cursor = result.cursor
+    #     author_features = cursor.fetchall()
+    #     logging.info("Finished getting authors features")
+    #
+    #     return author_features
+
+    def get_author_features_by_author_id_field(self, author_id_field, target_field, is_labeled):
+        logging.info("Start getting authors features")
+        if is_labeled:
+            query = text('select author_features.*, authors.' + target_field + ' from author_features inner join authors on (author_features.author_guid = authors.' + author_id_field + ') where authors.author_type is not null')
+        #     query = text('select author_features.*, authors.'+target_field+' \
+        #             from  \
+        #               author_features  \
+        #             inner join authors on (author_features.author_guid = authors.name) where authors.author_type is not null')
+        else:
+            query = text('select author_features.*, authors.' + target_field + ' \
+                                 from  \
+                                   author_features  \
+                                 inner join authors on (author_features.author_guid = authors.' + author_id_field + ')  \
+                                 where authors.author_type is null')
+        result = self.session.execute(query)
+        cursor = result.cursor
+        author_features = cursor.fetchall()
+        logging.info("Finished getting authors features")
+
+        return author_features
+
+    def get_author_features_unlabled_authors_only_by_author_id_field(self, author_id_field, target_field):
+        logging.info("Start getting authors features")
+
+        query = text('select author_features.*, authors.' + target_field + ' \
+                        from  \
+                          author_features  \
+                        inner join authors on (author_features.author_guid = authors.' + author_id_field + ')  \
+                        where authors.author_type is null')
+        result = self.session.execute(query)
+        cursor = result.cursor
+        author_features = cursor.fetchall()
+        logging.info("Finished getting authors features")
         return author_features
 
     def insert_authors_features(self, list_author_features):
@@ -1449,6 +1618,11 @@ class DB():
                 print(msg, end="")
             i += 1
             self.update_author_features(author_feature)
+        self.commit()
+
+    def convert_auhtor_feature_author_id_form_author_name_to_author_guid(self):
+        query = "update author_features SET author_guid = (select author_guid from authors where authors.name = author_features.author_guid)"
+        self.session.execute(q)
         self.commit()
 
     def add_target_articles(self, target_articles):
@@ -1533,6 +1707,17 @@ class DB():
     ###########################################################
     # author_boost_scores
     ###########################################################
+    def deleteBoostAuth(self, window_start=None):
+        if window_start:
+            self.session.query(Post_to_pointers_scores).filter(
+                Post_to_pointers_scores.window_start == window_start).delete()
+            self.session.query(Author_boost_stats).filter(Author_boost_stats.window_start == window_start).delete()
+
+        else:
+            self.session.query(Post_to_pointers_scores).delete()
+            self.session.query(Author_boost_stats).delete()
+        self.session.commit()
+        pass
 
     def getPostsListWithoutEmptyRowsByDate(self, window_start, window_end):
 
@@ -1550,12 +1735,57 @@ class DB():
         posts = [post.values() for post in res]
         return posts
 
+    def getPostsListWithoutEmptyRows(self):
+        q = text("select * from posts where content is not NULL")
+        references = []
+        res = self.session.execute(q)
+        posts = [post.values() for post in res]
+        return posts
+
+    def get_author_guid_post_dict(self):
+        author_guid_posts_dict = defaultdict(list)
+        posts = self.get_posts()
+        for post in posts:
+            author_guid_posts_dict[post.author_guid].append(post)
+        return author_guid_posts_dict
+
+    def addAuthor_boost_stats(self, author_boost_stats):
+        self.session.merge(author_boost_stats)
+
+    def addAuthors_boost_stats(self, authors_boost_stats):
+        for author_boost_stats in authors_boost_stats:
+            self.addAuthor_boost_stats(author_boost_stats)
+        self.session.commit()
+
+    def addPost_to_pointers_scores(self, post_to_pointers_scores):
+        self.session.merge(post_to_pointers_scores)
+
+    def addPosts_to_pointers_scores(self, posts_to_pointers_scores):
+        for post_to_pointers_scores in posts_to_pointers_scores:
+            self.addPost_to_pointers_scores(post_to_pointers_scores)
+        self.session.commit()
+
     def getReferencesFromPost(self, postid):
         urlToList = []
         references = self.session.query(Post_citation).filter(Post_citation.post_id_from == postid).all()
         for ref in references:
             urlToList.append(ref.url_to)
         return list(set(urlToList))
+
+    def getAuthor_boost_stats(self, author_guid):
+        result = self.session.query(Author_boost_stats).filter(Author_boost_stats.author_guid == author_guid).all()
+
+        if len(result) > 0:
+            return result[0]
+        return None
+
+    def get_all_authors_boost_stats(self):
+        result = self.session.query(Author_boost_stats).filter(
+            Author_boost_stats.author_domain == unicode(domain)).all()
+
+        if len(result) > 0:
+            return result
+        return None
 
     ###########################################################
     # post_retweeter_connections
@@ -1586,26 +1816,10 @@ class DB():
         result = self.session.query(Author).filter(Author.author_guid == author_guid).all()
         return result[0]
 
-    def get_missing_data_twitter_screen_names_by_posts(self):
-        query = "SELECT DISTINCT(posts.author) " \
-                "FROM posts WHERE posts.author NOT IN " \
-                "(SELECT author_screen_name FROM authors WHERE author_osn_id IS NOT NULL)"
-
-        query = text(query)
-        result = self.session.execute(query)
-        cursor = result.cursor
-        screen_names = list(cursor.fetchall())
-        twitter_screen_names = [r[0] for r in screen_names]
-        return twitter_screen_names
-
     def get_author_by_author_guid_and_domain(self, author_guid, domain):
         result = self.session.query(Author).filter(and_(Author.author_guid == author_guid,
                                                         Author.domain == domain)).all()
         return result
-
-    def get_posts_of_missing_authors(self):
-        results = self.session.query(Post).filter(Post.author_guid == None).all()
-        return results
 
     def is_author_exists(self, author_guid, domain):
         author = self.get_author_by_author_guid_and_domain(author_guid, domain)
@@ -1645,6 +1859,18 @@ class DB():
         # "AND authors.author_type IS NULL  " \
         # "GROUP BY authors.name" #TODO: Domains.MICROBLOG
         # "LIMIT 35;"
+
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        screen_names = list(cursor.fetchall())
+        twitter_screen_names = [r[0] for r in screen_names]
+        return twitter_screen_names
+
+    def get_missing_data_twitter_screen_names_by_posts(self):
+        query = "SELECT DISTINCT(posts.author) " \
+                "FROM posts WHERE posts.author NOT IN " \
+                "(SELECT author_screen_name FROM authors WHERE author_osn_id IS NOT NULL)"
 
         query = text(query)
         result = self.session.execute(query)
@@ -1819,6 +2045,21 @@ class DB():
                     screen_names.append(screen_name)
         return screen_names
 
+    def get_twitter_authors_retrieved_from_vico_importer(self):
+        '''
+        query = text("SELECT * FROM authors JOIN posts on posts.author = authors.name WHERE posts.xml_importer_insertion_date IS NOT NULL AND authors.bad_actors_markup_insertion_date is NULL AND (posts.url LIKE '%http://twitter.com%' OR posts.url LIKE '%https://twitter.com%');")
+        result = self.session.execute(query)
+        authors = [author.values() for author in result]
+        return authors
+        '''
+
+        result = self.session.query(Author).filter(and_(Post.xml_importer_insertion_date is not None),
+                                                   (Post.author == Author.name),
+                                                   (Author.missing_data_complementor_insertion_date is None),
+                                                   or_(Post.url.like('%http://twitter.com%'),
+                                                       Post.url.like('%https://twitter.com%'))).all()
+        return result
+
     def add_author_connection(self, author_connection):
         self.session.merge(author_connection)
 
@@ -1835,6 +2076,9 @@ class DB():
             self.add_author_connection(author_connection)
         self.session.commit()
 
+
+
+
     def get_author_connections_by_author_guid(self, source_author_guid):
         return self.session.query(AuthorConnection).filter(
             AuthorConnection.source_author_guid == source_author_guid).all();
@@ -1843,6 +2087,45 @@ class DB():
         for post_retweeter_connection in post_retweeter_connections:
             self.add_post_retweeter_connection(post_retweeter_connection)
         self.session.commit()
+
+    def get_vico_importer_bad_actors(self):
+        vico_importer_bad_actors = self.session.query(Author).filter(and_(Author.author_type == Author_Type.BAD_ACTOR,
+                                                                          or_(
+                                                                              Author.xml_importer_insertion_date is not None,
+                                                                              Author.vico_dump_insertion_date is not None))).all()
+        number_of_vico_importer_bad_actors = len(vico_importer_bad_actors)
+        logging.info("Number of bad_actors which found by VICO is: " + str(number_of_vico_importer_bad_actors))
+        return vico_importer_bad_actors
+
+    def get_bad_actor_ids(self):
+        logging.info("get_bad_actor_retweeters_not_retrieved_from_vico")
+
+        query = "SELECT authors.author_osn_id " \
+                "FROM authors " \
+                "WHERE authors.author_type = 'bad_actor'"
+
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        ids = list(cursor.fetchall())
+        twitter_authors_ids = [r[0] for r in ids]
+        logging.info("Number of bad actor o is: " + str(len(twitter_authors_ids)))
+        return twitter_authors_ids
+
+        number_of_bad_actors = len(bad_actors)
+        logging.info("Number of bad_actors which found by VICO is: " + str(number_of_bad_actors))
+        return bad_actors
+
+    def get_vico_importer_potential_good_actors(self):
+        vico_importer_potential_good_actors = self.session.query(Author).filter(and_(Author.author_type is None,
+                                                                                     Author.missing_data_complementor_insertion_date is not None,
+                                                                                     Author.xml_importer_insertion_date is not None)).all()
+        # or_(Author.xml_importer_insertion_date != None,
+        # Author.vico_dump_insertion_date != None))).all()
+        number_of_vico_importer_potential_good_actors = len(vico_importer_potential_good_actors)
+        logging.info(
+            "Number of vico_importer_potential_good_actors is: " + str(number_of_vico_importer_potential_good_actors))
+        return vico_importer_potential_good_actors
 
     def convert_twitter_users_to_authors(self, users, targeted_social_network, author_type, inseration_type):
         authors = []
@@ -1861,12 +2144,13 @@ class DB():
     def convert_twitter_user_to_author(self, osn_user, targeted_social_network, author_type, inseration_type):
         author_screen_name = unicode(osn_user.screen_name)
         author_guid = compute_author_guid_by_author_name(author_screen_name)
+
         domain = Domains.MICROBLOG
-        result = self.get_author_by_author_guid_and_domain(author_guid, domain)
-        if len(result) == 0:
-            author = Author()
-        else:
-            author = result[0]
+        # result = self.get_author_by_author_guid(author_guid)
+        # if len(result) == 0:
+        author = Author()
+        # else:
+        #     author = result[0]
 
         author.author_screen_name = unicode(author_screen_name)
         author.name = author_screen_name  # .lower()
@@ -1927,7 +2211,7 @@ class DB():
 
     def create_author_connections(self, source_id, destination_author_ids, weight, author_connection_type,
                                   insertion_date):
-        print("---create_author_connections---\n")
+        print("---create_author_connections---")
         author_connections = []
         for destination_author_id in destination_author_ids:
             author_connection = self.create_author_connection(source_id, destination_author_id, weight,
@@ -1941,9 +2225,11 @@ class DB():
         # print("---create_author_connection---")
         author_connection = AuthorConnection()
 
-        # msg = '\r Author connection: source -> ' + str(source_author_guid) + ', dest -> ' + str(
-        #     destination_author_guid) + ', connection type = ' + connection_type
-        # print(msg, end="")
+        msg = '\r Author connection: source -> ' + str(source_author_guid) + ', dest -> ' + str(
+            destination_author_guid) + ', connection type = ' + connection_type
+        print(msg, end="")
+
+        # print("Author connection: source -> " + str(source_author_guid) + ", dest -> " + str(destination_author_guid) + ", connection type = " + connection_type)
         author_connection.source_author_guid = source_author_guid
         author_connection.destination_author_guid = destination_author_guid
         author_connection.connection_type = unicode(connection_type)
@@ -2014,9 +2300,39 @@ class DB():
         year = int(year_month_day[0])
         month = int(year_month_day[1])
         day = int(year_month_day[2])
-        from datetime import date
+        from datetime import date, timedelta as td
         created_date = date(year, month, day)
         return created_date
+
+    def get_new_author_screen_names_by_date(self, min_date, current_date):
+
+        yesterday = current_date - timedelta(days=1)
+        query = "SELECT DISTINCT posts.author " \
+                "FROM posts " \
+                "WHERE (posts.url LIKE '%http://twitter.com%' " \
+                "OR posts.url LIKE '%https://twitter.com%') " \
+                "AND posts.domain = 'Microblog' " \
+                "AND posts.date > " + "'" + str(current_date) + " 00:00:00' " \
+                                                                "AND posts.date <= " + "'" + str(
+            current_date) + " 23:59:59' " \
+                            "and posts.author not in ( " \
+                            "SELECT DISTINCT posts.author " \
+                            "FROM posts " \
+                            "WHERE (posts.url LIKE '%http://twitter.com%' " \
+                            "OR posts.url LIKE '%https://twitter.com%') " \
+                            "AND posts.domain = 'Microblog' " \
+                            "AND posts.date > " + "'" + (
+                    str(yesterday) if current_date == min_date else str(min_date)) + " 00:00:00' " \
+                                                                                     "AND posts.date <= " + "'" + str(
+            yesterday) + " 23:59:59' " \
+                         "GROUP BY author)"
+
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        authors = list(cursor.fetchall())
+        author_screen_names = [r[0] for r in authors]
+        return author_screen_names
 
     ###########################################################
     # Views creation
@@ -2038,6 +2354,20 @@ class DB():
         GROUP BY p.post_id_to, \
             t.max_topic_id\
             ;")
+        self.session.commit()
+
+    def create_tf_view(self):
+        '''
+        Represents the #topics pointing to a post
+        '''
+        self.session.execute("DROP VIEW IF EXISTS tf;")
+        self.session.execute("\
+        CREATE VIEW IF NOT EXISTS tf AS\
+        SELECT uf.post_id,\
+            count(uf.topic_id) AS topic_frequency \
+        FROM uf\
+        GROUP BY uf.post_id\
+        ;")
         self.session.commit()
 
     def create_total_url_frequency_view(self):
@@ -2065,6 +2395,28 @@ class DB():
             FROM post_topic_mapping \
             GROUP BY max_topic_id \
             ")
+        self.session.commit()
+
+    def create_tfidf_view(self):
+        self.session.execute("DROP VIEW IF EXISTS tfidf;")
+        self.session.execute("\
+         CREATE VIEW IF NOT EXISTS tfidf AS \
+             SELECT uf.post_id,\
+                    uf.topic_id,\
+                    uf.url_to,\
+                    uf.url_frequency AS how_many_times_cited_in_topic,\
+                    tf.topic_frequency AS in_how_many_topics,\
+                    topic_stats.post_count,\
+                    1.0 * uf.url_frequency / topic_stats.post_count * log(1.0 *  (select count(*) from topics) / tf.topic_frequency) AS ufitf1,\
+                    tuf.tof\
+               FROM uf\
+                    INNER JOIN\
+                    tf ON (uf.post_id = tf.post_id) \
+                    INNER JOIN \
+                    topic_stats ON (uf.topic_id = topic_stats.topic_id) \
+                    INNER JOIN\
+                    total_url_frequency tuf ON (tuf.post_id = uf.post_id);\
+         ")
         self.session.commit()
 
     def create_key_posts_view(self):
@@ -2235,7 +2587,6 @@ class DB():
                 """
         return self._create_dictionary_by_query(query)
 
-
     ###########################################################
     # post representativeness
     ###########################################################
@@ -2383,10 +2734,31 @@ class DB():
                 ' WHERE (posts.author_guid NOT IN( ' \
                 '    SELECT authors.author_guid' \
                 '    FROM authors) ' \
-                ' AND posts.author_guid IS NOT NULL) '
+                ' OR posts.author_guid IS NULL) '
         query = text(query)
         self.session.execute(query)
         self.session.commit()
+
+    def get_posts_of_missing_authors(self):
+
+        results = self.session.query(Post).filter(Post.author_guid == None).all()
+        return results
+
+
+    def get_missing_authors_tuples(self):
+        query = ' SELECT DISTINCT(posts.author_guid), posts.author' \
+                ' FROM posts' \
+                ' WHERE (posts.author_guid NOT IN( ' \
+                '    SELECT authors.author_guid' \
+                '    FROM authors) ' \
+                ' OR posts.author_guid IS NULL) '
+
+        result = self.session.execute(query)
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+        return tuples
+
+
 
     def get_author_screen_names_and_number_of_posts(self, num_of_minimal_posts):
 
@@ -2560,6 +2932,7 @@ class DB():
         current_topic = str(data[0][0])
         get_from_topic = 0
         for row in data:
+
             if str(row[0]) != current_topic:
                 get_from_topic = 0
                 current_topic = str(row[0])
@@ -2609,13 +2982,13 @@ class DB():
         generator = self.result_iter(cursor)
         return generator
 
-    def get_labeled_authors_by_domain(self, domain):
+    def get_labeled_authors_by_domain(self, domain, targeted_class_field_name):
         query = """
-                SELECT authors.author_screen_name, authors.author_type
+                SELECT authors.author_screen_name, authors.{}
                 FROM authors
                 WHERE authors.domain = domain
                 AND authors.author_type IS NOT NULL
-                """
+                """.format(targeted_class_field_name)
         query = text(query)
 
         result = self.session.execute(query, params=dict(domain=domain))
@@ -2727,15 +3100,15 @@ class DB():
                 INNER JOIN posts ON (authors.author_guid = posts.author_guid)
                 WHERE authors.domain = :domain
                 AND authors.author_type IS NOT 'bad_actor'
-                """
+                AND ( """
 
         targeted_twitter_authors_count = len(targeted_twitter_author_names)
-        query += "AND posts.content LIKE '%RT @" + targeted_twitter_author_names[0] + "%' "
+        query += "posts.content LIKE '%RT @" + targeted_twitter_author_names[0] + "%' "
 
         for i in range(1, targeted_twitter_authors_count):
             query += "OR posts.content LIKE '%RT @" + targeted_twitter_author_names[i] + "%' "
 
-        # query += ")"
+        query += ")"
 
         query = text(query)
 
@@ -2756,7 +3129,9 @@ class DB():
 
     def get_unlabeled_predictions(self):
         query = """
-                SELECT *
+                SELECT unlabeled_predictions.AccountPropertiesFeatureGenerator_author_screen_name,
+                        unlabeled_predictions.predicted,
+                        unlabeled_predictions.prediction
                 FROM unlabeled_predictions
                 """
         query = text(query)
@@ -2787,10 +3162,10 @@ class DB():
         rows = list(cursor.fetchall())
         return rows
 
-    def insert_or_update_authors_from_posts(self, domain, author_classify_dict, author_probability_dict):
+    def insert_or_update_authors_from_posts(self, domain, author_classify_dict, author_prop_dict):
         authors_to_update = []
         posts = self.session.query(Post).filter(Post.domain == domain).all()
-        author_guids_set = set(self.get_author_guids())
+        author_dict = self.get_author_dictionary()
         logging.info("Insert or update_authors from app importer")
         logging.info("total Posts: " + str(len(posts)))
         i = 1
@@ -2799,39 +3174,54 @@ class DB():
             print(msg, end="")
             i += 1
             author_guid = post.author_guid
+            if author_guid in author_dict:
+                continue
+
             # domain = post.domain
 
-            if author_guid not in author_guids_set:
-                author = Author()
-                author_name = post.author
-                author.name = author_name
-                author.author_screen_name = post.author
-                author.domain = post.domain
-                author.author_guid = author_guid
+            # if not self.is_author_exists(author_guid, domain):
+            author = Author()
+            author_name = post.author
+            author.name = author_name
+            author.author_screen_name = post.author
+            author.domain = post.domain
+            author.author_guid = author_guid
 
-                if author_name in author_classify_dict:
-                    author.author_type = author_classify_dict[author_name]
+            if author_name in author_classify_dict:
+                author.author_type = author_classify_dict[author_name]
 
-                post_type = post.post_type
-                # if post_type is not None:
-                #     targeted_classes = post_type.split('/')
-                #     author_sub_type = targeted_classes[0]
-                #     if author_sub_type is not None:
-                #         author.author_sub_type = author_sub_type
+            post_type = post.post_type
+            if post_type is not None:
+                targeted_classes = post_type.split('/')
+                author_sub_type = targeted_classes[0]
+                if author_sub_type is not None:
+                    author.author_sub_type = author_sub_type
 
-                if author_guid in author_probability_dict:
-                    for key, value in author_probability_dict[author_guid].iteritems():
-                        setattr(author, key, value)
+            if author_guid in author_prop_dict:
+                for key, value in author_prop_dict[author_guid].iteritems():
+                    setattr(author, key, value)
 
-                authors_to_update.append(author)
+            authors_to_update.append(author)
+            author_dict[author_guid] = author
 
         if len(posts) != 0: print("")
-        self.add_authors(authors_to_update)
+        # self.add_authors(authors_to_update)
+        self.session.bulk_save_objects(authors_to_update)
+        self.session.commit()
 
     def get_posts_filtered_by_domain(self, domain):
         entries = self.session.query(Post).filter(Post.domain == domain).all()
         return entries
 
+    # def get_author_guids(self):
+    #     query = """ SELECT author_guid
+    #                 FROM authors
+    #             """
+    #
+    #     result = self.session.execute(query)
+    #     cursor = result.cursor
+    #     rows = list(cursor.fetchall())
+    #     return rows
 
     def get_author_guids(self):
         result = self.session.query(Author.author_guid).all()
@@ -2871,6 +3261,15 @@ class DB():
         random_authors_for_graphs = self.result_iter(cursor)
         return random_authors_for_graphs
 
+    # def get_author_types(self, domain):
+    #     author_type = {}
+    #     query = "SELECT author_guid, author_type FROM authors where author_guid is not null and domain={0}".format(domain)
+    #     query = text(query)
+    #     result = self.session.execute(query)
+    #     authors = self.result_iter(result.cursor)
+    #     for author in authors:
+    #         author_type[author[0]]=author[1]
+    #     return author_type
 
     def create_author_dictionaries(self, index_field_for_predictions, domain):
         labeled_author_dict = {}
@@ -2879,7 +3278,9 @@ class DB():
         unlabeled_author_guid_index_field_dict = {}
         query = "SELECT author_guid, {0},  author_type FROM authors where author_guid is not null and domain='{1}'".format(
             index_field_for_predictions, domain)
-
+        # query = """
+        #         SELECT author_guid, author_type FROM authors where author_guid is not null and domain = '" +domain + "'
+        #         """
         query = text(query)
         result = self.session.execute(query)
         authors = self.result_iter(result.cursor)
@@ -2937,9 +3338,7 @@ class DB():
                                        insertion_date):
         print("---create_temp_author_connections---")
         author_connections = []
-        for i, destination_author_id in enumerate(destination_author_ids):
-            if i % 100 == 0:
-                print('author connection generated {0}/{1}'.format(i, len(destination_author_ids)))
+        for destination_author_id in destination_author_ids:
             author_connection = self.create_temp_author_connection(source_author_id, destination_author_id,
                                                                    author_connection_type, insertion_date)
             author_connections.append(author_connection)
@@ -3018,7 +3417,7 @@ class DB():
 
         author_connections = []
         already_converted_temp_author_connections = []
-        for i, temp_author_connection in enumerate(temp_author_connection_tuples):
+        for temp_author_connection in temp_author_connection_tuples:
             source_author_osn_id = temp_author_connection[0]
             destination_author_osn_id = temp_author_connection[1]
             connection_type = temp_author_connection[2]
@@ -3084,10 +3483,27 @@ class DB():
         top_terms = [term[1] for term in generator]
         return top_terms
 
+    def get_top_10_terms_by_topic_id(self, topic_id):
+        query = """
+                SELECT topics.term_id, terms.description, topics.probability
+                FROM topics
+                INNER JOIN terms ON (terms.term_id = topics.term_id)
+                WHERE topics.topic_id = {}
+                ORDER BY 3 DESC
+                LIMIT 10
+                """.format(topic_id)
+
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        generator = self.result_iter(cursor)
+        top_terms = [term[1] for term in generator]
+        return top_terms
+
     def create_post_from_tweet_data(self, tweet_data, domain):
         author_name = tweet_data.user.screen_name
         tweet_author_guid = compute_author_guid_by_author_name(author_name)
-        tweet_author_guid = tweet_author_guid
+        tweet_author_guid = cleanForAuthor(tweet_author_guid)
         tweet_post_twitter_id = str(tweet_data.id)
         tweet_url = generate_tweet_url(tweet_post_twitter_id, author_name)
         tweet_creation_time = tweet_data.created_at
@@ -3165,7 +3581,6 @@ class DB():
             randomized_author_for_graph = self._create_randomized_author_for_graph(author_guid, author_type)
             randomized_authors.append(randomized_author_for_graph)
 
-
     def deleteTopics(self, window_start=None):
         if window_start:
             self.session.query(Topic).filter(Topic.window_start == window_start).delete()
@@ -3189,11 +3604,12 @@ class DB():
     def addPostTopicMappings(self, post_topic_mappings):
         for i, topic_mapping in enumerate(post_topic_mappings):
             self.addPostTopicMapping(topic_mapping)
-            if i % 100 == 0 or i >= len(post_topic_mappings) - 1:
-                msg = "\rAdd post topic mappings {0}/{1}".format(str(i + 1), str(len(post_topic_mappings)))
+            if i % 100 == 0:
+                msg = "\rAdd post topic mappings {0}/{1}".format(str(i), str(len(post_topic_mappings)))
                 print(msg, end='')
+        msg = "\rAdd post topic mappings {0}/{1}".format(str(len(post_topic_mappings)), str(len(post_topic_mappings)))
+        print(msg, end='')
         self.session.commit()
-        print()
 
     def add_terms(self, terms):
         for term in terms:
@@ -3226,31 +3642,49 @@ class DB():
         query = text(query)
         self.session.execute(query)
 
-    def insert_into_author_toppic_mappings(self, mappings):
-        if len(mappings) > 0:
-            query = """
-                    INSERT INTO author_topic_mapping 
-                    VALUES {0};
-                """
-            values = []
-            for author_guid, author_mapping in mappings:
-                # self.insert_into_author_toppic_mapping(author_mapping)
-                author_mapping = ','.join([str(m) for m in author_mapping])
-                values.append("('{0}', {1})".format(author_guid, author_mapping))
-            values_str = ','.join(values)
-            query = query.format(values_str)
-            query = text(query)
-            self.session.execute(query)
-            self.session.commit()
-
     def insert_into_author_toppic_mapping(self, author_guid, author_mapping):
+
         query = """
                     INSERT INTO author_topic_mapping 
                     VALUES ('{0}',{1});
                 """
         author_mapping = ','.join([str(m) for m in author_mapping])
 
-        query = query.format(author_guid, author_mapping)
+        query = query.format(author_guid,author_mapping)
+        query = text(query)
+        self.session.execute(query)
+
+    def insert_into_author_toppic_mappings(self, mappings):
+        if len(mappings) > 0:
+            author_mappings = []
+            author_guids = []
+            for author_guid, author_mapping in mappings:
+                mapping_tamplate = "('{0}',{1})"
+                author_mapping = ','.join([str(m) for m in author_mapping])
+                author_mappings.append(mapping_tamplate.format(author_guid, author_mapping))
+                author_guids.append("'{0}'".format(author_guid))
+
+            self.delete_author_topic_mapping_by_author_guids(author_guids)
+
+            for i in xrange(int(len(mappings) / 10000 + 1)):
+                author_topic_mapping_count = str(min((i + 1) * 10000, len(mappings)))
+                print('\r add author_topic_mappings {}/{}'.format(author_topic_mapping_count, len(mappings)), end='')
+                query = """         
+                            INSERT INTO author_topic_mapping 
+                            VALUES {0};
+                            """
+                query = query.format(',\n'.join(author_mappings[i * 10000: (i + 1) * 10000]))
+                query = text(query)
+                self.session.execute(query)
+                self.session.commit()
+            print()
+
+    def delete_author_topic_mapping_by_author_guids(self, author_guids):
+        query = """
+                    DELETE FROM author_topic_mapping
+                    WHERE author_guid IN ({0});
+                """
+        query = query.format(','.join(author_guids))
         query = text(query)
         self.session.execute(query)
 
@@ -3317,6 +3751,9 @@ class DB():
         targetd_articles = self.session.query(Target_Article_Item).all()
         return targetd_articles
 
+    def get_text_images(self):
+        text_images = self.session.query(Text_From_Image).all()
+        return text_images
 
     def get_authors_with_media(self):
         query = """SELECT authors.name, authors.media_path FROM authors
@@ -3346,7 +3783,97 @@ class DB():
 
         return {record[1]: record[0] for record in records}
 
-    def get_targeted_records_by_id_targeted_field_and_table_name(self, id_field, targeted_field_name, table_name, where_clauses):
+    def get_author_guid_word_embedding_vector_dict(self, word_embedding_table_name, table_name, targeted_field_name, word_embedding_type):
+        query = self._get_author_guid_word_embedding_vector_full_query(word_embedding_table_name, table_name, targeted_field_name, word_embedding_type)
+        result = self.session.execute(query, params=dict(word_embedding_table_name=word_embedding_table_name,
+                                                         table_name=table_name, targeted_field_name=targeted_field_name,
+                                                         word_embedding_type=word_embedding_type))
+        return self._create_author_guid_word_embedding_vector_dict_by_query(result)
+
+    def get_random_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type, num_of_random_authors_for_graph):
+        query = self._get_random_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name,
+                                                                               word_embedding_type, num_of_random_authors_for_graph)
+        result = self.session.execute(query, params=dict(word_embedding_table_name=word_embedding_table_name,
+                                                         table_name=table_name, targeted_field_name=targeted_field_name,
+                                                         word_embedding_type=word_embedding_type, num_of_random_authors_for_graph=num_of_random_authors_for_graph))
+        return self._create_author_guid_word_embedding_vector_dict_by_query(result)
+
+    def _get_word_embeddings_types(self, author_word_embeddings="author_word_embeddings"):
+        query = "SELECT word_embedding_type from %s GROUP BY 1" % author_word_embeddings
+        result = self.session.execute(query).fetchall()
+        parsed = [col[0] for col in result]
+        return parsed
+
+    def _get_author_guid_word_embedding_vector_full_query(self, word_embedding_table_name, table_name,
+                                                          targeted_field_name, word_embedding_type):
+        query = """
+                SELECT *
+                FROM {0}
+                WHERE table_name = '{1}'
+                AND targeted_field_name = '{2}'
+                AND word_embedding_type = '{3}'
+                AND author_id IS NOT NULL
+                """.format(word_embedding_table_name, table_name, targeted_field_name, word_embedding_type)
+        return query
+
+    def _get_random_author_guid_word_embedding_vector_full_query(self, word_embedding_table_name, table_name,
+                                                                 targeted_field_name, word_embedding_type,
+                                                                 num_of_random_authors_for_graph):
+        query = """
+                SELECT *
+                FROM {0}
+                WHERE table_name = '{1}'
+                AND targeted_field_name = '{2}'
+                AND word_embedding_type = '{3}'
+                AND author_id IS NOT NULL
+                LIMIT {4}
+                """.format(word_embedding_table_name, table_name, targeted_field_name, word_embedding_type, num_of_random_authors_for_graph)
+        return query
+
+    def _create_author_guid_word_embedding_vector_dict_by_query(self, result):
+        cursor = result.cursor
+        records = self.result_iter(cursor)
+        # records = list(records)
+        return self.create_author_guid_word_embedding_dict_by_recoreds(records)
+
+    def create_author_guid_word_embedding_dict_by_recoreds(self, records):
+        author_guid_word_embedding_vector = {}
+        for record in records:
+            author_guid = record[0]
+            selected_table_name = record[1]
+            selected_targeted_field_name = record[3]
+            selected_word_embedding_type = record[4]
+            vector = record[5:]
+            # vector_str = np.array(vector_str)
+            # vector = vector_str.astype(np.float)
+            author_guid_word_embedding_vector[author_guid] = vector
+        return author_guid_word_embedding_vector
+
+    def get_word_embedding_dictionary(self):
+        query = """SELECT * FROM wikipedia_model_300d"""
+        result = self.session.execute(query)
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+        records = list(tuples)
+        ans = {record[0]: record[1:301] for record in records}
+        return ans
+
+    def get_author_word_embedding_table(self):
+        query = """SELECT * FROM author_word_embeddings"""
+        query = self.session.execute(query)
+        results = pd.read_sql_table('author_word_embeddings', self.engine)
+        return results
+
+    def get_author_word_embedding(self, author_guid, table_name, target_field_name, author_word_embeddings):
+        ans = {}
+        columns = self._get_word_embeddings_types(author_word_embeddings)
+        ans ={unicode(col):self.get_author_guid_word_embedding_vector_dict(author_word_embeddings,table_name, target_field_name, col)[author_guid] for col in columns}
+        # ans[u'min'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'min')[author_guid]
+        # ans[u'max'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'max')[author_guid]
+        # ans[u'np.mean'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'np.mean')[author_guid]
+        return ans
+
+    def get_records_by_id_targeted_field_and_table_name(self, id_field, targeted_field_name, table_name, where_clauses):
         query = """
                 SELECT {0}, {1}
                 FROM {2}
@@ -3357,7 +3884,7 @@ class DB():
             field_name = where_clause_dict['field_name']
             value = where_clause_dict['value']
             if is_first_condition == False:
-                condition_clause =  """
+                condition_clause = """
                                     WHERE {0} = {1}
                                     """.format(field_name, value)
                 is_first_condition = True
@@ -3372,9 +3899,27 @@ class DB():
         tuples = self.result_iter(cursor)
         return tuples
 
+
+    def get_word_vector_dictionary(self, table_name):
+        query = """
+                SELECT *
+                FROM {0}
+                """.format(table_name)
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+
+        word_vector_dict = defaultdict()
+        for tuple in tuples:
+            word = tuple[0]
+            vector = tuple[1:]
+            word_vector_dict[word] = vector
+        return word_vector_dict
+
     def fill_author_type_by_post_type(self):
         logging.info("fill_author_type_by_post_type")
-        query = 'UPDATE authors SET author_type = (SELECT post_type FROM posts where author = authors.name)'
+        query = 'UPDATE authors SET author_type = (SELECT post_type FROM posts where posts.author_guid = authors.author_guid)'
         query = text(query)
         try:
             self.session.execute(query)
@@ -3407,22 +3952,9 @@ class DB():
         if field_id == "author_guid":
             return id_val
 
-    def get_author_screen_name_author_guid_dictionary(self):
-        query = """
-                SELECT authors.author_screen_name, authors.author_guid
-                FROM authors
-                """
-        query = text(query)
-
-        result = self.session.execute(query, params=dict(domain=domain))
-        cursor = result.cursor
-        tuples = self.result_iter(cursor)
-        author_screen_name_author_guid_dict = {}
-        for tuple in tuples:
-            author_screen_name = tuple[0]
-            author_guid = tuple[1]
-            author_screen_name_author_guid_dict[author_screen_name] = author_guid
-        return author_screen_name_author_guid_dict
+    def get_liar_dataset_records(self):
+        liar_dataset_records = self.session.query(Politifact_Liar_Dataset).all()
+        return liar_dataset_records
 
     def randomize_authors(self, min_number_of_posts_per_author, domain, authors_table_field_name,
                           authors_table_value, num_of_random_authors):
@@ -3449,14 +3981,73 @@ class DB():
                 AND authors.{2} = '{3}'
                 ORDER BY RANDOM()
                 LIMIT {4}
-                """.format(min_posts_count, domain, authors_table_field_name, authors_table_value,
-                           num_of_random_authors)
+                """.format(min_posts_count, domain, authors_table_field_name, authors_table_value, num_of_random_authors)
         query = text(query)
         result = self.session.execute(query, params=dict(min_posts_count=min_posts_count, domain=domain,
                                                          num_of_random_authors=num_of_random_authors))
         cursor = result.cursor
         randomized_authors_for_graph = self.result_iter(cursor)
         return randomized_authors_for_graph
+
+    def get_author_screen_name_author_guid_dictionary(self):
+        query = """
+                SELECT authors.author_screen_name, authors.author_guid
+                FROM authors
+                """
+        query = text(query)
+
+        result = self.session.execute(query, params=dict(domain=domain))
+        cursor = result.cursor
+        tuples = self.result_iter(cursor)
+        author_screen_name_author_guid_dict = {}
+        for tuple in tuples:
+            author_screen_name = tuple[0]
+            author_guid = tuple[1]
+            author_screen_name_author_guid_dict[author_screen_name] = author_guid
+        return author_screen_name_author_guid_dict
+
+    def get_resturant_api_id_to_resturant_dict(self):
+        authors = self.get_all_authors()
+        authors_dict = dict((unicode(aut.author_guid).encode('utf-8'), aut) for aut in authors)
+        return authors_dict
+
+    def fix_guids_encoding(self):
+        guids = self.get_author_guids()
+        for guid in guids:
+            new_guid = unicode(guid).encode('ascii', 'ignore').decode('ascii')
+            update_query = "UPDATE " + self.authors + " SET author_guid ='" + new_guid + "' WHERE author_guid ='" + guid + "'"
+            self.update_query(update_query)
+
+    def get_politifact_speaker_by_author(self, author):
+        query = text("SELECT party_affiliation FROM politifact_liar_dataset where post_guid ='" + author + "'")
+        result = self.session.execute(query)
+        cursor = result.cursor
+        records = list(cursor.fetchall())[0]
+        return records
+
+    def export_word_embeddings_to_tsv(self):
+        embeddings_dict = self.get_author_guid_word_embedding_vector_dict('posts', 'content','max')
+        file = open("D:\\Work\\BadActorsFolder\\trunk\\software\\bad_actors\\data\\output\\word_embeddings_mean2.tsv",'wb')
+        file_labled=open("D:\\Work\\BadActorsFolder\\trunk\\software\\bad_actors\\data\\output\\word_embeddings_mean_lables.tsv",'wb')
+        writer = csv.writer(file, delimiter='\t')
+        counter = 0
+        for author in embeddings_dict:
+            record = embeddings_dict[author]
+            counter += 1
+            str_record = str(record)[1:-1]
+            str_record = str_record.replace(', ', '\t')
+            file.write(str_record + '\n')
+
+            author_type = (self.get_author_by_guid(author)).author_type
+            author = self.get_politifact_speaker_by_author(author)[0]
+
+            file_labled.write(author + '\t' + author_type + '\n')
+        file.close()
+        file_labled.close()
+
+    ##
+    ## Added for solving the issue of US Elections
+    ##
 
     def convert_tweets_to_posts_and_authors(self, tweets, domain):
         posts = []
@@ -3476,25 +4067,39 @@ class DB():
 
         return post, author
 
+    def convert_tweet_to_user_mentions(self, tweet, post_guid):
+        tweet_user_mentions = tweet.user_mentions
+        user_mentions = []
+        for tweet_user_mention in tweet_user_mentions:
+            user_mention = PostUserMention()
+
+            user_mention.post_guid = post_guid
+            user_mention.user_mention_twitter_id = tweet_user_mention.id_str
+            user_mention.user_mention_screen_name = tweet_user_mention.screen_name
+
+            user_mentions.append(user_mention)
+        return user_mentions
+
+
     def _convert_tweet_to_post(self, tweet, domain):
         post = Post()
 
-        tweet_id = tweet.id
+        tweet_id = tweet.id_str
         post.post_osn_id = tweet_id
         post.retweet_count = tweet.retweet_count
         post.favorite_count = tweet.favorite_count
         post.content = tweet.text
-        created_at = tweet.created_at
-        post.created_at = created_at
 
         user = tweet.user
         screen_name = user.screen_name
         post.author = screen_name
 
-        url = "https://twitter.com/" + screen_name + "/" + str(tweet_id)
+        url = "https://twitter.com/{0}/status/{1}".format(screen_name, tweet_id)
         post.url = url
-        tweet_str_publication_date = unicode(extract_tweet_publiction_date(created_at))
 
+        created_at = tweet.created_at
+        post.created_at = created_at
+        tweet_str_publication_date = unicode(extract_tweet_publiction_date(created_at))
         tweet_creation_date = str_to_date(tweet_str_publication_date)
         post.date = tweet_creation_date
         post.domain = domain
@@ -3505,6 +4110,7 @@ class DB():
 
         author_guid = compute_author_guid_by_author_name(screen_name)
         post.author_guid = author_guid
+        post.post_format = tweet.lang
         return post
 
     def _convert_tweet_to_author(self, tweet, domain):
@@ -3527,7 +4133,7 @@ class DB():
 
         author.geo_enabled = user.geo_enabled
 
-        user_id = user.id
+        user_id = user.id_str
         author.author_osn_id = user_id
         author.language = user.lang
         author.listed_count = user.listed_count
@@ -3539,100 +4145,80 @@ class DB():
 
         author.profile_sidebar_fill_color = user.profile_sidebar_fill_color
         author.profile_text_color = user.profile_text_color
-        author.location = user.location
-        author.protected = user.protected
+        author.location = user.location if user.location != None else None
+        author.protected = user.protected if user.protected != None else None
+        author.time_zone = user.time_zone if user.time_zone != None else None
+        author.url = user.url if user.url != None else None
+        author.utc_offset = user.utc_offset if user.utc_offset != None else None
         author.domain = domain
+        author.verified = user.verified
 
         return author
 
-    def get_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type):
-        query = self._get_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name,
-                                                                       word_embedding_type)
-        result = self.session.execute(query, params=dict(table_name=table_name, targeted_field_name=targeted_field_name,
-                                                         word_embedding_type=word_embedding_type))
-        return self._create_author_guid_word_embedding_vector_dict_by_query(result)
+    def add_claim_connections(self, claim_connections):
+        i = 1
+        for claim in claim_connections:
+            if (i % 100 == 0):
+                msg = "\r Insert claim_connection to DB: [{}".format(i) + "/" + str(len(claim_connections)) + ']'
+                print(msg, end="")
+            i += 1
+            self.session.merge(claim)
+        msg = "\r Insert claim_connection to DB: [{}".format(i) + "/" + str(len(claim_connections)) + ']'
+        print(msg)
+        self.commit()
 
-    def get_random_author_guid_word_embedding_vector_dict(self, table_name, targeted_field_name, word_embedding_type,
-                                                          num_of_random_authors_for_graph):
-        query = self._get_random_author_guid_word_embedding_vector_full_query(table_name, targeted_field_name,
-                                                                              word_embedding_type,
-                                                                              num_of_random_authors_for_graph)
-        result = self.session.execute(query, params=dict(table_name=table_name, targeted_field_name=targeted_field_name,
-                                                         word_embedding_type=word_embedding_type,
-                                                         num_of_random_authors_for_graph=num_of_random_authors_for_graph))
-        return self._create_author_guid_word_embedding_vector_dict_by_query(result)
-
-    def _get_word_embeddings_types(self):
-        query = "SELECT word_embedding_type from author_word_embeddings GROUP BY 1"
-        result = self.session.execute(query).fetchall()
-        parsed = [col[0] for col in result]
-        return parsed
-
-    def _get_author_guid_word_embedding_vector_full_query(self, table_name, targeted_field_name, word_embedding_type):
-        query = """
-                SELECT *
-                FROM author_word_embeddings
-                WHERE table_name = :table_name
-                AND targeted_field_name = :targeted_field_name
-                AND word_embedding_type = :word_embedding_type
-                AND author_id IS NOT NULL
-                """
-        return query
-
-    def _get_random_author_guid_word_embedding_vector_full_query(self, table_name, targeted_field_name,
-                                                                 word_embedding_type, num_of_random_authors_for_graph):
-        query = """
-                SELECT *
-                FROM author_word_embeddings
-                WHERE table_name = :table_name
-                AND targeted_field_name = :targeted_field_name
-                AND word_embedding_type = :word_embedding_type
-                AND author_id IS NOT NULL
-                LIMIT :num_of_random_authors_for_graph
-                """
-        return query
-
-    def _create_author_guid_word_embedding_vector_dict_by_query(self, result):
-        cursor = result.cursor
-        records = self.result_iter(cursor)
-        # records = list(records)
-        author_guid_word_embedding_vector = {}
-        for record in records:
-            author_guid = record[0]
-            selected_table_name = record[1]
-            selected_targeted_field_name = record[3]
-            selected_word_embedding_type = record[4]
-            vector = record[5:]
-            # vector_str = np.array(vector_str)
-            # vector = vector_str.astype(np.float)
-            author_guid_word_embedding_vector[author_guid] = vector
-        return author_guid_word_embedding_vector
-
-    def get_word_embedding_dictionary(self):
-        query = """SELECT * FROM wikipedia_model_300d"""
+    def get_claim_tweet_connections(self):
+        q = """
+            SELECT *
+            FROM claim_tweet_connection            
+            """
+        query = text(q)
         result = self.session.execute(query)
-        cursor = result.cursor
-        tuples = self.result_iter(cursor)
-        records = list(tuples)
-        ans = {record[0]: record[1:301] for record in records}
-        return ans
+        return list(result)
 
-    def get_author_word_embedding_table(self):
-        query = """SELECT * FROM author_word_embeddings"""
-        query = self.session.execute(query)
-        results = pd.read_sql_table('author_word_embeddings', self.engine)
+    def get_claim_ordered_by_num_of_posts(self):
+        q = """
+            SELECT claim_tweet_connection.claim_id, COUNT(claim_tweet_connection.post_id)
+            FROM claim_tweet_connection           
+            GROUP BY 1
+            ORDER BY 2 DESC 
+            """
+        query = text(q)
+        result = self.session.execute(query)
+        return list(result)
+
+    def get_table_by_name(self, table_name):
+        for var in globals():
+            class_obj = globals()[var]
+            try:
+                if issubclass(class_obj, Base) and class_obj. __tablename__ == table_name:
+                    return class_obj
+            except:
+                pass
+        return None
+
+    def get_verified_authors(self):
+        results = self.session.query(Author).filter(Author.verified == '1').all()
         return results
 
-    def get_author_word_embedding(self, author_guid, table_name, target_field_name):
-        ans = {}
-        columns = self._get_word_embeddings_types()
-        ans = {
-        unicode(col): self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, col)[author_guid]
-        for col in columns}
-        # ans[u'min'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'min')[author_guid]
-        # ans[u'max'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'max')[author_guid]
-        # ans[u'np.mean'] = self.get_author_guid_word_embedding_vector_dict(table_name, target_field_name, u'np.mean')[author_guid]
-        return ans
+    def get_post_osn_ids(self):
+        q = """
+            SELECT post_osn_id
+            FROM posts
+            """
+        query = text(q)
+        result = self.session.execute(query)
+        return list(result)
+
+    def get_posts_by_selected_domain(self, domain):
+        q = """
+            SELECT posts.post_id, posts.post_type
+            FROM posts
+            WHERE posts.domain = :domain
+            """
+        query = text(q)
+        result = self.session.execute(query, params=dict(domain=domain))
+        return list(result)
 
     def get_claim_id_posts_dict(self):
         claim_id_posts_dict = defaultdict(list)
@@ -3640,3 +4226,203 @@ class DB():
         for claim_id, post_id in self.get_claim_tweet_connections():
             claim_id_posts_dict[claim_id].append(post_dict[post_id])
         return claim_id_posts_dict
+
+
+    def get_claim_post_author_connections_with_verdict(self):
+        q = """
+            SELECT claim_tweet_connection.claim_id, claim_tweet_connection.post_id, posts.author_guid, claims.verdict
+            FROM claim_tweet_connection
+            INNER JOIN posts ON (posts.post_id  =  claim_tweet_connection.post_id)
+            INNER JOIN claims ON (claims.claim_id  =  claim_tweet_connection.claim_id)
+            """
+        query = text(q)
+        result = self.session.execute(query)
+        return list(result)
+
+    def get_claim_post_author_connections(self):
+        q = """
+            SELECT claim_tweet_connection.claim_id, claim_tweet_connection.post_id, posts.author_guid
+            FROM claim_tweet_connection
+            INNER JOIN posts ON (posts.post_id = claim_tweet_connection.post_id)
+            """
+        query = text(q)
+        result = self.session.execute(query)
+        return list(result)
+
+    def delete_author_sub_type(self):
+        query = '''
+                UPDATE authors
+                SET author.author_sub_type = NULL
+                '''
+        self.update_query(query)
+
+    def add_claim_keywords_connection(self, claim_id, type, keywords):
+        claim_keywords_connections = Claim_Keywords_Connections()
+        claim_keywords_connections.claim_id = claim_id
+        claim_keywords_connections.keywords = keywords
+        claim_keywords_connections.type = type
+        self.addPost(claim_keywords_connections)
+
+    def add_claim_keywords_connections(self, connections):
+        self.addPosts(connections)
+
+    def get_claim_keywords_connections(self):
+        return self.session.query(Claim_Keywords_Connections).all()
+
+    def get_claim_keywords_connections_by_type(self, type):
+        return self.session.query(Claim_Keywords_Connections).filter(Claim_Keywords_Connections.type == type ).all()
+
+    def get_claim_id_keywords_dict_by_connection_type(self, type):
+        connections = self.get_claim_keywords_connections_by_type(type)
+        return {connection.claim_id: connection.keywords for connection in connections}
+
+    def add_claim_tweet_connections_fast(self, claim_post_connections):
+        self.session.close()
+        claim_tweet_connections = self.get_claim_tweet_connections()
+        claim_id_posts_dict = defaultdict(set)
+        for claim_id, post_id in claim_tweet_connections:
+            claim_id_posts_dict[claim_id].add(post_id)
+        filtered_connections = []
+        for connection in claim_post_connections:
+            if connection.post_id not in claim_id_posts_dict[connection.claim_id]:
+                filtered_connections.append(connection)
+                claim_id_posts_dict[connection.claim_id].add(connection.post_id)
+        duplication_count = str(len(claim_post_connections) - len(filtered_connections))
+        print(
+            'Add {} new connections to db, remove {} duplications'.format(len(filtered_connections), duplication_count))
+        self.session.bulk_save_objects(filtered_connections)
+        self.session.commit()
+
+    def add_posts_fast(self, posts):
+        table_name = 'posts'
+        keys = ['post_id', 'domain']
+        self.add_entity_fast(table_name, keys, posts)
+
+    def add_terms_fast(self, terms):
+        table_name = 'terms'
+        keys = ['term_id']
+        self.add_entity_fast(table_name, keys, terms)
+
+    def add_topic_items_fast(self, topic_items):
+        table_name = 'topics'
+        keys = ['topic_id', 'term_id']
+        self.add_entity_fast(table_name, keys, topic_items)
+
+    def add_post_topic_mappings_fast(self, post_topic_mappings):
+        table_name = 'post_topic_mapping'
+        keys = ['post_id']
+        self.add_entity_fast(table_name, keys, post_topic_mappings)
+
+    def add_news_articles_fast(self, news_articles):
+        table_name = 'news_articles'
+        keys = ['article_id']
+        self.add_entity_fast(table_name, keys, news_articles)
+
+    def add_author_connections_fast(self, author_connections):
+        keys = ['source_author_guid', 'destination_author_guid', 'connection_type']
+        table_name = 'author_connections'
+        self.add_entity_fast(table_name, keys, author_connections)
+
+    def add_author_features_fast(self, author_features):
+        keys = ['author_guid', 'window_start', 'window_end', 'attribute_name']
+        table_name = 'author_features'
+        self.add_entity_fast(table_name, keys, author_features)
+
+    def add_reddit_authors(self, authors):
+        keys = ['name', 'author_guid']
+        table_name = 'reddit_authors'
+        self.add_entity_fast(table_name, keys, authors)
+
+    def add_claims_fast(self, claims):
+        keys = ['claim_id']
+        table_name = 'claims'
+        self.add_entity_fast(table_name, keys, claims)
+
+    def get_entity_key(self, table_item):
+        return inspect(table_item).identity
+
+    def add_entity_fast(self, table_name, keys, entities):
+        self.session.expire_on_commit = False
+        try:
+            self.session.bulk_insert_mappings(table, [new_item.__dict__ for new_item in filtered_items])
+            print('Add {} new {} to db'.format(len(filtered_items), table_name))
+            return
+        except:
+            pass
+
+        items = self.get_table_elements_by_where_cluases(table_name, [])
+        item_dict = set()
+        for i, item in enumerate(items):
+            print('\r load {}'.format(i), end='')
+            item_key = ','.join([str(getattr(item, key)) for key in keys])
+            item_dict.add(item_key)
+        self.session.close()
+        filtered_items = []
+        update_items = []
+        for i, item in enumerate(entities):
+            print('\r filter {}/{}'.format(i, len(entities)), end='')
+            item_key = ','.join([str(getattr(item, key)) for key in keys])
+            if item_key not in item_dict:
+                filtered_items.append(item)
+                item_dict.add(item_key)
+            else:
+                update_items.append(item)
+        duplication_count = str(len(entities) - len(filtered_items))
+        table = self.get_table_by_name(table_name)
+        if filtered_items:
+            self.session.bulk_insert_mappings(table, [new_item.__dict__ for new_item in filtered_items])
+            print('Add {} new {} to db'.format(len(filtered_items), table_name))
+        if update_items:
+            self.session.bulk_update_mappings(table, [update_item.__dict__ for update_item in update_items])
+            print('Update {} new {} to db'.format(len(update_items), table_name))
+        self.session.commit()
+        self.session.expire_on_commit = False
+
+    def add_authors_fast(self, authors):
+        self.add_items_fast(self.get_author_dictionary(), authors, 'author_guid', 'authors')
+
+
+
+    # def add_author_features_fast(self, author_features):
+    #     author_feature_dict = {author_feature.author_guid: author_feature for author_feature in self.get_author_features()}
+    #     self.add_items_fast(author_feature_dict, author_features, 'author_guid', 'author_features')
+
+    def add_items_fast(self, item_dict, items, item_key, item_type='items'):
+        self.session.close()
+        filtered_items = []
+        for item in items:
+            if getattr(item, item_key) not in item_dict:
+                filtered_items.append(item)
+                item_dict[getattr(item, item_key)] = item
+        duplication_count = str(len(items) - len(filtered_items))
+        print('Add {} new {} to db, remove {} duplications'.format(len(filtered_items), item_type, duplication_count))
+        self.session.bulk_save_objects(filtered_items)
+        self.session.commit()
+
+    def get_claims_tuples(self):
+        q = """
+            SELECT *
+            FROM claims
+            """
+        query = text(q)
+        result = self.session.execute(query)
+        return list(result)
+
+    def get_posts_from_domain_contain_words(self, domain, words):
+        conditions = [Post.content.like(u'%{}%'.format(word)) for word in words]
+        return self.session.query(Post).filter(and_(Post.domain == domain, and_(*conditions))).all()
+
+    def get_authors_by_facebook_group(self, group_id):
+        result = self.session.query(AuthorConnection).filter(and_(AuthorConnection.source_author_guid == unicode(group_id)),
+                                                   ).all()
+        return result
+
+    def get_author_guid_by_facebook_osn_id(self, author_osn_id, domain="Facebook"):
+        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_osn_id == author_osn_id),
+            ).all()
+        return result
+
+    def get_facebook_author_by_author_guid(self, author_guid, domain="Facebook"):
+        result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_guid == author_guid, Author.author_type == 'User'),
+            ).all()
+        return result

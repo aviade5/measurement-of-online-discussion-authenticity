@@ -1,8 +1,8 @@
 # Created by jorgeaug at 30/06/2016
+from __future__ import print_function
 from dateutil import parser
-import datetime
+
 from base_feature_generator import BaseFeatureGenerator
-from commons.consts import Social_Networks
 from commons.commons import *
 
 '''
@@ -13,6 +13,34 @@ Each author-feature pair will be written in the AuthorFeature table
 
 
 class AccountPropertiesFeatureGenerator(BaseFeatureGenerator):
+    def __init__(self, db, **kwargs):
+        super(AccountPropertiesFeatureGenerator, self).__init__(db, **kwargs)
+        self._max_number_of_object = 1000000
+        self._targeted_fields = self._config_parser.eval(self.__class__.__name__, "targeted_fields")
+
+    def execute(self, window_start=None):
+        # self._get_author_features_using_args(self._targeted_fields)
+        features = self._config_parser.eval(self.__class__.__name__, "feature_list")
+        author_guid_author_dict = self._db.get_author_dictionary()
+        author_guid_posts_dict = self._db.get_author_guid_posts_dict()
+        authors_features = []
+        for i, author_guid in enumerate(author_guid_author_dict.keys()):
+            print('\rprocess author {}/{}'.format(i, len(author_guid_author_dict)), end='')
+            author = author_guid_author_dict[author_guid]
+            posts = author_guid_posts_dict[author_guid]
+            kwargs = {'author': author, 'posts': posts}
+            for feature in features:
+                author_feature = self.run_and_create_author_feature(kwargs, author_guid, feature)
+                authors_features.append(author_feature)
+
+            if len(authors_features) > self._max_number_of_object:
+                self._db.add_author_features_fast(authors_features)
+                authors_features = []
+
+        if authors_features:
+            self._db.add_author_features_fast(authors_features)
+
+
     def cleanUp(self):
         pass
 
@@ -34,7 +62,6 @@ class AccountPropertiesFeatureGenerator(BaseFeatureGenerator):
             return author.followers_count
         else:
             raise Exception('Author object was not passed as parameter')
-
 
     def number_friends(self, **kwargs):
         if 'author' in kwargs.keys():
@@ -91,12 +118,14 @@ class AccountPropertiesFeatureGenerator(BaseFeatureGenerator):
             return author.listed_count
         else:
             raise Exception('Author object was not passed as parameter')
+
     def verified(self, **kwargs):
         if 'author' in kwargs.keys():
             author = kwargs['author']
             return author.verified
         else:
             raise Exception('Author object was not passed as parameter')
+
     def screen_name_length(self, **kwargs):
         if 'author' in kwargs.keys():
             author = kwargs['author']
@@ -122,5 +151,12 @@ class AccountPropertiesFeatureGenerator(BaseFeatureGenerator):
         if 'author' in kwargs.keys():
             author = kwargs['author']
             return author.author_sub_type
+        else:
+            raise Exception('Author object was not passed as parameter')
+
+    def author_guid(self, **kwargs):
+        if 'author' in kwargs.keys():
+            author = kwargs['author']
+            return author.author_guid
         else:
             raise Exception('Author object was not passed as parameter')

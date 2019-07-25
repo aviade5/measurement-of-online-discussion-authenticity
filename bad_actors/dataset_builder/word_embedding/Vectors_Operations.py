@@ -36,7 +36,8 @@ class Vector_Operations():
 
     @staticmethod
     def create_features_from_word_embedding_dict(author_guid_word_embedding_dict, targeted_table, targeted_field_name,
-                                                 targeted_word_embedding_type,window_start, window_end, db, commit_treshold, prefix=''):
+                                                 targeted_word_embedding_type, word_embedding_table_name,
+                                                 window_start, window_end, db, commit_treshold, prefix=''):
         authors_features = []
         counter = 0
         author_guids = author_guid_word_embedding_dict.keys()
@@ -44,12 +45,12 @@ class Vector_Operations():
             msg = "\rCalculating word embeddings features: {0}/{1}:{2}".format(i, len(author_guids), author_guid)
             print(msg, end="")
             counter +=1
-            if counter%commit_treshold==0:
-                db.add_author_features(authors_features)
-                db.commit()
-                authors_features=[]
+            if counter % commit_treshold == 0:
+                db.add_author_features_fast(authors_features)
+                authors_features = []
             author_vector = author_guid_word_embedding_dict[author_guid]
-            feature_name = targeted_word_embedding_type+'_'+targeted_table + "_" + targeted_field_name
+            feature_name = "{0}_{1}_{2}_{3}".format(targeted_word_embedding_type, targeted_table, targeted_field_name,
+                                                    word_embedding_table_name)
             dimentions_feature_for_author = Vector_Operations.create_author_feature_for_each_dimention(author_vector,
                                                                                                        feature_name,
                                                                                                        author_guid,
@@ -58,7 +59,6 @@ class Vector_Operations():
                                                                                                        prefix)
             authors_features = authors_features + dimentions_feature_for_author
         db.add_author_features(authors_features)
-        db.commit()
         authors_features = []
 
     @staticmethod

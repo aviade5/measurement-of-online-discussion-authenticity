@@ -23,7 +23,7 @@ class LinkPredictionFeatureExtractor(BaseFeatureGenerator):
         self._property_node_field_names = self._config_parser.eval(self.__class__.__name__, "property_node_field_names")
         self._anchor_authors_creator = AnchorAuthorsCreator(self._db)
 
-    def execute(self):
+    def execute(self, window_start=None):
         anchor_authors_creator = self._anchor_authors_creator
 
         targeted_class_anchor_author_dict, anchor_authors_dict = anchor_authors_creator.create_anchor_author_dictionary()
@@ -82,6 +82,38 @@ class LinkPredictionFeatureExtractor(BaseFeatureGenerator):
         self._fill_nodes_properties_to_graph(author_guid_targeted_classes_tuple_dict, graph)
 
         return graph
+
+    # doesn't work- dont know if needed
+    # def weighted_jaccard_coefficient_fuzzy_sets(self, graph, author_osn_id, labeled_author_osn_id):
+    #     return 0
+    #     numerator = 0.0
+    #     denominator = 0.0
+    #     for z in nx.common_neighbors(graph, author_osn_id, labeled_author_osn_id):
+    #         if graph.get_edge_data(author_osn_id, z)['weight'] > graph.get_edge_data(labeled_author_osn_id, z)[
+    #             'weight']:
+    #             numerator += graph.get_edge_data(labeled_author_osn_id, z)['weight']
+    #         else:
+    #             numerator += graph.get_edge_data(author_osn_id, z)['weight']
+    #
+    #     total_neighbors = nx.neighbors(graph, author_osn_id) + nx.neighbors(graph, labeled_author_osn_id)
+    #     for neighbor in total_neighbors:
+    #         edge_a = graph.get_edge_data(author_osn_id, neighbor, default=0)
+    #         edge_b = graph.get_edge_data(labeled_author_osn_id, neighbor, default=0)
+    #
+    #         if edge_a != 0 and edge_b != 0:
+    #             if edge_a['weight'] > edge_b['weight']:
+    #                 denominator += edge_a['weight']
+    #             else:
+    #                 denominator += edge_b['weight']
+    #         elif edge_a != 0:
+    #             denominator += edge_a['weight']
+    #         elif edge_b != 0:
+    #             denominator += edge_b['weight']
+    #
+    #     if denominator > 0:
+    #         return numerator / denominator
+    #     else:
+    #         return 0
 
     def _fill_edges_to_graph(self, graph):
         edges = []

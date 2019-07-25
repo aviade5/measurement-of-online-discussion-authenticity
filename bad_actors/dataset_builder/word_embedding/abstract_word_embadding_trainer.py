@@ -16,6 +16,7 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
         self._table_name = self._config_parser.eval(self.__class__.__name__, "table_name")
         self._targeted_fields_for_embedding = self._config_parser.eval(self.__class__.__name__,
                                                                        "targeted_fields_for_embedding")
+        self._num_of_dimensions = self._config_parser.eval(self.__class__.__name__, "num_of_dimensions")
 
     def _calculate_word_embedding_to_authors(self, source_id_elements_dict, targeted_fields_dict, word_vector_dict):
         source_id_words_dict = self._fill_source_id_words_dictionary(source_id_elements_dict, targeted_fields_dict)
@@ -26,7 +27,7 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
         source_count = len(source_id_words_dict)
         i = 1
         for source_id, words in source_id_words_dict.iteritems():
-            msg = "\rStarting calculating word embeddings for:{0} {1}/{2}".format(source_id, i, source_count)
+            msg = "\rCalculating word embeddings: {1}/{2}".format(source_id, i, source_count)
             print(msg, end='')
             i += 1
             word_vectors = self._collect_word_vector_per_source(words)
@@ -39,26 +40,18 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
 
     def _add_word_embeddings_to_db(self, word_embeddings):
         print("Add word embedding to DB")
+        self._results_dataframe = pd.DataFrame()
         self._add_word_embeddings_to_df(word_embeddings)
         # if result is None: #added by Lior, need to check for if no author_id
         #     self._fill_zeros(results_dataframe, author_id, table_name, id_field, targeted_field_name)
         column_names = ["author_id", "table_name", "id_field", "targeted_field_name", "word_embedding_type"]
-        dimensions = np.arange(300)
+        dimensions = np.arange(self._num_of_dimensions)
         column_names.extend(dimensions)
         self._results_dataframe.columns = column_names
-        # if not self._create_new_table:
-        try:
-            existing_table = self._db.get_author_word_embedding_table()
-            existing_table.columns = column_names
-            table_to_add = self._results_dataframe
-            merged_df = existing_table.append(table_to_add, ignore_index=True)
-            self._results_dataframe = merged_df
-            # self._db.session.dr
-            pass
-        except Exception as e:
-            print('create new author_word_embedding table')
         engine = self._db.engine
-        self._results_dataframe.to_sql(name="author_word_embeddings", con=engine, index=False, if_exists='replace')
+        self._results_dataframe.to_sql(name="author_word_embeddings_{0}_{1}_dim".format(self._table_name,
+                                                                                        self._num_of_dimensions),
+                                       con=engine, index=False, if_exists='append')
 
     def _add_word_embeddings_to_df(self, word_embeddings):
         rows = []
@@ -100,7 +93,7 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
         i = 1
         source_count = len(source_id_target_fields_dict)
         for source_id, target_elements in source_id_target_fields_dict.iteritems():
-            msg = "\rStarting filling author_id_words_dictionary for: {0} {1}/{2}".format(source_id, i, source_count)
+            msg = "\rFilling author_words_dict: {1}/{2}".format(source_id, i, source_count)
             print(msg, end='')
             i += 1
             total_words = []
@@ -160,7 +153,7 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
                 author_vector.extend(result)
             else:
                 if len(transposed) <= 0:
-                    dimensions = 300
+                    dimensions = self._num_of_dimensions
                 else:
                     dimensions = len(transposed)
                 zero_vector = np.zeros((dimensions,), dtype=np.int)

@@ -14,8 +14,6 @@ class Sentiment_Feature_Generator_Unittest(unittest.TestCase):
 
     def tearDown(self):
         self._db.session.close()
-        self._db.deleteDB()
-        self._db.session.close()
 
     def test_compund_single_positive_post(self):
         self._add_post(u'Title', u'I like this thing very MUCH')
@@ -98,9 +96,16 @@ class Sentiment_Feature_Generator_Unittest(unittest.TestCase):
         self._add_claim_tweet_connection(u'post1', u'post3')
         params = self._get_params()
         self._sentiment_anlysis = Sentiment_Feature_Generator(self._db, **params)
+        self._sentiment_anlysis._targeted_fields = [{'source': {'table_name': 'posts', 'id': 'post_id', },
+                                                     'connection': {'table_name': 'claim_tweet_connection',
+                                                                    'source_id': 'claim_id', 'target_id': 'post_id'},
+                                                     'destination': {'table_name': 'posts', 'id': 'post_id',
+                                                                     'target_field': 'content',
+                                                                     "where_clauses": [{"field_name": "domain",
+                                                                                        "value": "Microblog"}]}}]
         self._sentiment_anlysis.execute()
-        db_value = self._db.get_author_feature(self._author.author_guid,
-                                             u'Sentiment_Feature_Generator_authors_posts_semantic_average_compound')
+        db_value = self._db.get_author_feature(u'post1',
+                                             u'Sentiment_Feature_Generator_authors_posts_semantic_compound_mean')
         self.assertGreater(db_value, 0)
 
     def _set_up_test_env(self):
@@ -111,27 +116,27 @@ class Sentiment_Feature_Generator_Unittest(unittest.TestCase):
 
     def _get_params(self):
         posts = {self._author.author_guid: self._posts}
-        params = {'authors': [self._author], 'posts': posts}
+        params = params = {'authors': [self._author], 'posts': posts}
         return params
 
     def _get_author_compund_val(self):
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u'Sentiment_Feature_Generator_authors_posts_semantic_average_compound')
+                                             u'Sentiment_Feature_Generator_authors_posts_semantic_compound_mean')
         return float(db_val.attribute_value)
 
     def _get_authors_positive_val(self):
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u'Sentiment_Feature_Generator_authors_posts_semantic_average_positive')
+                                             u'Sentiment_Feature_Generator_authors_posts_semantic_positive_mean')
         return float(db_val.attribute_value)
 
     def _get_authors_negative_val(self):
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u'Sentiment_Feature_Generator_authors_posts_semantic_average_negative')
+                                             u'Sentiment_Feature_Generator_authors_posts_semantic_negative_mean')
         return float(db_val.attribute_value)
 
     def _get_authors_neutral_val(self):
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u'Sentiment_Feature_Generator_authors_posts_semantic_average_neutral')
+                                             u'Sentiment_Feature_Generator_authors_posts_semantic_neutral_mean')
         return db_val
 
     def _add_author(self, author_guid):
@@ -139,7 +144,7 @@ class Sentiment_Feature_Generator_Unittest(unittest.TestCase):
         author.author_guid = author_guid
         author.author_full_name = u'test author'
         author.name = u'test'
-        author.domain = u'Microblog'
+        author.domain = u'tests'
         self._db.add_author(author)
         self._author = author
 
@@ -151,7 +156,6 @@ class Sentiment_Feature_Generator_Unittest(unittest.TestCase):
         post.title = title
         post.domain = domain
         post.post_id = title
-        post.date = str_to_date(u"2018-04-12 10:32:10")
         post.guid = post.post_id
         self._db.addPost(post)
         self._posts.append(post)

@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import numpy as np
 import pandas as pd
-import os
+
 from commons.commons import *
 from dataset_builder.word_embedding.abstract_word_embadding_trainer import AbstractWordEmbaddingTrainer
 
@@ -28,12 +28,14 @@ class GloveWordEmbeddingModelCreator(AbstractWordEmbaddingTrainer):
             for targeted_fields_dict in self._targeted_fields_for_embedding:
                 source_id_target_elements_dict = self._get_source_id_target_elements(targeted_fields_dict)
                 word_vector_dict = self._db.get_word_vector_dictionary(self._table_name)
-                word_embeddings += self._calculate_word_embedding_to_authors(source_id_target_elements_dict, targeted_fields_dict, word_vector_dict)
+                word_embeddings += self._calculate_word_embedding_to_authors(source_id_target_elements_dict,
+                                                                             targeted_fields_dict, word_vector_dict)
             self._add_word_embeddings_to_db(word_embeddings)
 
     def _load_wikipedia_300d_glove_model(self):
         logging.info("_load_wikipedia_300d_glove_model")
-        dataframe = pd.DataFrame()
+        vectors = []
+        word_vector = []
 
         with open(self._wikipedia_model_file_path, 'r') as file:
             i = 1
@@ -45,25 +47,25 @@ class GloveWordEmbeddingModelCreator(AbstractWordEmbaddingTrainer):
                 word = unicode(word_vector_array[0], 'utf-8')
                 vector_str = word_vector_array[1:]
                 vector_str = np.array(vector_str)
+                # vector = [word] + list(map(float, vector_str))
+                # vectors.append(vector)
                 vector = vector_str.astype(np.float)
-                dataframe[word] = vector
+                vectors.append(vector)
+                word_vector.append(word)
+                # dataframe[word] = vector
 
-        dataframe = dataframe.T
-        info_msg = "\r transposed dataframe"
-        print(info_msg, end="")
-        # add the index as column before removing the index
-        dataframe['word'] = dataframe.index
-        # Change the order - the index column now first.
+        print("\r load file to dataframe", end="")
+        dataframe = pd.DataFrame(vectors)
+        dataframe['word'] = word_vector
+
         cols = dataframe.columns.tolist()
         cols = cols[-1:] + cols[:-1]
         dataframe = dataframe[cols]
 
-        info_msg = "\r  remove the index"
-        print(info_msg, end="")
+        print("\r  save table to DB", end="")
 
-        engine = self._db.engine
         # index = false is important for removing index.
-        dataframe.to_sql(name=self._table_name, con=engine, index=False)
+        dataframe.to_sql(name=self._table_name, con=self._db.engine, index=False)
 
         # save model
         if not os.path.exists(self._word_vector_dict_full_path):
@@ -75,4 +77,3 @@ class GloveWordEmbeddingModelCreator(AbstractWordEmbaddingTrainer):
     #     return author_id_texts_dict
 
     # added by Lior
-

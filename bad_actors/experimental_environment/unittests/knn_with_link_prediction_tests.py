@@ -4,7 +4,7 @@ from experimental_environment.knnwithlinkprediction import KNNWithLinkPrediction
 from dataset_builder.feature_extractor.link_prediction_feature_extractor import LinkPredictionFeatureExtractor
 import csv
 
-from experimental_environment.knnwithlinkprediction_refracatored import KNNWithLinkPrediction_Refactored
+from experimental_environment.knnwithlinkprediction_refacatored import KNNWithLinkPrediction_Refactored
 
 
 class KnnTests(unittest.TestCase):
@@ -13,6 +13,9 @@ class KnnTests(unittest.TestCase):
         self._db.setUp()
         self._knn_algoritem = KNNWithLinkPrediction(self._db)
         self._domain = u'Microblog'
+        self._knn_algoritem._domain = self._domain
+        self.actor_type_dict = getConfig().eval("KNNWithLinkPrediction", "targeted_class_dict")
+        self.actor_type_dict = {value: key for key, value in self.actor_type_dict.iteritems()}
         self._bad_actor_type = u'bad_actor'
         self._good_actor_type = u'good_actor'
         self._graph_type = u"cocitation"
@@ -36,24 +39,25 @@ class KnnTests(unittest.TestCase):
                 prediction = row[u"prediction"]
                 actual = row[u"actual"]
                 neighbors = eval(row[u"neighbors"])
-                if(user_guid == u"g_1"):
-                    self.assertEqual(prediction , self._bad_actor_type)
+                neighbors = self.get_neighbor_name_and_type(neighbors)
+                if (user_guid == u"g_1"):
+                    self.assertEqual(prediction, self._bad_actor_type)
                     self.assertTrue((u'g_2', self._bad_actor_type) in neighbors)
-                    self.assertTrue((u'g_3',self._bad_actor_type) in neighbors)
+                    self.assertTrue((u'g_3', self._bad_actor_type) in neighbors)
                     self.assertTrue((u'g_4', self._bad_actor_type) in neighbors)
-                if (user_guid == u"g_5" ):
-                    self.assertEqual(prediction , self._good_actor_type)
+                if (user_guid == u"g_5"):
+                    self.assertEqual(prediction, self._good_actor_type)
                     self.assertTrue((u'g_6', self._good_actor_type) in neighbors)
-                    self.assertTrue((u'g_8',self._good_actor_type) in neighbors)
+                    self.assertTrue((u'g_8', self._good_actor_type) in neighbors)
                     self.assertTrue((u'g_4', self._bad_actor_type) in neighbors)
 
     def test__knn_algoritem_1_neighbors(self):
-        # self._knn_algoritem._k = [1]
-        # self._knn_algoritem.execute()
+        self._knn_algoritem._k = [1]
+        self._knn_algoritem.execute()
 
-        knn_refactors = KNNWithLinkPrediction_Refactored(self._db)
+        # knn_refactors = KNNWithLinkPrediction_Refactored(self._db)
         # knn_refactors._k=[1]
-        knn_refactors.execute()
+        # knn_refactors.execute()
         with open("data\output\KNNWithLinkPrediction\predictions_per_iteration.csv", "rb") as text_file:
             dr = csv.DictReader(text_file)
             for row in dr:
@@ -62,12 +66,16 @@ class KnnTests(unittest.TestCase):
                 prediction = row[u"prediction"]
                 actual = row[u"actual"]
                 neighbors = eval(row[u"neighbors"])
-                if(user_guid == u"g_1"):
-                    self.assertEqual(prediction , self._bad_actor_type)
+                neighbors = self.get_neighbor_name_and_type(neighbors)
+                if (user_guid == u"g_1"):
+                    self.assertEqual(prediction, self._bad_actor_type)
                     self.assertTrue((u'g_2', self._bad_actor_type) in neighbors)
-                if (user_guid == u"g_5" ):
-                    self.assertEqual(prediction , self._bad_actor_type)
-                    self.assertTrue((u'g_4',self._bad_actor_type) in neighbors)
+                if (user_guid == u"g_5"):
+                    self.assertEqual(prediction, self._bad_actor_type)
+                    self.assertTrue((u'g_4', self._bad_actor_type) in neighbors)
+
+    def get_neighbor_name_and_type(self, neighbors):
+        return [(n[0], self.actor_type_dict[n[2]]) for n in neighbors]
 
     def test__knn_algoritem_more_then_max_neighbors(self):
         self._knn_algoritem._k = [8]
@@ -80,11 +88,12 @@ class KnnTests(unittest.TestCase):
                 prediction = row[u"prediction"]
                 actual = row[u"actual"]
                 neighbors = eval(row[u"neighbors"])
-                if(user_guid == u"g_1"):
-                    self.assertEqual(prediction , self._bad_actor_type)
+                neighbors = self.get_neighbor_name_and_type(neighbors)
+                if (user_guid == u"g_1"):
+                    self.assertEqual(prediction, self._bad_actor_type)
                     self.assertTrue((u'g_2', self._bad_actor_type) in neighbors)
-                if (user_guid == u"g_5" ):
-                    self.assertEqual(prediction , self._good_actor_type)
+                if (user_guid == u"g_5"):
+                    self.assertEqual(prediction, self._good_actor_type)
                     self.assertTrue((u'g_4', self._bad_actor_type) in neighbors)
 
     def _create_authors(self):
@@ -115,7 +124,7 @@ class KnnTests(unittest.TestCase):
         author3.domain = u'Microblog'
         author3.author_guid = u'g_3'
         author3.author_screen_name = u'TestUser3'
-        # author3.author_type = self._bad_actor_type
+        author3.author_type = self._bad_actor_type
         author3.domain = self._domain
         author3.author_osn_id = 3
         authors.append(author3)
@@ -172,9 +181,9 @@ class KnnTests(unittest.TestCase):
 
         self._db.add_authors(authors)
 
-        lp = LinkPredictionFeatureExtractor(self._db,**{"authors": None, "posts": None})
+        lp = LinkPredictionFeatureExtractor(self._db, **{"authors": None, "posts": None})
         anchor_authors = []
-        anchor_author = lp._create_anchor_author(u"g_2",self._bad_actor_type)
+        anchor_author = lp._create_anchor_author(u"g_2", self._bad_actor_type)
         anchor_authors.append(anchor_author)
 
         anchor_author = lp._create_anchor_author(u"g_3", self._bad_actor_type)
@@ -193,7 +202,6 @@ class KnnTests(unittest.TestCase):
         anchor_authors.append(anchor_author)
 
         # self._db.add_authors(anchor_authors)
-
 
     def _create_connections(self):
         author_connections = []
@@ -279,5 +287,3 @@ class KnnTests(unittest.TestCase):
         author_connections.append(author_connection_6_7)
 
         self._db.add_author_connections(author_connections)
-
-

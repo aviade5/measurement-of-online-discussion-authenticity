@@ -1,5 +1,6 @@
 # Written by Lior Bass 3/29/2018
 # Written by Lior Bass 3/29/2018
+import math
 import unittest
 
 from DB.schema_definition import DB, Post, Author, date
@@ -13,6 +14,7 @@ class TF_IDF_Feature_Generator_Unittests(unittest.TestCase):
         self._domain = u'test'
         self._posts = []
         self._authors = []
+        self._texts = []
 
     def tearDown(self):
         self._db.session.close()
@@ -37,14 +39,39 @@ class TF_IDF_Feature_Generator_Unittests(unittest.TestCase):
         self.execute_module()
         self._module.clear_memo_dicts()
         module_result = self._module.tfidf('example', text2, [text1, text2], {})
-        self.assertAlmostEqual(module_result, 0.13, places=2)
+        self.assertAlmostEqual(module_result, 0.129, places=3)
         self._module.clear_memo_dicts()
         module_result = self._module.tfidf('example', text1, [text1, text2], {})
         self.assertAlmostEqual(module_result, 0.0, places=2)
         self._module.clear_memo_dicts()
         self.assertAlmostEqual(self._module.tf('this', text1), 0.2)
         self._module.clear_memo_dicts()
-        self.assertAlmostEqual(self._module.tf('this', text2), 0.14, places=1)
+        self.assertAlmostEqual(self._module.tf('this', text2), 0.1428, places=3)
+
+    def test_tf_idf_complicated(self):
+        self._add_author(u'1')
+        text1 = 'this is a a sample'
+        text2 = 'this is another another example example example'
+        text3 = 'hello world'
+        text4 = 'hello big world'
+        text5 = 'hello Israel'
+        text6 = 'i live in israel'
+        self._add_post(text1, text1, u'1')
+        self._add_post(text3, text3, u'1')
+        self._add_post(text4, text4, u'1')
+        self._add_author(u'2')
+        self._add_post(text2, text2, u'2')
+        self._add_post(text5, text5, u'2')
+        self._add_post(text6, text6, u'2')
+        self.execute_module()
+        self._module.clear_memo_dicts()
+        module_result = self._module.tfidf('example', text2, self._texts, {})
+        self.assertAlmostEqual(module_result, (3.0 / 7) * abs(math.log((1.0 / 6), 10)), places=4)
+        self._module.clear_memo_dicts()
+        module_result = self._module.tfidf('example', text1, self._texts, {})
+        self.assertAlmostEqual(module_result, 0.0, places=2)
+        self._module.clear_memo_dicts()
+
 
     def _add_author(self, author_guid):
         author = Author()
@@ -69,3 +96,4 @@ class TF_IDF_Feature_Generator_Unittests(unittest.TestCase):
         self._db.addPost(post)
         self._db.session.commit()
         self._posts.append(post)
+        self._texts.append(content)

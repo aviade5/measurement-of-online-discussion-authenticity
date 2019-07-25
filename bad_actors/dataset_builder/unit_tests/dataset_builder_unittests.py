@@ -4,7 +4,9 @@ from DB.schema_definition import *
 import datetime
 from configuration.config_class import getConfig
 from dataset_builder.cocitation_graph_builder import GraphBuilder_CoCitation
+from dataset_builder.autotopic_executor import AutotopicExecutor
 from dataset_builder.topics_graph_builder import GraphBuilder_Topic
+from dataset_builder.key_authors_model import KeyAuthorsModel
 from dataset_builder.citation_graph_builder import GraphBuilder_Citation
 from dataset_builder.feature_extractor.distances_from_targeted_class_feature_generator import \
     DistancesFromTargetedClassFeatureGenerator
@@ -466,6 +468,55 @@ class DatasetBuilderTest(unittest.TestCase):
     5) author 3 ---- author 5 (SmartTV)
     6) author 4 ---- author 5 (Smart TV)
     """
+
+    def testTopicGraph(self):
+        if 1 == 2:
+            autotopicExe = AutotopicExecutor(self._db)
+            autotopicExe.setUp()
+            autotopicExe.execute()
+
+            topicgraph_builder = GraphBuilder_Topic(self._db)
+            topicgraph_builder.execute()
+
+            cursor = self._db.get_author_connections_by_type('topic')
+            bad_edges = 0
+            author_connections = self._db.result_iter(cursor)
+            good_edges = 6
+            for author_connection in author_connections:
+                source_author_osn_id = int(author_connection[0])
+                destination_author_osn_id = int(author_connection[1])
+                if ((source_author_osn_id == 1 and destination_author_osn_id == 2)
+                    or (source_author_osn_id == 1 and destination_author_osn_id == 5)
+                    or (source_author_osn_id == 2 and destination_author_osn_id == 5)
+                    or (source_author_osn_id == 3 and destination_author_osn_id == 4)
+                    or (source_author_osn_id == 3 and destination_author_osn_id == 5)
+                    or (source_author_osn_id == 4 and destination_author_osn_id == 5)):
+                    good_edges -= 1
+                else:
+                    bad_edges += 1
+            print("bad_edges: " + str(bad_edges))
+            self.assertEqual(good_edges, 0)
+        else:
+            self.assertEquals(0, 0)
+        self._db.session.close()
+
+    def testKeyAuthorsModel(self):
+        if 1 == 2:
+            autotopicExe = AutotopicExecutor(self._db)
+            autotopicExe.setUp()
+            autotopicExe.execute()
+            key_author_moddel = KeyAuthorsModel(self._db)
+            key_author_moddel.setUp()
+            key_author_moddel.execute()
+            key_posts = self._db.get_key_posts()
+            key_authors = self._db.get_key_authors()
+            self.assertTrue(u'TestPost1' in key_posts, "TestPost1 not a key post")
+            self.assertTrue(u'TestPost4' in key_posts, "TestPost4 not a key post")
+            self.assertTrue(u'TestUser1' in key_authors, "TestUser1 not a key author")
+            self.assertTrue(u'TestUser2' in key_authors, "TestUser2 not a key author")
+        else:
+            self.assertEquals(0, 0)
+        self._db.session.close()
 
     def testCitaionGraph(self):
         if 1 == 2:

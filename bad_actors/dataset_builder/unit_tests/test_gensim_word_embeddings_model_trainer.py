@@ -35,7 +35,7 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
         self._add_post(u'is', u'was')
         self._db.session.commit()
         self._word_embedding_model_creator = GensimWordEmbeddingsModelTrainer(self._db)
-        self._word_embedding_model_creator.setUp()
+
         self._word_embedding_model_creator.execute(None)
         self._word_embedding_model_creator._aggregation_functions_names = ['sum']
         self._word_embedding_model_creator.execute(None)
@@ -64,12 +64,11 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
         self._add_claim_tweet_connection(u'post1', u'post3')
         self._db.session.commit()
         self._word_embedding_model_creator = GensimWordEmbeddingsModelTrainer(self._db)
-        self._word_embedding_model_creator.setUp()
         self._word_embedding_model_creator._targeted_fields_for_embedding = [{
             'source': {'table_name': 'posts', 'id': 'post_id'},
             'connection': {'table_name': 'claim_tweet_connection', 'source_id': 'claim_id', 'target_id': 'post_id'},
             'destination': {'table_name': 'posts', 'id': 'post_id', 'target_field': 'content',
-                            "where_clauses": [{"field_name": 1, "value": 1}]}}]
+                            "where_clauses": []}}]
 
         self._word_embedding_model_creator.execute(None)
         model_name_path = self._word_embedding_model_creator._prepare_model_name_path()
@@ -83,7 +82,6 @@ class TestGensimWordEmbeddingsModelTrainer(TestCase):
     def _setup_test(self):
         self._db.session.commit()
         self._word_embedding_model_creator = GensimWordEmbeddingsModelTrainer(self._db)
-        self._word_embedding_model_creator.setUp()
         self._word_embedding_model_creator.execute(None)
 
         self._words = self._db.get_word_embedding_dictionary()

@@ -1,65 +1,36 @@
 # Created by jorgeaug at 30/06/2016
 from base_feature_generator import BaseFeatureGenerator
-from configuration.config_class import getConfig
-import datetime
 
 
 class SyntaxFeatureGenerator(BaseFeatureGenerator):
+    def __init__(self, db, **kwargs):
+        super(SyntaxFeatureGenerator, self).__init__(db, **{'authors': [], 'posts': {}})
+        self._targeted_fields = self._config_parser.eval(self.__class__.__name__, "targeted_fields")
 
-    def cleanUp(self):
-        self._average_post_length = -1
-        self._average_hash_tags = -1
-        self._average_links = -1
-        self._average_user_mentions = -1
+    def execute(self, window_start=None):
+        self._get_author_features_using_args(self._targeted_fields)
 
-    def _fill_posts(self, posts):
+    def average_hashtags(self, **kwargs):
+        filter_fn = lambda token: '#' in token
+        return self._average_apperence_in_posts(kwargs['posts'], filter_fn)
+
+    def average_links(self, **kwargs):
+        filter_fn = lambda token: any(s in token for s in ('http://', 'https://'))
+        return self._average_apperence_in_posts(kwargs['posts'], filter_fn)
+
+    def average_user_mentions(self, **kwargs):
+        filter_fn = lambda token: '@' in token
+        return self._average_apperence_in_posts(kwargs['posts'], filter_fn)
+
+    def average_post_lenth(self, **kwargs):
+        filter_fn = lambda token: token
+        return self._average_apperence_in_posts(kwargs['posts'], filter_fn)
+
+    def _average_apperence_in_posts(self, posts, filter_by):
+        appearances = 0.0
         number_posts = len(posts)
-        number_hashtags = 0
-        number_links = 0
-        number_user_mentions = 0
-        sum_of_posts_length = 0
-
         for post in posts:
             if post.content is not None:
                 content = post.content.lower()
-                tokens = [_ for _ in content.split(" ") if len(_) > 0]
-                sum_of_posts_length += len(tokens)
-                for token in tokens:
-                    if '#' in token:
-                        number_hashtags += 1
-                    elif any(s in token for s in ('http://', 'https://')):
-                        number_links += 1
-                    elif '@' in token:
-                        number_user_mentions += 1
-
-        if number_posts > 0:
-            self._average_post_length = float(sum_of_posts_length) / float(number_posts)
-            self._average_hash_tags = float(number_hashtags) / float(number_posts)
-            self._average_links = float(number_links) / float(number_posts)
-            self._average_user_mentions =  float(number_user_mentions) / float(number_posts)
-
-        else:
-            self._average_post_length = 0.0
-            self._average_hash_tags = 0.0
-            self._average_user_mentions = 0.0
-            self._average_links = 0.0
-
-    def average_hashtags(self, **kwargs):
-        if self._average_hash_tags == -1:
-            self._fill_posts(kwargs['posts'])
-        return self._average_hash_tags
-
-    def average_links(self, **kwargs):
-        if self._average_links == -1:
-            self._fill_posts(kwargs['posts'])
-        return self._average_links
-
-    def average_user_mentions(self, **kwargs):
-        if self._average_user_mentions == -1:
-            self._fill_posts(kwargs['posts'])
-        return self._average_user_mentions
-
-    def average_post_lenth(self, **kwargs):
-        if self._average_post_length == -1:
-            self._fill_posts(kwargs['posts'])
-        return self._average_post_length
+                appearances += sum(1 for word in content.split(" ") if filter_by(word))
+        return appearances / number_posts

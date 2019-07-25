@@ -26,10 +26,10 @@ class GensimWordEmbeddingsModelTrainer(AbstractWordEmbaddingTrainer):
         self.name = self.__class__.__name__
 
     def setUp(self):
-        if os.path.exists(self.file_output_path):
-            os.remove(self.file_output_path)
         if not os.path.exists(self._saved_models_path):
             os.makedirs(self._saved_models_path)
+        if os.path.exists(self.file_output_path):
+            os.remove(self.file_output_path)
 
     def execute(self, window_start=None):
         word_embeddings = []
@@ -137,5 +137,6 @@ class GensimWordEmbeddingsModelTrainer(AbstractWordEmbaddingTrainer):
             os.remove(self.file_output_path)
         except Exception as e:
             print(e)
+
         self._results_dataframe.to_csv(self.file_output_path)
         pass

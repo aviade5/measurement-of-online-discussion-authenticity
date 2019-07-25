@@ -16,15 +16,14 @@ class TestLDATopicModel(TestCase):
         self._importer.execute()  # does nothing!
         self._db.insert_or_update_authors_from_posts(u"Microblog", {}, {})
         self._lda = LDATopicModel(self._db)
-        # self._lda._domain = u"Tumbler"
         self._lda.setUp()
 
     def tearDown(self):
         self._lda.tearDown()
         self._importer.tearDown()
         self._db.session.close()
-        # self._db.deleteDB()
-        # self._db.session.close()
+        self._db.deleteDB()
+        self._db.session.close()
 
     def testDoubleExecute(self):
         self._lda.execute(date('2015-04-27 00:00:00'))

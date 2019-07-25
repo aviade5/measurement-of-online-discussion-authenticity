@@ -7,12 +7,12 @@ import copy
 import sys
 import logging
 
-from preprocessing_tools.abstract_executor import AbstractExecutor
+from preprocessing_tools.abstract_controller import AbstractController
 
 
-class AnchorAuthorsCreator(AbstractExecutor):
+class AnchorAuthorsCreator(AbstractController):
     def __init__(self, db, custom_targeted_class_num_of_authors_dict=None):
-        AbstractExecutor.__init__(self, db)
+        AbstractController.__init__(self, db)
         if custom_targeted_class_num_of_authors_dict is None:
             self._targeted_class_num_of_authors_dict = self._config_parser.eval(self.__class__.__name__, "targeted_class_num_of_authors_dict")
         else:
@@ -23,6 +23,11 @@ class AnchorAuthorsCreator(AbstractExecutor):
 
         self._anchor_authors = []
         self._anchor_authors_dict = {}
+
+    def get_targeted_class_author_guids_dict(self):
+        self._db.delete_anchor_authors()
+        targeted_class_author_guids_dict = self._fill_trageted_class_author_guid_dictionary()
+        return targeted_class_author_guids_dict
 
     def create_anchor_author_dictionary(self):
         try:
@@ -79,9 +84,7 @@ class AnchorAuthorsCreator(AbstractExecutor):
             self._anchor_authors_dict[author_guid] = author_guid
 
     def _create_anchor_author(self, author_guid, targeted_class):
-        anchor_author = AnchorAuthor()
-        anchor_author.author_guid = author_guid
-        anchor_author.author_type = unicode(targeted_class)
+        anchor_author = AnchorAuthor(author_guid, unicode(targeted_class))
         return anchor_author
 
     def _remove_not_anchor_authors(self, targeted_class_author_guids_dict):

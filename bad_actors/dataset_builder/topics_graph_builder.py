@@ -1,14 +1,13 @@
 '''
 @author: Jorge Bendahan jorgeaug@post.bgu.ac.il
 '''
-import itertools
-import logging
-import time
-
+from preprocessing_tools.abstract_controller import AbstractController
+from configuration.config_class import getConfig
 from scipy import spatial
-
+import time
+import logging
 from dataset_builder.graph_builder import GraphBuilder
-
+import itertools
 
 class GraphBuilder_Topic(GraphBuilder):
     """Generate graphs where nodes represent authors.

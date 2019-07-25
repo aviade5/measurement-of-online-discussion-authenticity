@@ -1,5 +1,5 @@
 from commons.commons import cleaner
-from app_importer import AppImporter
+from preprocessing_tools.app_importer import AppImporter
 
 
 class RankAppImporter(AppImporter):

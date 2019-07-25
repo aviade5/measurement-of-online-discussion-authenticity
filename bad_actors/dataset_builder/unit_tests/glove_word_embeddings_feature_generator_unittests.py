@@ -3,6 +3,9 @@ import unittest
 from DB.schema_definition import *
 from dataset_builder.feature_extractor.glove_word_embeddings_feature_generator import \
     GloveWordEmbeddingsFeatureGenerator
+from dataset_builder.feature_extractor.gensim_word_embeddings_feature_generator import \
+    GensimWordEmbeddingsFeatureGenerator
+from dataset_builder.word_embedding.gensim_word_embedding_trainer import GensimWordEmbeddingsModelTrainer
 from dataset_builder.word_embedding.glove_word_embedding_model_creator import GloveWordEmbeddingModelCreator
 
 
@@ -18,6 +21,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         self._word_vector_dict_full_path = "data/output/word_embedding/"
         self._word_vector_dict = {}
 
+        self._embedding_table_name = ''
         self._author = None
         self._set_author(u'test_user')
         self._posts = []
@@ -37,8 +41,27 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         self._add_post(u'Post1', u'was')
         self._setup_test()
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"GloveWordEmbeddingsFeatureGenerator_np.mean_posts_content_d0").attribute_value
+                                             u"GloveWordEmbeddingsFeatureGenerator_np.mean_posts_content_{}_d0".format(self._embedding_table_name)).attribute_value
         self.assertAlmostEqual(float(db_val), 0.065573, places=4)
+
+    def test_single_word_single_dimension_feature_correctness_using_gensim(self):
+        self._add_post(u'Post1', u'Thus we saw how we can easily code')
+        self._add_post(u'Post2', u'Thanks for reading this article')
+        self._add_post(u'Post3', u'hello was')
+        self._add_post(u'Post4', u'hello was')
+        self._add_post(u'Post5', u'hello was')
+        self._db.session.commit()
+        self._word_embedding_model_creator = GensimWordEmbeddingsModelTrainer(self._db)
+        self._word_embedding_model_creator.execute(None)
+
+        params = {'authors': [self._author], 'posts': self._posts}
+        self._word_embedding_feature_generator = GensimWordEmbeddingsFeatureGenerator(self._db, **params)
+        self._word_embedding_feature_generator.execute()
+        self._embedding_table_name = self._word_embedding_feature_generator._word_embedding_table_name
+        self._words = self._word_embedding_model_creator._word_vector_dict
+        db_val = self._db.get_author_feature(self._author.author_guid,
+                                             u"GensimWordEmbeddingsFeatureGenerator_np.mean_posts_content_{}_d0".format(self._embedding_table_name)).attribute_value
+        self.assertAlmostEqual(float(db_val), -0.0375, places=4)
 
     def test_single_word_single_dimension_feature_correctness2(self):
         self._add_post(u'Post1', u'was')
@@ -46,7 +69,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         # db_val = self._db.get_author_feature(self._author.author_guid,
         #                                      u"word_embeddings_dimension_3_posts_content_max").attribute_value
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"GloveWordEmbeddingsFeatureGenerator_max_posts_content_d3").attribute_value
+                                             u"GloveWordEmbeddingsFeatureGenerator_max_posts_content_{}_d3".format(self._embedding_table_name)).attribute_value
         self.assertEquals(db_val, u'-0.2133')
 
     def test_two_words_single_dimension_max_feature_correctness(self):
@@ -55,7 +78,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         # db_val = self._db.get_author_feature(self._author.author_guid,
         #                                      u"word_embeddings_dimension_3_posts_content_max").attribute_value
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"GloveWordEmbeddingsFeatureGenerator_max_posts_content_d3").attribute_value
+                                             u"GloveWordEmbeddingsFeatureGenerator_max_posts_content_{}_d3".format(self._embedding_table_name)).attribute_value
         was_d3 = self._get_word_dimension(u'was', 3)
         is_d3 = self._get_word_dimension(u'is', 3)
         expected_value = max(float(is_d3), float(was_d3))
@@ -67,7 +90,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         # db_val = self._db.get_author_feature(self._author.author_guid,
         #                                      u"word_embeddings_dimension_201_posts_content_min").attribute_value
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"GloveWordEmbeddingsFeatureGenerator_min_posts_content_d201").attribute_value
+                                             u"GloveWordEmbeddingsFeatureGenerator_min_posts_content_{}_d201".format(self._embedding_table_name)).attribute_value
         was_d201 = self._get_word_dimension(u'was', 201)
         is_d201 = self._get_word_dimension(u'is', 201)
         expected_value = min(float(is_d201), float(was_d201))
@@ -78,7 +101,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         self._add_post(u'Post2', u'is')
         self._setup_test()
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"GloveWordEmbeddingsFeatureGenerator_np.mean_posts_content_d298").attribute_value
+                                             u"GloveWordEmbeddingsFeatureGenerator_np.mean_posts_content_{}_d298".format(self._embedding_table_name)).attribute_value
         was_d298 = self._get_word_dimension(u'was', 298)
         is_d298 = self._get_word_dimension(u'is', 298)
         expected_value = (float(was_d298) + float(is_d298)) / 2
@@ -89,7 +112,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         self._add_post(u'Post2', u'with said')
         self._setup_test()
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"GloveWordEmbeddingsFeatureGenerator_np.mean_posts_content_d150").attribute_value
+                                             u"GloveWordEmbeddingsFeatureGenerator_np.mean_posts_content_{}_d150".format(self._embedding_table_name)).attribute_value
         was_d = self._get_word_dimension(u'was', 150)
         is_d = self._get_word_dimension(u'is', 150)
         with_d = self._get_word_dimension(u'with', 150)
@@ -101,7 +124,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         self._add_post(u'Post1', u'was')
         self._setup_test()
         db_val = self._db.get_author_feature(self._author.author_guid,
-                                             u"GloveWordEmbeddingsFeatureGenerator_max_posts_content_d299").attribute_value
+                                             u"GloveWordEmbeddingsFeatureGenerator_max_posts_content_{}_d299".format(self._embedding_table_name)).attribute_value
         self.assertAlmostEqual(float(db_val), -0.080348, places=4)
 
     def _add_post(self, title, content):
@@ -134,7 +157,7 @@ class GloveWordEmbeddingsFeatureGeneratorUnittests(unittest.TestCase):
         params = {'authors': [self._author], 'posts': self._posts}
         self._word_embedding_feature_generator = GloveWordEmbeddingsFeatureGenerator(self._db, **params)
         self._word_embedding_feature_generator.execute()
-
+        self._embedding_table_name = self._word_embedding_feature_generator._word_embedding_table_name
         self._words = self._db.get_word_embedding_dictionary()
 
     def _get_word_dimension(self, word, dimension):

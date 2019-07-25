@@ -1,10 +1,10 @@
-from preprocessing_tools.abstract_executor import AbstractExecutor
+from preprocessing_tools.abstract_controller import AbstractController
 from commons.commons import *
 from DB.schema_definition import SinglePostByAuthor
 
-class TopicDistributionBuilder(AbstractExecutor):
+class TopicDistributionBuilder(AbstractController):
     def __init__(self, db):
-        AbstractExecutor.__init__(self, db)
+        AbstractController.__init__(self, db)
 
     def set_up(self):
         pass

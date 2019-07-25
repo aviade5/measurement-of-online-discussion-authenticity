@@ -8,6 +8,7 @@ class Word_Embeddings_Comparison_Feature_Generator(BaseFeatureGenerator):
         BaseFeatureGenerator.__init__(self, db, **kwargs)
         self._connection_types = self._config_parser.eval(self.__class__.__name__, "connection_types")
         self._similarity_functions = self._config_parser.eval(self.__class__.__name__, "similarity_functions")
+        self._word_embedding_table_name = self._config_parser.eval(self.__class__.__name__, "word_embedding_table_name")
 
     def execute(self):
         i = 0
@@ -35,9 +36,10 @@ class Word_Embeddings_Comparison_Feature_Generator(BaseFeatureGenerator):
                   end='')
 
             first_author_guid_word_embedding_vector_dict = self._db.get_author_guid_word_embedding_vector_dict(
-                first_table_name, first_targeted_field_name, first_word_embedding_type)
+                self._word_embedding_table_name, first_table_name, first_targeted_field_name, first_word_embedding_type)
             second_author_guid_word_embedding_vector_dict = self._db.get_author_guid_word_embedding_vector_dict(
-                second_table_name, second_targeted_field_name, second_word_embedding_type)
+                self._word_embedding_table_name, second_table_name, second_targeted_field_name,
+                second_word_embedding_type)
 
             for function in self._similarity_functions:
                 if function == "subtruct_and_split":

@@ -1,6 +1,5 @@
 # Created by jorgeaug at 30/06/2016
 from __future__ import print_function
-from collections import defaultdict
 import datetime
 import logging
 import time
@@ -10,6 +9,7 @@ import pandas as pd
 from DB.schema_definition import AuthorFeatures, Author
 from configuration.config_class import getConfig
 from dataset_builder.feature_extractor.feature_argument_parser import ArgumentParser
+from collections import defaultdict
 
 
 class BaseFeatureGenerator(ArgumentParser):
@@ -48,8 +48,6 @@ class BaseFeatureGenerator(ArgumentParser):
         pass
 
     def execute(self, window_start=None):
-        self.authors = self._db.get_authors_by_domain(self._domain)
-        self.author_guid_posts_dict = self._db.get_posts_by_domain(self._domain)
         start_time = time.time()
         info_msg = "execute started for " + self.__class__.__name__
         logging.info(info_msg)
@@ -104,34 +102,42 @@ class BaseFeatureGenerator(ArgumentParser):
             self._db.commit()
         print('Finished merging author_features objects')
 
-    def run_and_create_author_feature(self, kwargs, id_val, feature):
+    def run_and_create_author_feature(self, kwargs, id_val, feature, aggregated_functions=None):
         try:
             result = getattr(self, feature)(**kwargs)
-            author_feature = AuthorFeatures()
-            author_feature.author_guid = id_val
-            author_feature.window_start = self._window_start
-            author_feature.window_end = self._window_end
-            subclass_name = self.__class__.__name__
-            author_feature.attribute_name = unicode(subclass_name + "_" + feature)
-            author_feature.attribute_value = result
+            if aggregated_functions:
+                result = filter(lambda x: x != -1, result)
+                if result:
+                    return [self._create_feature(feature, id_val, func(result), u'_{}'.format(func.__name__)) for func
+                            in aggregated_functions]
+                else:
+                    return [self._create_feature(feature, id_val, -1, u'_{}'.format(func.__name__)) for func in
+                            aggregated_functions]
+            else:
+                author_feature = self._create_feature(feature, id_val, result)
             return author_feature
         except Exception as e:
             info_msg = e.message
             logging.error(info_msg)
 
+    def _create_feature(self, feature, id_val, result, suffix=u''):
+        author_feature = AuthorFeatures()
+        author_feature.author_guid = id_val
+        author_feature.window_start = self._window_start
+        author_feature.window_end = self._window_end
+        subclass_name = self.__class__.__name__
+        author_feature.attribute_name = unicode(subclass_name + "_" + feature + suffix)
+        author_feature.attribute_value = result
+        return author_feature
+
     def run_and_create_author_feature_with_given_value(self, author, value, feature_name):
         try:
             result = value
-            author_feature = AuthorFeatures()
-            author_feature.author_guid = author
-            author_feature.window_start = self._window_start
-            author_feature.window_end = self._window_end
-            subclass_name = self.__class__.__name__
-            author_feature.attribute_name = unicode(subclass_name + "_" + feature_name)
-            author_feature.attribute_value = result
+            author_feature = self._create_feature(feature_name, author, result)
             return author_feature
         except Exception as e:
             info_msg = e.message
+            print(info_msg)
             logging.error(info_msg + str(value))
 
     def convert_posts_to_dataframe(self, posts):
@@ -139,11 +145,7 @@ class BaseFeatureGenerator(ArgumentParser):
           Input: list of posts
           Output: DataFrame with two columns: date and content where each row represents a post
         '''
-        cols = ['date', 'content']
-        data_frame = pd.DataFrame(columns=cols)
-        for post in posts:
-            data_frame.loc[len(data_frame)] = [post.date, post.content]
-        return data_frame
+        return pd.DataFrame([[post.date, post.content] for post in posts], columns=['date', 'content'])
 
     def insert_author_features_to_db(self, authors_features):
         logging.info("Inserting authors features to db")
@@ -213,14 +215,20 @@ class BaseFeatureGenerator(ArgumentParser):
         return dest_id_target_field_tuples
 
     def _calc_author_features_from_source_id_targets(self, source_targets_dict_item, source_id_source_element_dict,
-                                                     targeted_fields_dict):
+                                                     targeted_fields_dict, aggregated_functions=None):
         self._features = self._config_parser.eval(self.__class__.__name__, "feature_list")
         author_features = []
         source_id, destination_target_elements = source_targets_dict_item
         author = source_id_source_element_dict[source_id]
         kwargs = self._get_feature_kwargs(source_targets_dict_item, author, targeted_fields_dict)
         for feature in self._features:
-            author_features.append(self.run_and_create_author_feature(kwargs, source_id, feature))
+            if aggregated_functions:
+                author_feature_list = self.run_and_create_author_feature(kwargs, source_id, feature,
+                                                                         aggregated_functions)
+                if author_feature_list:
+                    author_features.extend(author_feature_list)
+            else:
+                author_features.append(self.run_and_create_author_feature(kwargs, source_id, feature))
 
         return author_features
 
@@ -235,80 +243,72 @@ class BaseFeatureGenerator(ArgumentParser):
         kwargs = {table_name: destination_target_elements}
         kwargs['target'] = [getattr(element, target_field_name) for element in destination_target_elements]
         kwargs['author'] = author
-        if 'posts' not in kwargs:
+        if 'posts' not in kwargs and isinstance(author, Author):
             kwargs['posts'] = self._db.get_posts_by_author_guid(author.author_guid)
         return kwargs
 
-    def _convert_source_to_author(self, source_id, targeted_fields_dict):
-        source_table_name = targeted_fields_dict['source']['table_name']
-        source_table_id = targeted_fields_dict['source']['id']
-        elements = self._db.get_table_elements_by_ids(source_table_name, source_table_id, [source_id])
-        temp_author = elements[0]
-        if isinstance(temp_author, Author):
-            author = temp_author
-        elif source_table_id == u"author_guid":
-            author = self._db.get_author_by_author_guid(source_id)
-        elif hasattr(temp_author, u"author_guid"):
-            author = self._db.get_author_by_author_guid(getattr(temp_author, u"author_guid"))
+    def get_source_id_destination_target_field(self, targeted_fields_dict):
+        source_id_target_items = self._get_source_id_target_elements(targeted_fields_dict)
+        if "destination" in targeted_fields_dict and targeted_fields_dict["destination"] != {}:
+            target_field_name = targeted_fields_dict['destination']['target_field']
         else:
-            author = Author()
-            author.author_guid = source_id
-            author.statuses_count = len(targeted_fields_dict)
-            if hasattr(temp_author, 'created_at'):
-                author.created_at = temp_author.created_at
-        return author
+            target_field_name = targeted_fields_dict['source']['target_field']
 
-    def _get_author_features_using_args(self, targeted_fields):
+        source_id_target_fields = defaultdict()
+        for source_id, elements in source_id_target_items.iteritems():
+            source_id_target_fields[source_id] = [getattr(element, target_field_name) for element in elements]
+        return source_id_target_fields
+
+    def _get_author_features_using_args(self, targeted_fields, suffix=u''):
         for targeted_fields_dict in targeted_fields:
-            authors_features = []
-            print("Get sourse id target dict")
-            source_id_target_elements_dict = self._get_source_id_target_elements(targeted_fields_dict)
-            source_ids = source_id_target_elements_dict.keys()
-            print("Get sourse id source element dict")
-            source_id_source_element_dict = self._get_source_id_source_element_dict(source_ids, targeted_fields_dict)
-            source_count = len(source_id_target_elements_dict)
-            i = 1
-            for source_id_target_field_dict_item in source_id_target_elements_dict.iteritems():
-                source_id = source_id_target_field_dict_item[0]
-                msg = "\rextract author features from source {0}, {1}/{2}".format(source_id, i, source_count)
-                print(msg, end="")
-                i += 1
-                features = self._calc_author_features_from_source_id_targets(source_id_target_field_dict_item,
-                                                                             source_id_source_element_dict,
-                                                                             targeted_fields_dict)
-                authors_features.extend(features)
+            authors_features = self._get_author_features_using_arg(targeted_fields_dict, suffix)
+            # self.insert_author_features_to_db(authors_features)
+            self._db.add_author_features_fast(authors_features)
 
-                if len(authors_features) > 100000:
-                    print()
-                    self.insert_author_features_to_db(authors_features)
-                    authors_features = []
-            authors_features = [feature for feature in authors_features if feature is not None]
-            self.insert_author_features_to_db(authors_features)
+    def _get_author_features_using_arg(self, targeted_fields_dict, suffix=u''):
+        source_id_source_element_dict, source_id_target_elements_dict = self._load_data_using_arg(targeted_fields_dict)
 
-    def _get_source_id_source_element_dict(self, source_ids, targeted_fields_dict):
-        source_id_source_element_dict = defaultdict()
+        authors_features = self._get_features(source_id_source_element_dict, source_id_target_elements_dict, suffix,
+                                              targeted_fields_dict)
+        authors_features = self._add_suffix_to_author_features(authors_features, suffix)
+        return authors_features
 
-        source_table_name = targeted_fields_dict['source']['table_name']
-        source_table_id = targeted_fields_dict['source']['id']
-        elements = self._db.get_table_elements_by_where_cluases(source_table_name, [])
-        author_guid_author_dict = self._db.get_author_dictionary()
-        id_set = set(source_ids)
-        for temp_author in elements:
-            source_id = getattr(temp_author, source_table_id)
-            if source_id not in id_set or source_id is None:
-                continue
-            if isinstance(temp_author, Author):
-                author = author_guid_author_dict[temp_author.author_guid]
-            elif source_table_id == u"author_guid":
-                author = author_guid_author_dict[source_id]
-            elif hasattr(temp_author, u"author_guid"):
-                author = author_guid_author_dict[getattr(temp_author, u"author_guid")]
-            else:
-                author = Author()
-                author.author_guid = source_id
-                author.statuses_count = len(targeted_fields_dict)
-                if hasattr(temp_author, 'created_at'):
-                    author.created_at = temp_author.created_at
-            source = author
-            source_id_source_element_dict[source_id] = source
-        return source_id_source_element_dict
+    def _add_suffix_to_author_features(self, authors_features, suffix):
+        authors_features = [feature for feature in authors_features if feature is not None]
+        if suffix != '':
+            for authors_feature in authors_features:
+                authors_feature.attribute_name += u'_{}'.format(suffix)
+        return authors_features
+
+    def _load_data_using_arg(self, targeted_fields_dict):
+        print("Get sourse id target dict")
+        source_id_target_elements_dict = self._get_source_id_target_elements(targeted_fields_dict)
+        source_ids = source_id_target_elements_dict.keys()
+        print("Get sourse id source element dict")
+        source_id_source_element_dict = self._get_source_id_source_element_dict(source_ids, targeted_fields_dict)
+        return source_id_source_element_dict, source_id_target_elements_dict
+
+    def _get_features(self, source_id_source_element_dict, source_id_target_elements_dict, suffix,
+                      targeted_fields_dict, aggregated_functions=None):
+        source_count = len(source_id_target_elements_dict)
+        authors_features = []
+        i = 1
+        for source_id_target_field_dict_item in source_id_target_elements_dict.iteritems():
+            source_id = source_id_target_field_dict_item[0]
+            msg = "\rextract author features {}/{}".format(i, source_count)
+            print(msg, end="")
+            i += 1
+            features = self._calc_author_features_from_source_id_targets(source_id_target_field_dict_item,
+                                                                         source_id_source_element_dict,
+                                                                         targeted_fields_dict, aggregated_functions)
+            authors_features.extend(features)
+
+            if len(authors_features) > 100000:
+                print()
+                if suffix != '':
+                    for authors_feature in authors_features:
+                        authors_feature.attribute_name += suffix
+                # self.insert_author_features_to_db(authors_features)
+                self._db.add_author_features_fast(authors_features)
+                authors_features = []
+        return authors_features

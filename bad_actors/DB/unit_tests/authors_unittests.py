@@ -133,6 +133,9 @@ class TestAuthor(TestBase):
         self.db.add_author(author)
         self.db.session.commit()
 
+    def tearDown(self):
+        self.db.session.close()
+        pass
 
     def testInsertAuthor(self):
         self.setup()
@@ -149,6 +152,7 @@ class TestAuthor(TestBase):
         self.db.delete_author(self.name, self._domain, self.author_guid)
         self.clean()
 
+
     def testDeleteAuthor(self):
         self.setup()
 
@@ -156,7 +160,7 @@ class TestAuthor(TestBase):
 
         self.db.delete_author(self.name, self._domain, self.author_guid)
 
-        records = self.db.get_authors(self)
+        records = self.db.get_authors()
         length = len(records)
         self.assertEqual(0, length)
         self.clean()

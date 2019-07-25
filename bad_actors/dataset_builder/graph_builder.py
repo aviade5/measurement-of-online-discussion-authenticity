@@ -2,7 +2,6 @@
 from __future__ import print_function
 from configuration.config_class import getConfig
 from preprocessing_tools.abstract_controller import AbstractController
-from collections import defaultdict
 import time
 
 class GraphBuilder(AbstractController):
@@ -15,7 +14,7 @@ class GraphBuilder(AbstractController):
         self._num_of_random_authors_for_graph = self._config_parser.eval(self.__class__.__name__, "num_of_random_authors_for_graph")
         self._author_connections_edges = []
         # will save the connection and the reversed in order to make this connection type as un directed.
-        self._existing_connections_dict = defaultdict()
+        self._existing_connections_dict = {}
 
     def setUp(self):
         if self._num_of_random_authors_for_graph is not None and not self._are_already_randomize_authors_for_graphs():

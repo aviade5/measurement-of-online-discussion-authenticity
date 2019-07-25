@@ -4,16 +4,16 @@ import re
 from nltk.stem.snowball import GermanStemmer, EnglishStemmer
 from commons.consts import Language
 from bs4 import BeautifulSoup
-from abstract_executor import AbstractExecutor
+from preprocessing_tools.abstract_controller import AbstractController
 import time
 import logging
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
-class Preprocessor(AbstractExecutor):
+class Preprocessor(AbstractController):
 
     def __init__(self, db):
-        AbstractExecutor.__init__(self, db)
+        AbstractController.__init__(self, db)
         self._remove_stopwords    = self._config_parser.eval(self.__class__.__name__, "remove_stopwords")
         self._apply_stemming      = self._config_parser.eval(self.__class__.__name__, "apply_stemming")
         self._stopwords_file = self._config_parser.get(self.__class__.__name__, "stopwords_file")
@@ -86,7 +86,21 @@ class Preprocessor(AbstractExecutor):
             i += 1
             if i % self._max_objects_without_saving == 0:
                 logging.info("processing author " + str(i) + " of " + str(number_posts))
-            self._process_post(post)
+            if post.content is not None:
+                post.content = unicode(post.content).lower()
+                post.content = self.remove_html_tags(post.content)
+                if self._remove_stopwords:
+                    post.content = self.remove_stopwords(post.content)
+                if self._apply_stemming:
+                    post.content = self.stem_text(post.content)
+
+            if post.title is not None:
+                post.title = unicode(post.title).lower()
+                post.title = self.remove_html_tags(post.title)
+                if self._remove_stopwords:
+                    post.title = self.remove_stopwords(post.title)
+                if self._apply_stemming:
+                    post.title = self.stem_text(post.title)
 
             preprocessed_posts.append(post)
             if len(preprocessed_posts) == self._max_objects_without_saving:
@@ -94,22 +108,6 @@ class Preprocessor(AbstractExecutor):
                 preprocessed_posts = []
 
         self._db.addPosts(preprocessed_posts)
-
-    def _process_post(self, post):
-        if post.content is not None:
-            post.content = unicode(post.content).lower()
-            post.content = self.remove_html_tags(post.content)
-            if self._remove_stopwords:
-                post.content = self.remove_stopwords(post.content)
-            if self._apply_stemming:
-                post.content = self.stem_text(post.content)
-        if post.title is not None:
-            post.title = unicode(post.title).lower()
-            post.title = self.remove_html_tags(post.title)
-            if self._remove_stopwords:
-                post.title = self.remove_stopwords(post.title)
-            if self._apply_stemming:
-                post.title = self.stem_text(post.title)
 
     def _proprocess_authors(self, authors):
         preprocessed = []
@@ -120,19 +118,16 @@ class Preprocessor(AbstractExecutor):
             if i % self._max_objects_without_saving == 0:
                 logging.info("processing author " + str(i) + " of " + str(number_posts))
             if author.description is not None:
-                self._process_author(author)
+                original_description = author.description
+                original_description = unicode(original_description).lower()
+                author.description = self.remove_html_tags(original_description)
+                if self._remove_stopwords:
+                    author.description = self.remove_stopwords(author.description)
+                if self._apply_stemming:
+                    author.description = self.stem_text(author.description)
             preprocessed.append(author)
             if len(preprocessed) == self._max_objects_without_saving:
                 self._db.addAuthors(preprocessed)
                 preprocessed = []
 
         self._db.addAuthors(preprocessed)
-
-    def _process_author(self, author):
-        original_description = author.description
-        original_description = unicode(original_description).lower()
-        author.description = self.remove_html_tags(original_description)
-        if self._remove_stopwords:
-            author.description = self.remove_stopwords(author.description)
-        if self._apply_stemming:
-            author.description = self.stem_text(author.description)

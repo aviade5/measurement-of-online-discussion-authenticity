@@ -60,6 +60,8 @@ class GraphHelper:
 
     def _add_node_to_graph(self, source_author_guid, graph, authors_dict):
         if not graph.has_node(source_author_guid):
+            # author_type = authors_dict[source_author_guid][1]
+            # author_sub_type = authors_dict[source_author_guid][2]
             author_classes_tuple = authors_dict[source_author_guid]
             i = 0
             property_dict = {}

@@ -7,7 +7,7 @@ import urlparse
 from time import sleep
 
 from DB.schema_definition import *
-from post_importer import PostImporter
+from preprocessing_tools.post_importer import PostImporter
 
 
 class PostCitationCreator(PostImporter):

@@ -1,0 +1,2 @@
+fraction sum thresh,accuracy,AUC,Precision,Recall,FP (think bad but good),FN (think good but bad),total claims
+0.017,0.0,0.0,0.0,0.0,1,1,2

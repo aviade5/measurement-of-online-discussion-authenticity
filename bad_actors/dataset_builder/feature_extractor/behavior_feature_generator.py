@@ -12,13 +12,15 @@ class BehaviorFeatureGenerator(BaseFeatureGenerator):
     def __init__(self, db, **kwargs):
         BaseFeatureGenerator.__init__(self, db, **kwargs)
         self._retweet_count = db.get_retweet_count()
-        self._retweets = pd.DataFrame(db.get_retweets().items(), columns=['post_id','content'])
-        
-    def cleanUp(self):
-        pass
+        self._retweets = pd.DataFrame(db.get_retweets().items(), columns=['post_id', 'content'])
+        self._targeted_fields = self._config_parser.eval(self.__class__.__name__, "targeted_fields")
+        self._author_dict = {}
+
+    def execute(self, window_start=None):
+        self._author_dict = self._db.get_author_dictionary()
+        self._get_author_features_using_args(self._targeted_fields)
 
     def average_minutes_between_posts(self, **kwargs):
-
         if 'posts' in kwargs.keys():
             posts = kwargs['posts']
             data_frame = self.convert_posts_to_dataframe(posts)
@@ -33,51 +35,60 @@ class BehaviorFeatureGenerator(BaseFeatureGenerator):
                     avg_minutes_between_posts = None
 
             else:
-                avg_minutes_between_posts = None
+                avg_minutes_between_posts = 0
 
             return avg_minutes_between_posts
+        else:
+            return 0
 
     def average_posts_per_day_active_days(self, **kwargs):
         if 'posts' in kwargs.keys():
             posts = kwargs['posts']
             data_frame = self.convert_posts_to_dataframe(posts)
-            data_frame['date'] = data_frame['date'].map(lambda x: x.strftime('%d-%m-%Y'))
+            data_frame['date'] = data_frame['date'].map(lambda x: x.strftime('%Y-%m-%d'))
             grouped_data = data_frame.groupby('date')
             daily_count = grouped_data.date.apply(pd.value_counts)
+            if len(daily_count) == 0:
+                return 0
             avg_posts_per_active_day = daily_count.mean()
             return avg_posts_per_active_day
+        else:
+            return 0
 
     def average_posts_per_day_total(self, **kwargs):
-        if 'author' in kwargs.keys():
-            author = kwargs['author']
-            if self._targeted_social_network == Social_Networks.TWITTER:
-                return self._calculate_average_posts_per_day_total_within_twitter(author)
-            elif self._targeted_social_network == Social_Networks.TUMBLR:
-                return self._calculate_average_posts_per_day_total_within_tumblr(author)
-
+        # if 'author' in kwargs.keys():
+        #     author = kwargs['author']
+        post_dats = self._get_posts_field('date', **kwargs)
+        time_delta = (max(post_dats) - min(post_dats)).days
+        # return self._calculate_average_posts_per_day_total_within_twitter(author)
+        return float(len(kwargs['posts'])) / time_delta
+        # elif self._targeted_social_network == Social_Networks.TUMBLR:
+        #     return self._calculate_average_posts_per_day_total_within_tumblr(author)
 
     def retweet_count(self, **kwargs):
-        if 'author' in kwargs.keys():
-            author = kwargs['author']
-            if author.author_guid in self._retweet_count.keys():
-                return self._retweet_count[author.author_guid]
-            else:
-               0
+        if 'author' in kwargs and 'posts' in kwargs:
+            return self._count_retweets(kwargs['posts'])
+        else:
+            return 0
+
+    def _count_retweets(self, posts):
+        return sum([1 for p in posts if "RT @" in p.content])
 
     def average_retweets(self, **kwargs):
         if 'author' in kwargs.keys():
-            author = kwargs['author']
             posts = kwargs['posts']
-            if author.author_guid in self._retweet_count.keys() and len(posts) > 0:
-                return float(self._retweet_count[author.author_guid])/float(len(posts))
+            if len(posts) > 0:
+                return self._count_retweets(kwargs['posts']) / float(len(posts))
             else:
                 return 0.0
 
     def received_retweets_count(self, **kwargs):
         if 'author' in kwargs.keys():
-            author = kwargs['author']
-            screen_name = str('RT @'+author.author_screen_name)
-            retweets_count = len(self._retweets[self._retweets['content'].str.contains(screen_name)].index)
+            author_screen_names = self._get_authors_field('author_screen_name')
+            retweets_count = 0
+            for author_screen_name in author_screen_names:
+                screen_name = str('RT @' + author_screen_name)
+                retweets_count += len(self._retweets[self._retweets['content'].str.contains(screen_name)].index)
             return retweets_count
 
     def _calculate_average_posts_per_day_total_within_twitter(self, author):
@@ -90,6 +101,8 @@ class BehaviorFeatureGenerator(BaseFeatureGenerator):
             total_posts = float(author.statuses_count)
             if total_posts > 0 and total_days > 0:
                 return total_posts / total_days
+            else:
+                return 0
 
     def _calculate_average_posts_per_day_total_within_tumblr(self, author):
         if author.created_at is not None:
@@ -105,6 +118,18 @@ class BehaviorFeatureGenerator(BaseFeatureGenerator):
 
             posts = self._db.get_posts_by_author_guid(author_guid)
             total_posts = len(posts)
-            #total_posts = float(author.statuses_count)
+            # total_posts = float(author.statuses_count)
             if total_posts > 0 and total_days > 0:
                 return total_posts / total_days
+
+    def _get_posts_field(self, field_name, **kwargs):
+        posts = kwargs['posts']
+        return map(lambda p: getattr(p, field_name), posts)
+
+    def _base_author_aggregated(self, filed_name, **kwargs):
+        return self._get_authors_field(filed_name, **kwargs)
+
+    def _get_authors_field(self, filed_name, **kwargs):
+        author_guids = set(map(lambda p: p.author_guid, kwargs['posts']))
+        authors = [self._author_dict[a_guid] for a_guid in author_guids if a_guid in self._author_dict]
+        return map(lambda a: getattr(a, filed_name), authors)

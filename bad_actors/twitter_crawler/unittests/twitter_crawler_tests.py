@@ -15,7 +15,7 @@ class TwitterCrawlerTests(unittest.TestCase):
         keyword = 'security'
         terms = [keyword]
         posts = self._twitter_crawler.get_posts_by_terms(terms)
-        self.assertEqual(100, len(posts[keyword]))
+        self.assertLess(0, len(posts[keyword]))
 
     def tearDown(self):
         self._db.session.close()

@@ -5,13 +5,14 @@
 @author: Luiza Nacshon
 '''
 import logging
-from abstract_executor import AbstractExecutor
+from preprocessing_tools.abstract_controller import AbstractController
 
 
-class CreateAuthorTables(AbstractExecutor):
+class CreateAuthorTables(AbstractController):
     #TODO: 4: remove module.
     def __init__(self, db):
-        AbstractExecutor.__init__(self, db)
+
+        AbstractController.__init__(self, db)
 
     def setUp(self):
         pass
@@ -19,7 +20,7 @@ class CreateAuthorTables(AbstractExecutor):
 
     def execute(self,window_start):
         logging.info("execute")
-        AbstractExecutor.execute(self, window_start)
+        AbstractController.execute(self, window_start)
 
         logging.info("db.deleteAuthCit")
         self._db.deleteAuthCit(self._window_start)
