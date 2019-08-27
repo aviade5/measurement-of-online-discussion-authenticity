@@ -11,6 +11,7 @@ from commons.commons import get_current_time_as_string, cleanForAuthor
 from commons.consts import *
 from commons.method_executor import Method_Executor
 from preprocessing_tools.abstract_controller import AbstractController
+from social_network_crawler.social_network_crawler import SocialNetworkCrawler
 from twitter_rest_api.twitter_rest_api import Twitter_Rest_Api
 import csv
 
@@ -76,6 +77,35 @@ class MissingDataComplementor(Method_Executor):
         inseration_type = DB_Insertion_Type.MISSING_DATA_COMPLEMENTOR
         self._social_network_crawler.crawl_followers_by_twitter_author_ids(author_ids, author_type, are_user_ids,
                                                                            inseration_type)
+
+    def fill_followers_for_authors_handle_exceptions(self):
+        # cursor = self._db.get_followers_or_friends_candidats("follower", self._domain,
+        #                                                      self._limit_friend_follower_number)
+        # followers_or_friends_candidats = self._db.result_iter(cursor)
+        # followers_or_friends_candidats = [author_id[0] for author_id in followers_or_friends_candidats]
+
+        user_ids_to_bring_followers = self._db.get_followers_brought_by_terms()
+
+        print("---crawl_followers_by_author_ids---")
+        author_type = None
+        are_user_ids = True
+        insertion_type = DB_Insertion_Type.MISSING_DATA_COMPLEMENTOR
+        #crawl_users_by_author_ids_func_name = "crawl_users_by_author_ids"
+        self._social_network_crawler = SocialNetworkCrawler(self._db)
+
+        total_already_checked_author_ids = []
+        candidates = user_ids_to_bring_followers
+        while len(user_ids_to_bring_followers) > len(total_already_checked_author_ids):
+            print("{0} > {1}".format(len(user_ids_to_bring_followers), len(total_already_checked_author_ids)))
+            tweeter_user_ids, already_checked_author_ids = self._social_network_crawler.crawl_users_by_author_ids(candidates,
+                                                                   "follower", author_type,
+                                                                   are_user_ids, insertion_type)
+
+            total_already_checked_author_ids += already_checked_author_ids
+            candidates = list(set(user_ids_to_bring_followers) - set(total_already_checked_author_ids))
+
+
+        self._db.convert_temp_author_connections_to_author_connections(self._domain)
 
     def crawl_friends_by_author_ids(self, author_ids):
         print("---crawl_friends_by_author_ids---")

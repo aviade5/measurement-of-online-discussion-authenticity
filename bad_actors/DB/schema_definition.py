@@ -85,15 +85,15 @@ class Author(Base):
     media_path = Column(Unicode, default=None)
 
     #Facebook fields
-    work = Column(Unicode, default=None)
-    education = Column(Unicode, default=None)
-    professional_skills = Column(Unicode, default=None)
-    current_residence = Column(Unicode, default=None)
-    past_residence = Column(Unicode, default=None)
-    birth_day = Column(Unicode, default=None)
-    gender = Column(Unicode, default=None)
-    email = Column(Unicode, default=None)
-    relationship_status = Column(Unicode, default=None)
+    # work = Column(Unicode, default=None)
+    # education = Column(Unicode, default=None)
+    # professional_skills = Column(Unicode, default=None)
+    # current_residence = Column(Unicode, default=None)
+    # past_residence = Column(Unicode, default=None)
+    # birth_day = Column(Unicode, default=None)
+    # gender = Column(Unicode, default=None)
+    # email = Column(Unicode, default=None)
+    # relationship_status = Column(Unicode, default=None)
     #family_members = Column(Unicode, default=None)
 
     author_type = Column(Unicode, default=None)
@@ -1415,6 +1415,12 @@ class DB():
             self.update_author_features(author_feature)
         self.commit()
 
+	def get_author_by_osn_id_and_domain(self, osn_id, domain):
+		res = self.session.query(Author).filter(Author.author_osn_id == osn_id and Author.domain == domain).all()
+
+		return res[0]
+
+		
     def add_target_articles(self, target_articles):
         logging.info("target_articles inserted to DB: " + str(len(target_articles)))
         i = 1
@@ -1813,7 +1819,11 @@ class DB():
         logging.info("Convert twitter users to authors: " + str(len(users)))
         i = 1
         for user in users:
-            author = self.convert_twitter_user_to_author(user, targeted_social_network, author_type, inseration_type)
+            if author_type == 'Blocked':  
+                author = self.convert_blocked_twitter_user_to_author(user, targeted_social_network, author_type, inseration_type)
+            else:
+                author = self.convert_twitter_user_to_author(user, targeted_social_network, author_type,
+                                                             inseration_type)
             authors.append(author)
             msg = "\r Author record was converted: {0} [{1}/{2}]".format(author.author_screen_name, i, str(len(users)))
             print(msg, end="")
@@ -1821,6 +1831,59 @@ class DB():
             i += 1
             # logging.info("Author record was converted: " + author.author_screen_name)
         return authors
+		
+    def convert_blocked_twitter_user_to_author(self, osn_user, targeted_social_network, author_type, inseration_type):
+        author = Author()
+
+        author_guid = compute_author_guid_by_osn_id(str(osn_user))
+        author_osn_id = osn_user
+        from datetime import datetime
+        author_is_suspended_or_not_exists = datetime.now()
+
+        author.author_guid = author_guid
+        author.name = 'Blocked_User'
+        author.author_osn_id = author_osn_id
+        author.is_suspended_or_not_exists = author_is_suspended_or_not_exists
+        author.domain = Domains.MICROBLOG
+
+        return author		
+
+    def get_followers_brought_by_terms(self):
+        # query = """
+        #             SELECT DISTINCT(authors.author_osn_id)
+        #             FROM author_connections
+        #             INNER JOIN authors ON (authors.author_guid = author_connections.destination_author_guid)
+        #             WHERE author_connections.connection_type = 'term-author'
+        #             AND authors.author_osn_id NOT IN (
+        #                 SELECT DISTINCT(temp_author_connections.source_author_osn_id)
+        #                 FROM temp_author_connections
+        #                 WHERE temp_author_connections.connection_type = 'follower'
+        #             )
+        #         """
+        # AND authors.author_osn_id IS NOT '18691328'
+        """
+        Select authors osn_id from authors_connections under 'term-author' that are NOT source in temp_conncetions as 'follower'
+        """
+        query = """
+                    SELECT DISTINCT(authors.author_osn_id)
+                    FROM author_connections
+                    INNER JOIN authors ON (authors.author_guid = author_connections.destination_author_guid)
+                    WHERE author_connections.connection_type = 'term-author'
+
+                    AND authors.author_osn_id NOT IN (
+                        SELECT DISTINCT(temp_author_connections.source_author_osn_id)
+                        FROM temp_author_connections
+                        WHERE temp_author_connections.connection_type = 'follower'
+                    )
+                    AND authors.is_suspended_or_not_exists is NULL
+                """
+
+        query = text(query)
+        result = self.session.execute(query)
+        cursor = result.cursor
+        tuples = cursor.fetchall()
+        author_osn_ids = [tuple[0] for tuple in tuples]
+        return author_osn_ids
 
     def convert_twitter_user_to_author(self, osn_user, targeted_social_network, author_type, inseration_type):
         author_screen_name = unicode(osn_user.screen_name)

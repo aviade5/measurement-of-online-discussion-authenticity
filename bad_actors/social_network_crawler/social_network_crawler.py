@@ -7,6 +7,7 @@ from Twitter_API.twitter_api_requester import TwitterApiRequester
 from DB.schema_definition import DB, AuthorConnection, PostRetweeterConnection
 from commons.consts import *
 from commons.commons import *
+from datetime import datetime
 from twitter import TwitterError
 
 
@@ -41,7 +42,8 @@ class SocialNetworkCrawler(AbstractExecutor):
         self._total_author_connections = []
 
         print("Creating TwitterApiRequester")
-        self._twitter_api_requester = TwitterApiRequester(self._working_app_number)
+        # self._twitter_api_requester = TwitterApiRequester(self._working_app_number)
+        self._twitter_api_requester = TwitterApiRequester()
 
         # self._find_source_twitter_id()
 
@@ -106,14 +108,18 @@ class SocialNetworkCrawler(AbstractExecutor):
     def crawl_users_by_author_ids(self, author_ids, connection_type, author_type, are_user_ids, insertion_type):
         self._total_author_connections = []
 
-        total_user_ids = self.crawl_users(author_ids, connection_type)
+        # total_user_ids = self.crawl_users(author_ids, connection_type)
+        total_follower_ids, already_checked_author_ids = self.get_followers_until_exception(author_ids, connection_type)
 
         self._db.save_author_connections(self._total_author_connections)
 
-        total_user_ids_to_crawl = self.remove_already_crawled_authors(total_user_ids)
+        # total_user_ids_to_crawl = self.remove_already_crawled_authors(total_user_ids)
+        total_user_ids_to_crawl = self.remove_already_crawled_authors(total_follower_ids)
 
         users = self.handle_get_users_request(total_user_ids_to_crawl, are_user_ids, author_type, insertion_type)
         self.convert_twitter_users_to_authors_and_save(users, author_type, insertion_type)
+
+        return total_follower_ids, already_checked_author_ids
 
     # def crawl_followers_by_twitter_author_ids(self, author_ids, author_type, are_user_ids, inseration_type):
     #     print("--- crawl_followers_by_twitter_author_ids ---")
@@ -229,6 +235,86 @@ class SocialNetworkCrawler(AbstractExecutor):
         retweets = self._twitter_api_requester.get_retweets_by_status_id(post_id)
         print(retweets)
 
+    def get_followers_until_exception(self, author_ids, author_type):
+        total_follower_ids = []
+        already_checked_author_ids = []
+        for i, author_id in enumerate(author_ids):
+            msg = "\r Bring followers for authors: {0}/{1}".format(i, len(author_ids))
+            print(msg, end="")
+
+            try:
+                user_ids = self._twitter_api_requester.get_follower_ids_by_user_id(author_id)
+                already_checked_author_ids.append(author_id)
+
+                if len(user_ids) > 0:
+                    temp_author_connections = self._db.create_temp_author_connections(author_id, user_ids, author_type,
+                                                                                      self._window_start)
+                    self._total_author_connections = self._total_author_connections + temp_author_connections
+
+                    total_follower_ids = list(set(total_follower_ids + user_ids))
+            except TwitterError as e:
+                if e.message == "Not authorized.":
+                    logging.info("Not authorized for user id: {0}".format(author_id))
+                    author = self._db.get_author_by_osn_id_and_domain(author_id, 'Microblog')
+                    author.is_suspended_or_not_exists = datetime.now()
+                    self.save_authors([author])
+                    already_checked_author_ids.append(author_id)
+                    # TODO: Write author to DB or add return argument?
+                    # If we don't save user ad suspended and if we dont ass it to already_checked we'll be stuck in loop
+                    return total_follower_ids, already_checked_author_ids
+
+                exception_response = e[0][0]
+                logging.info("e.massage =" + exception_response["message"])
+                code = exception_response["code"]
+                logging.info("e.code =" + str(exception_response["code"]))
+
+                if code == 34:
+                    # Code 34 means user does not exist anymore
+                    author = self._db.get_author_by_osn_id_and_domain(author_id, 'Microblog')
+                    author.is_suspended_or_not_exists = datetime.now()
+                    self.save_authors([author])
+                    already_checked_author_ids.append(author_id)
+                    # TODO: Write author to DB or add return argument?
+                    return total_follower_ids, already_checked_author_ids
+
+                if code == 88:
+                    sec = self._twitter_api_requester.get_sleep_time_for_get_follower_ids_request()
+                    sec = sec + 10
+                    # logging.info("Seconds to wait from catched crush is: " + str(sec))
+                    # if sec != 0:
+                    print("Number of seconds to wait: {0}".format(sec))
+                    count_down_time(sec)
+
+                    try:
+                        user_ids = self._twitter_api_requester.get_follower_ids_by_user_id(author_id)
+                        already_checked_author_ids.append(author_id)
+
+                        temp_author_connections = self._db.create_temp_author_connections(author_id, user_ids,
+                                                                                          author_type,
+                                                                                          self._window_start)
+                        self._total_author_connections = self._total_author_connections + temp_author_connections
+
+                        total_follower_ids = list(set(total_follower_ids + user_ids))
+
+                    except TwitterError as e:
+                        if e.message == "Not authorized.":
+                            logging.info("Not authorized for user id: {0}".format(author_id))
+                            return total_follower_ids, already_checked_author_ids
+
+                    except Exception, e:
+                        logging.info(e.message)
+                        sec = self._twitter_api_requester.get_sleep_time_for_get_users_request()
+                        count_down_time(sec)
+                        return total_follower_ids, already_checked_author_ids
+
+            except Exception, e:
+                logging.info(e.message)
+                sec = self._twitter_api_requester.get_sleep_time_for_get_users_request()
+                count_down_time(sec)
+                return total_follower_ids, already_checked_author_ids
+
+        return total_follower_ids, already_checked_author_ids
+
     # def create_author_connections(self, source_author_id, destination_author_ids, author_connection_type):
     #     print("---create_author_connections---")
     #     logging.info("---create_author_connections---")
@@ -308,6 +394,7 @@ class SocialNetworkCrawler(AbstractExecutor):
 
     def handle_get_users_request(self, ids, are_user_ids, author_type, insertion_type):
         total_users = []
+        all_ids_not_handled = []
         users = []
         ids_in_chunks = split_into_equal_chunks(ids,
                                                 self._maximal_user_ids_allowed_in_single_get_user_request)
@@ -332,26 +419,53 @@ class SocialNetworkCrawler(AbstractExecutor):
                                                                   users)
                 total_users = list(set(total_users + users))
 
+                all_ids_not_handled = list(set(all_ids_not_handled + ids_in_chunk))
+
             except TwitterError as e:
                 logging.info(e.message)
                 sec = self._twitter_api_requester.get_sleep_time_for_get_users_request()
+                if len(all_ids_not_handled) > 0:
+                    self.convert_and_save_missing_followers_as_authors(all_ids_not_handled, total_users,
+                                                                       author_type='Blocked',
+                                                                       insertion_type=insertion_type)
+                    all_ids_not_handled = []
                 logging.info("Seconds to wait from catched crush is: " + str(sec))
                 count_down_time(sec)
                 users = self.send_get_users_request_and_add_users(ids_in_chunk, are_user_ids, users)
                 total_users = list(set(total_users + users))
+                all_ids_not_handled = list(set(all_ids_not_handled + ids_in_chunk))
 
             except Exception, e:
                 logging.info(e.message)
                 sec = self._twitter_api_requester.get_sleep_time_for_get_users_request()
+                if len(all_ids_not_handled) > 0:
+                    self.convert_and_save_missing_followers_as_authors(all_ids_not_handled, total_users,
+                                                                       author_type='Blocked',
+                                                                       insertion_type=insertion_type)
+                    all_ids_not_handled = []
                 logging.info("Seconds to wait from catched crush is: " + str(sec))
                 count_down_time(sec)
                 users = self.send_get_users_request_and_add_users(ids_in_chunk, are_user_ids, users)
                 total_users = list(set(total_users + users))
+                all_ids_not_handled = list(set(all_ids_not_handled + ids_in_chunk))
+
+        self.convert_and_save_missing_followers_as_authors(all_ids_not_handled, total_users,
+                                                           author_type='Blocked',
+                                                           insertion_type=insertion_type)
 
         print("--- Finishing handle_get_users_request --- ")
         logging.info("--- Finishing handle_get_users_request --- ")
         # self.save_authors_and_connections(users, author_type, insertion_type)
         return total_users
+
+    def convert_and_save_missing_followers_as_authors(self, total_user_ids, found_user_ids, author_type, insertion_type):
+        found_user_ids = [user.id for user in found_user_ids]
+        missing_ids = list(set(total_user_ids) - set(found_user_ids))
+        if len(missing_ids) > 0:
+            print('Interesting case - delete this print')
+        authors = self.convert_twitter_users_to_authors(missing_ids, author_type, insertion_type)
+        self.save_authors(authors)
+        print("Total converted Twitter users into authors is: " + str(len(authors)))
 
     def save_authors_and_connections_and_wait(self, total_twitter_users, author_type, inseration_type):
         self.save_authors_and_connections(total_twitter_users, author_type, inseration_type)
