@@ -555,6 +555,11 @@ class DB():
     def commit(self):
         self.session.commit()
 
+    def get_author_by_osn_id_and_domain(self, osn_id, domain):
+        res = self.session.query(Author).filter(Author.author_osn_id == osn_id and Author.domain == domain).all()
+
+        return res[0]
+
     def is_post_topic_mapping_table_exist(self):
         query = text("SELECT name FROM sqlite_master WHERE type='table' AND name='post_topic_mapping'")
         result = self.session.execute(query)
