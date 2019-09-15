@@ -403,6 +403,7 @@ class Topic(Base):
     __tablename__ = "topics"
 
     topic_id = Column(Integer, primary_key=True)
+    description = Column(Unicode, default=None)
     term_id = Column(Integer, ForeignKey("terms.term_id"), primary_key=True)
     probability = Column(FLOAT, default=None)
 
