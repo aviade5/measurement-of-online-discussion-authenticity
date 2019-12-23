@@ -690,9 +690,9 @@ class DB():
             if (getConfig().eval("OperatingSystem", "linux")):
                 dbapi_connection.execute(
                     'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.so'))
-            if (getConfig().eval("OperatingSystem", "mac")):
-                dbapi_connection.execute(
-                    'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.dylib'))
+            # if (getConfig().eval("OperatingSystem", "mac")):
+            #     dbapi_connection.execute(
+            #         'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.dylib'))
 
             dbapi_connection.enable_load_extension(False)
 
@@ -3521,6 +3521,14 @@ class DB():
                     favorite_count=unicode(tweet_data.favorite_count),
                     timeline_importer_insertion_date=unicode(get_current_time_as_string()))
         return post
+
+    def create_connections(self, source_author_guid, destination_author_guid, connection_type):
+
+        rec = AuthorConnection()
+        rec.source_author_guid = source_author_guid
+        rec.destination_author_guid = destination_author_guid
+        rec.connection_type = connection_type
+        return rec
 
     def get_max_topic(self):
         query = """

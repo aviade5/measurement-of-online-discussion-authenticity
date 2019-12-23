@@ -1,4 +1,4 @@
-from sklearn import cross_validation
+#from sklearn import cross_validation
 import copy
 from commons.consts import DistancesFromTargetedClass, Author_Type, Author_Subtype
 from configuration.config_class import getConfig

@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import googleapiclient
+#import googleapiclient
 
 from DB.schema_definition import Post, Claim_Tweet_Connection, GooglePostKeywords
 from commons.commons import compute_author_guid_by_author_name
