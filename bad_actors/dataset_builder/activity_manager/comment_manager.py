@@ -112,7 +112,4 @@ class CommentManager(Method_Executor):
             for reply in self._get_replies_by_api(tweet):
                 self._insert_replies_to_db(reply,tweet_data)
 
-
-
-
         p = 0
