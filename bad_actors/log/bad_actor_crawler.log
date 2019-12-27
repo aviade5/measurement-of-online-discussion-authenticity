@@ -19434,3 +19434,17 @@ WindowsError: [Error 32] The process cannot access the file because it is being 
 2019-12-23 11:31:04 - run.py - <module> - INFO - *********Finished executing DB
 2019-12-23 11:31:04 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001905CB38>
 2019-12-23 11:31:04 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-27 12:02:10 - run.py - <module> - INFO - Start Execution ... 
+2019-12-27 12:02:10 - run.py - <module> - INFO - SETUP global variables
+2019-12-27 12:02:10 - run.py - <module> - INFO - CREATE pipeline
+2019-12-27 12:02:10 - run.py - <module> - INFO - SETUP pipeline
+2019-12-27 12:02:10 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001ECC6A88>
+2019-12-27 12:02:10 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018D4BC50>
+2019-12-27 12:02:10 - run.py - <module> - INFO - checking module definition
+2019-12-27 12:02:10 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001ECC6A88> is well defined
+2019-12-27 12:02:10 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018D4BC50> is well defined
+2019-12-27 12:02:10 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001ECC6A88>
+2019-12-27 12:02:10 - run.py - <module> - INFO - *********Started executing DB
+2019-12-27 12:02:10 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-27 12:02:10 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018D4BC50>
+2019-12-27 12:02:10 - run.py - <module> - INFO - *********Started executing CommentManager
