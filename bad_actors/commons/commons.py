@@ -316,6 +316,17 @@ def extract_tweet_publiction_date(tweet_creation_time):
     cest_repr = utc_repr + timedelta(hours=2)
     return str(cest_repr)
 
+def extract_tweet_publiction_date_from_tweepy(tweet_creation_time):
+    '''
+    :param tweet_creation_time: the time in which the tweet was published
+    :return: the publication date of the tweet as a string.
+    The time is CEST time.
+    the structure of the time signature: YYYY-MM-DD HH:MM:SS
+    '''
+    utc_repr = datetime.datetime.strptime(tweet_creation_time, '%Y-%m-%d %H:%M:%S')
+    cest_repr = utc_repr + timedelta(hours=2)
+    return str(cest_repr)
+
 
 def clean_content_to_set_of_words(stopwords_file, content, stemmerLanguage):
     """Content is assumed to be a unicode object in utf-8."""

@@ -19448,3 +19448,1608 @@ WindowsError: [Error 32] The process cannot access the file because it is being 
 2019-12-27 12:02:10 - run.py - <module> - INFO - *********Finished executing DB
 2019-12-27 12:02:10 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018D4BC50>
 2019-12-27 12:02:10 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-27 12:48:50 - run.py - <module> - INFO - Start Execution ... 
+2019-12-27 12:48:50 - run.py - <module> - INFO - SETUP global variables
+2019-12-27 12:48:50 - run.py - <module> - INFO - CREATE pipeline
+2019-12-27 12:48:50 - run.py - <module> - INFO - SETUP pipeline
+2019-12-27 12:48:50 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E7003C8>
+2019-12-27 12:48:51 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018A1EB00>
+2019-12-27 12:48:51 - run.py - <module> - INFO - checking module definition
+2019-12-27 12:48:51 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E7003C8> is well defined
+2019-12-27 12:48:51 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018A1EB00> is well defined
+2019-12-27 12:48:51 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E7003C8>
+2019-12-27 12:48:51 - run.py - <module> - INFO - *********Started executing DB
+2019-12-27 12:48:51 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-27 12:48:51 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018A1EB00>
+2019-12-27 12:48:51 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 07:42:24 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 07:42:24 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 07:42:24 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 07:42:24 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 07:42:24 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EE9E848>
+2019-12-29 07:42:24 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDC7E48>
+2019-12-29 07:42:24 - run.py - <module> - INFO - checking module definition
+2019-12-29 07:42:24 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EE9E848> is well defined
+2019-12-29 07:42:24 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDC7E48> is well defined
+2019-12-29 07:42:24 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EE9E848>
+2019-12-29 07:42:24 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 07:42:24 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 07:42:24 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDC7E48>
+2019-12-29 07:42:24 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 07:43:05 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 07:43:05 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 07:43:05 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 07:43:05 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 07:43:05 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E4ABE88>
+2019-12-29 07:43:05 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E4CCE80>
+2019-12-29 07:43:05 - run.py - <module> - INFO - checking module definition
+2019-12-29 07:43:05 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E4ABE88> is well defined
+2019-12-29 07:43:05 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E4CCE80> is well defined
+2019-12-29 07:43:05 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E4ABE88>
+2019-12-29 07:43:05 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 07:43:05 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 07:43:05 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E4CCE80>
+2019-12-29 07:43:05 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 07:47:02 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 07:47:02 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 07:47:02 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 07:47:02 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 07:47:02 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EEE7648>
+2019-12-29 07:47:02 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F0DBEB8>
+2019-12-29 07:47:02 - run.py - <module> - INFO - checking module definition
+2019-12-29 07:47:02 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EEE7648> is well defined
+2019-12-29 07:47:02 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F0DBEB8> is well defined
+2019-12-29 07:47:02 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EEE7648>
+2019-12-29 07:47:02 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 07:47:02 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 07:47:02 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F0DBEB8>
+2019-12-29 07:47:02 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 07:54:31 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 07:54:31 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 07:54:31 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 07:54:31 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 07:54:31 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000188D81C8>
+2019-12-29 07:54:31 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E688EB8>
+2019-12-29 07:54:31 - run.py - <module> - INFO - checking module definition
+2019-12-29 07:54:31 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000188D81C8> is well defined
+2019-12-29 07:54:31 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E688EB8> is well defined
+2019-12-29 07:54:31 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000188D81C8>
+2019-12-29 07:54:31 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 07:54:31 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 07:54:31 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E688EB8>
+2019-12-29 07:54:31 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 08:01:27 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 08:01:27 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 08:01:27 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 08:01:27 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 08:01:27 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EE937C8>
+2019-12-29 08:01:27 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F046EB8>
+2019-12-29 08:01:27 - run.py - <module> - INFO - checking module definition
+2019-12-29 08:01:27 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EE937C8> is well defined
+2019-12-29 08:01:27 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F046EB8> is well defined
+2019-12-29 08:01:27 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EE937C8>
+2019-12-29 08:01:27 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 08:01:27 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 08:01:27 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F046EB8>
+2019-12-29 08:01:27 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 08:14:02 - method_executor.py - execute - ERROR - Error: 'datetime.datetime' object has no attribute 'to_string'
+2019-12-29 08:14:05 - run.py - <module> - INFO - *********Finished executing CommentManager
+2019-12-29 08:15:05 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 08:15:05 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 08:15:05 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 08:15:05 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 08:15:05 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EE06E88>
+2019-12-29 08:15:05 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EF77E80>
+2019-12-29 08:15:05 - run.py - <module> - INFO - checking module definition
+2019-12-29 08:15:05 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EE06E88> is well defined
+2019-12-29 08:15:05 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EF77E80> is well defined
+2019-12-29 08:15:05 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EE06E88>
+2019-12-29 08:15:05 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 08:15:05 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 08:15:05 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EF77E80>
+2019-12-29 08:15:05 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 08:59:07 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 08:59:07 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 08:59:07 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 08:59:07 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 08:59:07 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001F59F108>
+2019-12-29 08:59:07 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F546DA0>
+2019-12-29 08:59:07 - run.py - <module> - INFO - checking module definition
+2019-12-29 08:59:07 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001F59F108> is well defined
+2019-12-29 08:59:07 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F546DA0> is well defined
+2019-12-29 08:59:07 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001F59F108>
+2019-12-29 08:59:07 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 08:59:07 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 08:59:07 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F546DA0>
+2019-12-29 08:59:07 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 09:02:02 - method_executor.py - execute - ERROR - Error: 'Status' object has no attribute 'text'
+2019-12-29 09:02:06 - run.py - <module> - INFO - *********Finished executing CommentManager
+2019-12-29 09:06:28 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 09:06:28 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 09:06:28 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 09:06:28 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 09:06:28 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EE94648>
+2019-12-29 09:06:28 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EEB7EF0>
+2019-12-29 09:06:28 - run.py - <module> - INFO - checking module definition
+2019-12-29 09:06:28 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EE94648> is well defined
+2019-12-29 09:06:28 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EEB7EF0> is well defined
+2019-12-29 09:06:28 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EE94648>
+2019-12-29 09:06:28 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 09:06:28 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 09:06:28 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EEB7EF0>
+2019-12-29 09:06:28 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-29 09:23:00 - run.py - <module> - INFO - Start Execution ... 
+2019-12-29 09:23:00 - run.py - <module> - INFO - SETUP global variables
+2019-12-29 09:23:00 - run.py - <module> - INFO - CREATE pipeline
+2019-12-29 09:23:00 - run.py - <module> - INFO - SETUP pipeline
+2019-12-29 09:23:00 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EE89B48>
+2019-12-29 09:23:00 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EFBEEB8>
+2019-12-29 09:23:00 - run.py - <module> - INFO - checking module definition
+2019-12-29 09:23:00 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EE89B48> is well defined
+2019-12-29 09:23:00 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EFBEEB8> is well defined
+2019-12-29 09:23:00 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EE89B48>
+2019-12-29 09:23:00 - run.py - <module> - INFO - *********Started executing DB
+2019-12-29 09:23:00 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-29 09:23:00 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EFBEEB8>
+2019-12-29 09:23:00 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-31 14:32:18 - run.py - <module> - INFO - Start Execution ... 
+2019-12-31 14:32:18 - run.py - <module> - INFO - SETUP global variables
+2019-12-31 14:32:18 - run.py - <module> - INFO - CREATE pipeline
+2019-12-31 14:32:18 - run.py - <module> - INFO - SETUP pipeline
+2019-12-31 14:32:18 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E9EEFC8>
+2019-12-31 14:32:18 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EB29F28>
+2019-12-31 14:32:18 - run.py - <module> - INFO - checking module definition
+2019-12-31 14:32:18 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E9EEFC8> is well defined
+2019-12-31 14:32:18 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EB29F28> is well defined
+2019-12-31 14:32:18 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E9EEFC8>
+2019-12-31 14:32:18 - run.py - <module> - INFO - *********Started executing DB
+2019-12-31 14:32:18 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-31 14:32:18 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EB29F28>
+2019-12-31 14:32:18 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-31 14:33:23 - method_executor.py - execute - ERROR - Error: type object 'datetime.time' has no attribute 'sleep'
+2019-12-31 14:33:27 - run.py - <module> - INFO - *********Finished executing CommentManager
+2019-12-31 14:35:50 - run.py - <module> - INFO - Start Execution ... 
+2019-12-31 14:35:50 - run.py - <module> - INFO - SETUP global variables
+2019-12-31 14:35:50 - run.py - <module> - INFO - CREATE pipeline
+2019-12-31 14:35:50 - run.py - <module> - INFO - SETUP pipeline
+2019-12-31 14:35:50 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001F035E88>
+2019-12-31 14:35:50 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F053EB8>
+2019-12-31 14:35:50 - run.py - <module> - INFO - checking module definition
+2019-12-31 14:35:50 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001F035E88> is well defined
+2019-12-31 14:35:50 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F053EB8> is well defined
+2019-12-31 14:35:50 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001F035E88>
+2019-12-31 14:35:50 - run.py - <module> - INFO - *********Started executing DB
+2019-12-31 14:35:50 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-31 14:35:50 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F053EB8>
+2019-12-31 14:35:50 - run.py - <module> - INFO - *********Started executing CommentManager
+2019-12-31 14:36:58 - method_executor.py - execute - ERROR - Error: type object 'datetime.time' has no attribute 'sleep'
+2019-12-31 14:37:02 - run.py - <module> - INFO - *********Finished executing CommentManager
+2019-12-31 14:38:28 - run.py - <module> - INFO - Start Execution ... 
+2019-12-31 14:38:28 - run.py - <module> - INFO - SETUP global variables
+2019-12-31 14:38:28 - run.py - <module> - INFO - CREATE pipeline
+2019-12-31 14:38:28 - run.py - <module> - INFO - SETUP pipeline
+2019-12-31 14:38:28 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E9B3E88>
+2019-12-31 14:38:28 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E9D2EB8>
+2019-12-31 14:38:28 - run.py - <module> - INFO - checking module definition
+2019-12-31 14:38:28 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E9B3E88> is well defined
+2019-12-31 14:38:28 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E9D2EB8> is well defined
+2019-12-31 14:38:28 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E9B3E88>
+2019-12-31 14:38:28 - run.py - <module> - INFO - *********Started executing DB
+2019-12-31 14:38:28 - run.py - <module> - INFO - *********Finished executing DB
+2019-12-31 14:38:28 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E9D2EB8>
+2019-12-31 14:38:28 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-01 09:19:58 - run.py - <module> - INFO - Start Execution ... 
+2020-01-01 09:19:58 - run.py - <module> - INFO - SETUP global variables
+2020-01-01 09:19:58 - run.py - <module> - INFO - CREATE pipeline
+2020-01-01 09:19:58 - run.py - <module> - INFO - SETUP pipeline
+2020-01-01 09:19:58 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A49F88>
+2020-01-01 09:19:58 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020BBFE48>
+2020-01-01 09:19:58 - run.py - <module> - INFO - checking module definition
+2020-01-01 09:19:58 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A49F88> is well defined
+2020-01-01 09:19:58 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020BBFE48> is well defined
+2020-01-01 09:19:58 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A49F88>
+2020-01-01 09:19:58 - run.py - <module> - INFO - *********Started executing DB
+2020-01-01 09:19:58 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-01 09:19:58 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020BBFE48>
+2020-01-01 09:19:58 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-01 09:28:17 - run.py - <module> - INFO - Start Execution ... 
+2020-01-01 09:28:17 - run.py - <module> - INFO - SETUP global variables
+2020-01-01 09:28:17 - run.py - <module> - INFO - CREATE pipeline
+2020-01-01 09:28:17 - run.py - <module> - INFO - SETUP pipeline
+2020-01-01 09:28:17 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020FAA9C8>
+2020-01-01 09:28:17 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000021090EF0>
+2020-01-01 09:28:17 - run.py - <module> - INFO - checking module definition
+2020-01-01 09:28:17 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020FAA9C8> is well defined
+2020-01-01 09:28:17 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000021090EF0> is well defined
+2020-01-01 09:28:17 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020FAA9C8>
+2020-01-01 09:28:17 - run.py - <module> - INFO - *********Started executing DB
+2020-01-01 09:28:17 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-01 09:28:17 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000021090EF0>
+2020-01-01 09:28:17 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-01 09:31:10 - run.py - <module> - INFO - Start Execution ... 
+2020-01-01 09:31:10 - run.py - <module> - INFO - SETUP global variables
+2020-01-01 09:31:10 - run.py - <module> - INFO - CREATE pipeline
+2020-01-01 09:31:10 - run.py - <module> - INFO - SETUP pipeline
+2020-01-01 09:31:10 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000208F5F08>
+2020-01-01 09:31:10 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002091BE48>
+2020-01-01 09:31:10 - run.py - <module> - INFO - checking module definition
+2020-01-01 09:31:10 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000208F5F08> is well defined
+2020-01-01 09:31:10 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002091BE48> is well defined
+2020-01-01 09:31:10 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000208F5F08>
+2020-01-01 09:31:10 - run.py - <module> - INFO - *********Started executing DB
+2020-01-01 09:31:10 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-01 09:31:10 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002091BE48>
+2020-01-01 09:31:10 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-01 09:39:51 - run.py - <module> - INFO - Start Execution ... 
+2020-01-01 09:39:51 - run.py - <module> - INFO - SETUP global variables
+2020-01-01 09:39:51 - run.py - <module> - INFO - CREATE pipeline
+2020-01-01 09:39:51 - run.py - <module> - INFO - SETUP pipeline
+2020-01-01 09:39:51 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000205F72C8>
+2020-01-01 09:39:51 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002061BE80>
+2020-01-01 09:39:51 - run.py - <module> - INFO - checking module definition
+2020-01-01 09:39:51 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000205F72C8> is well defined
+2020-01-01 09:39:51 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002061BE80> is well defined
+2020-01-01 09:39:51 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000205F72C8>
+2020-01-01 09:39:51 - run.py - <module> - INFO - *********Started executing DB
+2020-01-01 09:39:51 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-01 09:39:51 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002061BE80>
+2020-01-01 09:39:51 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-01 09:44:27 - run.py - <module> - INFO - Start Execution ... 
+2020-01-01 09:44:27 - run.py - <module> - INFO - SETUP global variables
+2020-01-01 09:44:27 - run.py - <module> - INFO - CREATE pipeline
+2020-01-01 09:44:27 - run.py - <module> - INFO - SETUP pipeline
+2020-01-01 09:44:27 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B4D148>
+2020-01-01 09:44:27 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C7DE80>
+2020-01-01 09:44:27 - run.py - <module> - INFO - checking module definition
+2020-01-01 09:44:27 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B4D148> is well defined
+2020-01-01 09:44:27 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C7DE80> is well defined
+2020-01-01 09:44:27 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B4D148>
+2020-01-01 09:44:27 - run.py - <module> - INFO - *********Started executing DB
+2020-01-01 09:44:27 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-01 09:44:27 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C7DE80>
+2020-01-01 09:44:27 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-03 09:17:35 - run.py - <module> - INFO - Start Execution ... 
+2020-01-03 09:17:35 - run.py - <module> - INFO - SETUP global variables
+2020-01-03 09:17:35 - run.py - <module> - INFO - CREATE pipeline
+2020-01-03 09:17:35 - run.py - <module> - INFO - SETUP pipeline
+2020-01-03 09:17:35 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EF31C08>
+2020-01-03 09:17:35 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F075E48>
+2020-01-03 09:17:35 - run.py - <module> - INFO - checking module definition
+2020-01-03 09:17:35 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EF31C08> is well defined
+2020-01-03 09:17:35 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F075E48> is well defined
+2020-01-03 09:17:35 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EF31C08>
+2020-01-03 09:17:35 - run.py - <module> - INFO - *********Started executing DB
+2020-01-03 09:17:35 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-03 09:17:35 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F075E48>
+2020-01-03 09:17:35 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-03 09:17:49 - run.py - <module> - INFO - Start Execution ... 
+2020-01-03 09:17:49 - run.py - <module> - INFO - SETUP global variables
+2020-01-03 09:17:49 - run.py - <module> - INFO - CREATE pipeline
+2020-01-03 09:17:49 - run.py - <module> - INFO - SETUP pipeline
+2020-01-03 09:17:49 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EF96A08>
+2020-01-03 09:17:49 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EFBBEB8>
+2020-01-03 09:17:49 - run.py - <module> - INFO - checking module definition
+2020-01-03 09:17:49 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EF96A08> is well defined
+2020-01-03 09:17:49 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EFBBEB8> is well defined
+2020-01-03 09:17:49 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EF96A08>
+2020-01-03 09:17:49 - run.py - <module> - INFO - *********Started executing DB
+2020-01-03 09:17:49 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-03 09:17:49 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EFBBEB8>
+2020-01-03 09:17:49 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-06 11:57:04 - run.py - <module> - INFO - Start Execution ... 
+2020-01-06 11:57:04 - run.py - <module> - INFO - SETUP global variables
+2020-01-06 11:57:04 - run.py - <module> - INFO - CREATE pipeline
+2020-01-06 11:57:04 - run.py - <module> - INFO - SETUP pipeline
+2020-01-06 11:57:04 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E691E88>
+2020-01-06 11:57:04 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E73EEF0>
+2020-01-06 11:57:04 - run.py - <module> - INFO - checking module definition
+2020-01-06 11:57:04 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E691E88> is well defined
+2020-01-06 11:57:04 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E73EEF0> is well defined
+2020-01-06 11:57:04 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E691E88>
+2020-01-06 11:57:04 - run.py - <module> - INFO - *********Started executing DB
+2020-01-06 11:57:04 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-06 11:57:04 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E73EEF0>
+2020-01-06 11:57:04 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-06 12:00:07 - run.py - <module> - INFO - Start Execution ... 
+2020-01-06 12:00:07 - run.py - <module> - INFO - SETUP global variables
+2020-01-06 12:00:07 - run.py - <module> - INFO - CREATE pipeline
+2020-01-06 12:00:07 - run.py - <module> - INFO - SETUP pipeline
+2020-01-06 12:00:07 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EBF3848>
+2020-01-06 12:00:07 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EC29E80>
+2020-01-06 12:00:07 - run.py - <module> - INFO - checking module definition
+2020-01-06 12:00:07 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EBF3848> is well defined
+2020-01-06 12:00:07 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EC29E80> is well defined
+2020-01-06 12:00:07 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EBF3848>
+2020-01-06 12:00:07 - run.py - <module> - INFO - *********Started executing DB
+2020-01-06 12:00:07 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-06 12:00:07 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EC29E80>
+2020-01-06 12:00:07 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-06 12:04:07 - run.py - <module> - INFO - Start Execution ... 
+2020-01-06 12:04:07 - run.py - <module> - INFO - SETUP global variables
+2020-01-06 12:04:07 - run.py - <module> - INFO - CREATE pipeline
+2020-01-06 12:04:07 - run.py - <module> - INFO - SETUP pipeline
+2020-01-06 12:04:07 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E5D1AC8>
+2020-01-06 12:04:07 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E60AE48>
+2020-01-06 12:04:07 - run.py - <module> - INFO - checking module definition
+2020-01-06 12:04:07 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E5D1AC8> is well defined
+2020-01-06 12:04:07 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E60AE48> is well defined
+2020-01-06 12:04:07 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E5D1AC8>
+2020-01-06 12:04:07 - run.py - <module> - INFO - *********Started executing DB
+2020-01-06 12:04:07 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-06 12:04:07 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E60AE48>
+2020-01-06 12:04:07 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-09 08:44:11 - run.py - <module> - INFO - Start Execution ... 
+2020-01-09 08:44:11 - run.py - <module> - INFO - SETUP global variables
+2020-01-09 08:44:11 - run.py - <module> - INFO - CREATE pipeline
+2020-01-09 08:44:11 - run.py - <module> - INFO - SETUP pipeline
+2020-01-09 08:44:11 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EC1E408>
+2020-01-09 08:44:11 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDD3E80>
+2020-01-09 08:44:11 - run.py - <module> - INFO - checking module definition
+2020-01-09 08:44:11 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EC1E408> is well defined
+2020-01-09 08:44:11 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDD3E80> is well defined
+2020-01-09 08:44:11 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EC1E408>
+2020-01-09 08:44:11 - run.py - <module> - INFO - *********Started executing DB
+2020-01-09 08:44:11 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-09 08:44:11 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDD3E80>
+2020-01-09 08:44:11 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-09 19:14:38 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-10 08:08:38 - run.py - <module> - INFO - Start Execution ... 
+2020-01-10 08:08:38 - run.py - <module> - INFO - SETUP global variables
+2020-01-10 08:08:38 - run.py - <module> - INFO - CREATE pipeline
+2020-01-10 08:08:38 - run.py - <module> - INFO - SETUP pipeline
+2020-01-10 08:08:38 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E5F6FC8>
+2020-01-10 08:08:38 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E753F28>
+2020-01-10 08:08:38 - run.py - <module> - INFO - checking module definition
+2020-01-10 08:08:38 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E5F6FC8> is well defined
+2020-01-10 08:08:38 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E753F28> is well defined
+2020-01-10 08:08:38 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E5F6FC8>
+2020-01-10 08:08:38 - run.py - <module> - INFO - *********Started executing DB
+2020-01-10 08:08:38 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-10 08:08:38 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E753F28>
+2020-01-10 08:08:38 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-10 08:30:10 - run.py - <module> - INFO - Start Execution ... 
+2020-01-10 08:30:10 - run.py - <module> - INFO - SETUP global variables
+2020-01-10 08:30:10 - run.py - <module> - INFO - CREATE pipeline
+2020-01-10 08:30:10 - run.py - <module> - INFO - SETUP pipeline
+2020-01-10 08:30:10 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E5D9E48>
+2020-01-10 08:30:10 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E710E48>
+2020-01-10 08:30:10 - run.py - <module> - INFO - checking module definition
+2020-01-10 08:30:10 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E5D9E48> is well defined
+2020-01-10 08:30:10 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E710E48> is well defined
+2020-01-10 08:30:10 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E5D9E48>
+2020-01-10 08:30:10 - run.py - <module> - INFO - *********Started executing DB
+2020-01-10 08:30:10 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-10 08:30:10 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E710E48>
+2020-01-10 08:30:10 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-11 07:43:38 - run.py - <module> - INFO - Start Execution ... 
+2020-01-11 07:43:38 - run.py - <module> - INFO - SETUP global variables
+2020-01-11 07:43:38 - run.py - <module> - INFO - CREATE pipeline
+2020-01-11 07:43:38 - run.py - <module> - INFO - SETUP pipeline
+2020-01-11 07:43:38 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000019045188>
+2020-01-11 07:43:38 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EE1EE80>
+2020-01-11 07:43:38 - run.py - <module> - INFO - checking module definition
+2020-01-11 07:43:38 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000019045188> is well defined
+2020-01-11 07:43:38 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EE1EE80> is well defined
+2020-01-11 07:43:38 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000019045188>
+2020-01-11 07:43:38 - run.py - <module> - INFO - *********Started executing DB
+2020-01-11 07:43:38 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-11 07:43:38 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EE1EE80>
+2020-01-11 07:43:38 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-12 08:45:16 - run.py - <module> - INFO - Start Execution ... 
+2020-01-12 08:45:16 - run.py - <module> - INFO - SETUP global variables
+2020-01-12 08:45:16 - run.py - <module> - INFO - CREATE pipeline
+2020-01-12 08:45:16 - run.py - <module> - INFO - SETUP pipeline
+2020-01-12 08:45:16 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EC85808>
+2020-01-12 08:45:16 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDFBE80>
+2020-01-12 08:45:16 - run.py - <module> - INFO - checking module definition
+2020-01-12 08:45:16 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EC85808> is well defined
+2020-01-12 08:45:16 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDFBE80> is well defined
+2020-01-12 08:45:16 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EC85808>
+2020-01-12 08:45:16 - run.py - <module> - INFO - *********Started executing DB
+2020-01-12 08:45:16 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-12 08:45:16 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EDFBE80>
+2020-01-12 08:45:16 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-12 08:48:08 - run.py - <module> - INFO - Start Execution ... 
+2020-01-12 08:48:08 - run.py - <module> - INFO - SETUP global variables
+2020-01-12 08:48:08 - run.py - <module> - INFO - CREATE pipeline
+2020-01-12 08:48:08 - run.py - <module> - INFO - SETUP pipeline
+2020-01-12 08:48:08 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001F591DC8>
+2020-01-12 08:48:09 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F712EB8>
+2020-01-12 08:48:09 - run.py - <module> - INFO - checking module definition
+2020-01-12 08:48:09 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001F591DC8> is well defined
+2020-01-12 08:48:09 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F712EB8> is well defined
+2020-01-12 08:48:09 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001F591DC8>
+2020-01-12 08:48:09 - run.py - <module> - INFO - *********Started executing DB
+2020-01-12 08:48:09 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-12 08:48:09 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F712EB8>
+2020-01-12 08:48:09 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 09:33:25 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 09:33:25 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 09:33:25 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 09:33:25 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 09:33:25 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E4C8DC8>
+2020-01-13 09:33:25 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E6A1EF0>
+2020-01-13 09:33:25 - run.py - <module> - INFO - checking module definition
+2020-01-13 09:33:25 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E4C8DC8> is well defined
+2020-01-13 09:33:25 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E6A1EF0> is well defined
+2020-01-13 09:33:25 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E4C8DC8>
+2020-01-13 09:33:25 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 09:33:25 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 09:33:25 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E6A1EF0>
+2020-01-13 09:33:25 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 10:23:13 - method_executor.py - execute - ERROR - Error: DB instance has no attribute 'convert_twitter_users_to_authors_and_save'
+2020-01-13 10:23:24 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-13 10:59:40 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 10:59:40 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 10:59:40 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 10:59:40 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 10:59:40 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EF28808>
+2020-01-13 10:59:40 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F092F98>
+2020-01-13 10:59:40 - run.py - <module> - INFO - checking module definition
+2020-01-13 10:59:40 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EF28808> is well defined
+2020-01-13 10:59:40 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F092F98> is well defined
+2020-01-13 10:59:40 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EF28808>
+2020-01-13 10:59:40 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 10:59:40 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 10:59:40 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F092F98>
+2020-01-13 10:59:40 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 11:48:57 - method_executor.py - execute - ERROR - Error: DB instance has no attribute '_db'
+2020-01-13 11:49:02 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-13 12:18:44 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 12:18:44 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 12:18:44 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 12:18:44 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 12:18:44 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E54A748>
+2020-01-13 12:18:44 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E4EEF28>
+2020-01-13 12:18:44 - run.py - <module> - INFO - checking module definition
+2020-01-13 12:18:44 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E54A748> is well defined
+2020-01-13 12:18:44 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E4EEF28> is well defined
+2020-01-13 12:18:44 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E54A748>
+2020-01-13 12:18:44 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 12:18:44 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 12:18:44 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E4EEF28>
+2020-01-13 12:18:44 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 13:04:20 - method_executor.py - execute - ERROR - Error: DB instance has no attribute '_domain'
+2020-01-13 13:04:30 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-13 13:17:06 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 13:17:06 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 13:17:06 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 13:17:06 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 13:17:06 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001F526788>
+2020-01-13 13:17:06 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F548F28>
+2020-01-13 13:17:06 - run.py - <module> - INFO - checking module definition
+2020-01-13 13:17:06 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001F526788> is well defined
+2020-01-13 13:17:06 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F548F28> is well defined
+2020-01-13 13:17:06 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001F526788>
+2020-01-13 13:17:06 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 13:17:06 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 13:17:06 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F548F28>
+2020-01-13 13:17:06 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 14:26:25 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 14:26:25 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 14:26:25 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 14:26:25 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 14:26:25 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001F4B2A88>
+2020-01-13 14:26:25 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F4E4F28>
+2020-01-13 14:26:25 - run.py - <module> - INFO - checking module definition
+2020-01-13 14:26:25 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001F4B2A88> is well defined
+2020-01-13 14:26:25 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F4E4F28> is well defined
+2020-01-13 14:26:25 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001F4B2A88>
+2020-01-13 14:26:25 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 14:26:25 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 14:26:25 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001F4E4F28>
+2020-01-13 14:26:25 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 15:04:53 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 15:04:53 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 15:04:53 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 15:04:53 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 15:04:53 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EF58188>
+2020-01-13 15:04:53 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EEB5F60>
+2020-01-13 15:04:53 - run.py - <module> - INFO - checking module definition
+2020-01-13 15:04:53 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EF58188> is well defined
+2020-01-13 15:04:53 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EEB5F60> is well defined
+2020-01-13 15:04:53 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EF58188>
+2020-01-13 15:04:53 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 15:04:53 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 15:04:53 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EEB5F60>
+2020-01-13 15:04:53 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 16:19:44 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 16:19:44 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 16:19:44 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 16:19:44 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 16:19:44 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001EE4BD48>
+2020-01-13 16:19:44 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EE68978>
+2020-01-13 16:19:44 - run.py - <module> - INFO - checking module definition
+2020-01-13 16:19:44 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001EE4BD48> is well defined
+2020-01-13 16:19:44 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EE68978> is well defined
+2020-01-13 16:19:44 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001EE4BD48>
+2020-01-13 16:19:44 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 16:19:44 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 16:19:44 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001EE68978>
+2020-01-13 16:19:44 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-13 16:48:21 - run.py - <module> - INFO - Start Execution ... 
+2020-01-13 16:48:21 - run.py - <module> - INFO - SETUP global variables
+2020-01-13 16:48:21 - run.py - <module> - INFO - CREATE pipeline
+2020-01-13 16:48:21 - run.py - <module> - INFO - SETUP pipeline
+2020-01-13 16:48:21 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E4DDC88>
+2020-01-13 16:48:21 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E501F28>
+2020-01-13 16:48:21 - run.py - <module> - INFO - checking module definition
+2020-01-13 16:48:21 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E4DDC88> is well defined
+2020-01-13 16:48:21 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E501F28> is well defined
+2020-01-13 16:48:21 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E4DDC88>
+2020-01-13 16:48:21 - run.py - <module> - INFO - *********Started executing DB
+2020-01-13 16:48:21 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-13 16:48:21 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001E501F28>
+2020-01-13 16:48:21 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-14 19:07:45 - run.py - <module> - INFO - Start Execution ... 
+2020-01-14 19:07:45 - run.py - <module> - INFO - SETUP global variables
+2020-01-14 19:07:45 - run.py - <module> - INFO - CREATE pipeline
+2020-01-14 19:07:45 - run.py - <module> - INFO - SETUP pipeline
+2020-01-14 19:07:45 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001B19BEC8>
+2020-01-14 19:07:45 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001B197A90>
+2020-01-14 19:07:45 - run.py - <module> - INFO - checking module definition
+2020-01-14 19:07:45 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001B19BEC8> is well defined
+2020-01-14 19:07:45 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001B197A90> is well defined
+2020-01-14 19:07:45 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001B19BEC8>
+2020-01-14 19:07:45 - run.py - <module> - INFO - *********Started executing DB
+2020-01-14 19:07:45 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-14 19:07:45 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001B197A90>
+2020-01-14 19:07:45 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-14 20:21:14 - run.py - <module> - INFO - Start Execution ... 
+2020-01-14 20:21:14 - run.py - <module> - INFO - SETUP global variables
+2020-01-14 20:21:14 - run.py - <module> - INFO - CREATE pipeline
+2020-01-14 20:21:14 - run.py - <module> - INFO - SETUP pipeline
+2020-01-14 20:21:14 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000200D6FC8>
+2020-01-14 20:21:14 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020173A90>
+2020-01-14 20:21:14 - run.py - <module> - INFO - checking module definition
+2020-01-14 20:21:14 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000200D6FC8> is well defined
+2020-01-14 20:21:14 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020173A90> is well defined
+2020-01-14 20:21:14 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000200D6FC8>
+2020-01-14 20:21:14 - run.py - <module> - INFO - *********Started executing DB
+2020-01-14 20:21:14 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-14 20:21:14 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020173A90>
+2020-01-14 20:21:14 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-14 20:27:40 - run.py - <module> - INFO - Start Execution ... 
+2020-01-14 20:27:40 - run.py - <module> - INFO - SETUP global variables
+2020-01-14 20:27:40 - run.py - <module> - INFO - CREATE pipeline
+2020-01-14 20:27:40 - run.py - <module> - INFO - SETUP pipeline
+2020-01-14 20:27:40 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B07E48>
+2020-01-14 20:27:40 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020BBF9E8>
+2020-01-14 20:27:40 - run.py - <module> - INFO - checking module definition
+2020-01-14 20:27:40 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B07E48> is well defined
+2020-01-14 20:27:40 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020BBF9E8> is well defined
+2020-01-14 20:27:40 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B07E48>
+2020-01-14 20:27:40 - run.py - <module> - INFO - *********Started executing DB
+2020-01-14 20:27:40 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-14 20:27:40 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020BBF9E8>
+2020-01-14 20:27:40 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-14 20:58:06 - run.py - <module> - INFO - Start Execution ... 
+2020-01-14 20:58:06 - run.py - <module> - INFO - SETUP global variables
+2020-01-14 20:58:06 - run.py - <module> - INFO - CREATE pipeline
+2020-01-14 20:58:06 - run.py - <module> - INFO - SETUP pipeline
+2020-01-14 20:58:06 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A36DC8>
+2020-01-14 20:58:06 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000209E1A58>
+2020-01-14 20:58:06 - run.py - <module> - INFO - checking module definition
+2020-01-14 20:58:06 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A36DC8> is well defined
+2020-01-14 20:58:06 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000209E1A58> is well defined
+2020-01-14 20:58:06 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A36DC8>
+2020-01-14 20:58:06 - run.py - <module> - INFO - *********Started executing DB
+2020-01-14 20:58:06 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-14 20:58:06 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000209E1A58>
+2020-01-14 20:58:06 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-15 08:17:50 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 09:25:07 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 09:25:07 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 09:25:07 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 09:25:07 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 09:25:07 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020211388>
+2020-01-17 09:25:07 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A76AB70>
+2020-01-17 09:25:07 - run.py - <module> - INFO - checking module definition
+2020-01-17 09:25:07 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020211388> is well defined
+2020-01-17 09:25:07 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A76AB70> is well defined
+2020-01-17 09:25:07 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020211388>
+2020-01-17 09:25:07 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 09:25:07 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 09:25:07 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A76AB70>
+2020-01-17 09:25:07 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 09:26:02 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 09:26:02 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 09:26:02 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 09:26:02 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 09:26:02 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000002005CCC8>
+2020-01-17 09:26:02 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A656A90>
+2020-01-17 09:26:02 - run.py - <module> - INFO - checking module definition
+2020-01-17 09:26:02 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000002005CCC8> is well defined
+2020-01-17 09:26:02 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A656A90> is well defined
+2020-01-17 09:26:02 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000002005CCC8>
+2020-01-17 09:26:02 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 09:26:02 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 09:26:02 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A656A90>
+2020-01-17 09:26:02 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 09:26:26 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 09:26:26 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 09:26:26 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 09:26:26 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 09:26:26 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000202F87C8>
+2020-01-17 09:26:26 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A9D2B38>
+2020-01-17 09:26:26 - run.py - <module> - INFO - checking module definition
+2020-01-17 09:26:26 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000202F87C8> is well defined
+2020-01-17 09:26:26 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A9D2B38> is well defined
+2020-01-17 09:26:26 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000202F87C8>
+2020-01-17 09:26:26 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 09:26:26 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 09:26:26 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A9D2B38>
+2020-01-17 09:26:26 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 09:31:47 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 09:31:47 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 09:31:47 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 09:31:47 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 09:31:47 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020AF3748>
+2020-01-17 09:31:47 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ACFCB38>
+2020-01-17 09:31:47 - run.py - <module> - INFO - checking module definition
+2020-01-17 09:31:47 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020AF3748> is well defined
+2020-01-17 09:31:47 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ACFCB38> is well defined
+2020-01-17 09:31:47 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020AF3748>
+2020-01-17 09:31:47 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 09:31:47 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 09:31:47 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ACFCB38>
+2020-01-17 09:31:47 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 09:34:33 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 09:34:33 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 09:34:33 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 09:34:33 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 09:34:33 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000200CEF88>
+2020-01-17 09:34:33 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A6C6B70>
+2020-01-17 09:34:33 - run.py - <module> - INFO - checking module definition
+2020-01-17 09:34:33 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000200CEF88> is well defined
+2020-01-17 09:34:33 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A6C6B70> is well defined
+2020-01-17 09:34:33 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000200CEF88>
+2020-01-17 09:34:33 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 09:34:33 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 09:34:33 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A6C6B70>
+2020-01-17 09:34:33 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 09:58:37 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 09:58:37 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 09:58:37 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 09:58:37 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 09:58:37 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B2C348>
+2020-01-17 09:58:37 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AC80B38>
+2020-01-17 09:58:37 - run.py - <module> - INFO - checking module definition
+2020-01-17 09:58:37 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B2C348> is well defined
+2020-01-17 09:58:37 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AC80B38> is well defined
+2020-01-17 09:58:37 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B2C348>
+2020-01-17 09:58:37 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 09:58:37 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 09:58:37 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AC80B38>
+2020-01-17 09:58:37 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 09:58:38 - method_executor.py - execute - ERROR - Error: 'list' object has no attribute 'screen_name'
+2020-01-17 09:58:38 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 10:05:01 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 10:05:01 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 10:05:01 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 10:05:01 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 10:05:01 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201C2DC8>
+2020-01-17 10:05:01 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A5EEA90>
+2020-01-17 10:05:01 - run.py - <module> - INFO - checking module definition
+2020-01-17 10:05:01 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201C2DC8> is well defined
+2020-01-17 10:05:01 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A5EEA90> is well defined
+2020-01-17 10:05:01 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201C2DC8>
+2020-01-17 10:05:01 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 10:05:01 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 10:05:01 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A5EEA90>
+2020-01-17 10:05:01 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 10:06:32 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 10:06:32 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 10:06:32 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 10:06:32 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 10:06:32 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B30F08>
+2020-01-17 10:06:32 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF6AAC8>
+2020-01-17 10:06:32 - run.py - <module> - INFO - checking module definition
+2020-01-17 10:06:32 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B30F08> is well defined
+2020-01-17 10:06:32 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF6AAC8> is well defined
+2020-01-17 10:06:32 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B30F08>
+2020-01-17 10:06:32 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 10:06:32 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 10:06:32 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF6AAC8>
+2020-01-17 10:06:32 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 10:52:56 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 10:52:56 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 10:52:56 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 10:52:56 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 10:52:56 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A39CC8>
+2020-01-17 10:52:56 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ADF0B70>
+2020-01-17 10:52:56 - run.py - <module> - INFO - checking module definition
+2020-01-17 10:52:56 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A39CC8> is well defined
+2020-01-17 10:52:56 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ADF0B70> is well defined
+2020-01-17 10:52:56 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A39CC8>
+2020-01-17 10:52:56 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 10:52:56 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 10:52:56 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ADF0B70>
+2020-01-17 10:52:56 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 10:54:26 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 10:56:19 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 10:56:19 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 10:56:19 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 10:56:19 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 10:56:19 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020ADD308>
+2020-01-17 10:56:19 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF45B70>
+2020-01-17 10:56:19 - run.py - <module> - INFO - checking module definition
+2020-01-17 10:56:19 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020ADD308> is well defined
+2020-01-17 10:56:19 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF45B70> is well defined
+2020-01-17 10:56:19 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020ADD308>
+2020-01-17 10:56:19 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 10:56:19 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 10:56:19 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF45B70>
+2020-01-17 10:56:19 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 10:57:32 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 11:06:49 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 11:06:49 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 11:06:49 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 11:06:49 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 11:06:49 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A69D08>
+2020-01-17 11:06:49 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AD3BA90>
+2020-01-17 11:06:49 - run.py - <module> - INFO - checking module definition
+2020-01-17 11:06:49 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A69D08> is well defined
+2020-01-17 11:06:49 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AD3BA90> is well defined
+2020-01-17 11:06:49 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A69D08>
+2020-01-17 11:06:49 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 11:06:49 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 11:06:49 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AD3BA90>
+2020-01-17 11:06:49 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 11:11:14 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 11:11:14 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 11:11:14 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 11:11:15 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 11:11:15 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B0E588>
+2020-01-17 11:11:15 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF4EA58>
+2020-01-17 11:11:15 - run.py - <module> - INFO - checking module definition
+2020-01-17 11:11:15 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B0E588> is well defined
+2020-01-17 11:11:15 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF4EA58> is well defined
+2020-01-17 11:11:15 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B0E588>
+2020-01-17 11:11:15 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 11:11:15 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 11:11:15 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF4EA58>
+2020-01-17 11:11:15 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 11:39:38 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 11:39:38 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 11:39:38 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 11:39:38 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 11:39:38 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001FA50688>
+2020-01-17 11:39:39 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A1ECC18>
+2020-01-17 11:39:39 - run.py - <module> - INFO - checking module definition
+2020-01-17 11:39:39 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001FA50688> is well defined
+2020-01-17 11:39:39 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A1ECC18> is well defined
+2020-01-17 11:39:39 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001FA50688>
+2020-01-17 11:39:39 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 11:39:39 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 11:39:39 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A1ECC18>
+2020-01-17 11:39:39 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 11:42:03 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 11:42:03 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 11:42:03 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 11:42:03 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 11:42:03 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A33148>
+2020-01-17 11:42:03 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AAA2A90>
+2020-01-17 11:42:03 - run.py - <module> - INFO - checking module definition
+2020-01-17 11:42:03 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A33148> is well defined
+2020-01-17 11:42:03 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AAA2A90> is well defined
+2020-01-17 11:42:03 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A33148>
+2020-01-17 11:42:03 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 11:42:03 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 11:42:03 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AAA2A90>
+2020-01-17 11:42:03 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 11:43:38 - method_executor.py - execute - ERROR - Error: 'list' object has no attribute 'screen_name'
+2020-01-17 11:45:17 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 11:45:17 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 11:45:17 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 11:45:17 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 11:45:17 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000200B7188>
+2020-01-17 11:45:17 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A43ABE0>
+2020-01-17 11:45:17 - run.py - <module> - INFO - checking module definition
+2020-01-17 11:45:17 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000200B7188> is well defined
+2020-01-17 11:45:17 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A43ABE0> is well defined
+2020-01-17 11:45:17 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000200B7188>
+2020-01-17 11:45:17 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 11:45:17 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 11:45:17 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A43ABE0>
+2020-01-17 11:45:17 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 11:56:06 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 11:56:06 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 11:56:06 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 11:56:06 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 11:56:06 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000209C8B88>
+2020-01-17 11:56:06 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF34BE0>
+2020-01-17 11:56:06 - run.py - <module> - INFO - checking module definition
+2020-01-17 11:56:06 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000209C8B88> is well defined
+2020-01-17 11:56:06 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF34BE0> is well defined
+2020-01-17 11:56:06 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000209C8B88>
+2020-01-17 11:56:06 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 11:56:06 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 11:56:06 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF34BE0>
+2020-01-17 11:56:06 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:01:34 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:01:34 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:01:34 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:01:34 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:01:34 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B07788>
+2020-01-17 12:01:34 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AE3FAC8>
+2020-01-17 12:01:34 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:01:34 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B07788> is well defined
+2020-01-17 12:01:34 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AE3FAC8> is well defined
+2020-01-17 12:01:34 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B07788>
+2020-01-17 12:01:34 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:01:34 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:01:34 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AE3FAC8>
+2020-01-17 12:01:34 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:07:06 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:07:06 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:07:06 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:07:06 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:07:06 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B8EF48>
+2020-01-17 12:07:06 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF7CBA8>
+2020-01-17 12:07:06 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:07:06 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B8EF48> is well defined
+2020-01-17 12:07:06 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF7CBA8> is well defined
+2020-01-17 12:07:06 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B8EF48>
+2020-01-17 12:07:06 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:07:06 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:07:06 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AF7CBA8>
+2020-01-17 12:07:06 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:10:22 - method_executor.py - execute - ERROR - Error: DB instance has no attribute '_db'
+2020-01-17 12:10:23 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 12:11:26 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:11:26 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:11:26 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:11:26 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:11:26 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000002024C908>
+2020-01-17 12:11:26 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A902AC8>
+2020-01-17 12:11:26 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:11:26 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000002024C908> is well defined
+2020-01-17 12:11:26 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A902AC8> is well defined
+2020-01-17 12:11:26 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000002024C908>
+2020-01-17 12:11:26 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:11:26 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:11:26 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A902AC8>
+2020-01-17 12:11:26 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:15:28 - schema_definition.py - add_authors - INFO - -- add_authors --
+2020-01-17 12:20:29 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:20:29 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:20:29 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:20:29 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:20:29 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B38888>
+2020-01-17 12:20:29 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ADF7BE0>
+2020-01-17 12:20:29 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:20:29 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B38888> is well defined
+2020-01-17 12:20:29 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ADF7BE0> is well defined
+2020-01-17 12:20:29 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B38888>
+2020-01-17 12:20:29 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:20:29 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:20:29 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001ADF7BE0>
+2020-01-17 12:20:29 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:23:46 - method_executor.py - execute - ERROR - Error: DB instance has no attribute 'save_author'
+2020-01-17 12:23:47 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 12:33:41 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:33:41 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:33:41 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:33:41 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:33:41 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000002010C7C8>
+2020-01-17 12:33:41 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A64AC18>
+2020-01-17 12:33:41 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:33:41 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000002010C7C8> is well defined
+2020-01-17 12:33:41 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A64AC18> is well defined
+2020-01-17 12:33:41 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000002010C7C8>
+2020-01-17 12:33:41 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:33:41 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:33:41 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A64AC18>
+2020-01-17 12:33:41 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:36:59 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 12:38:53 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:38:53 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:38:53 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:38:53 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:38:53 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020070248>
+2020-01-17 12:38:53 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A78EC18>
+2020-01-17 12:38:53 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:38:53 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020070248> is well defined
+2020-01-17 12:38:53 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A78EC18> is well defined
+2020-01-17 12:38:53 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020070248>
+2020-01-17 12:38:53 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:38:53 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:38:53 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A78EC18>
+2020-01-17 12:38:53 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:42:06 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 12:44:36 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:44:36 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:44:36 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:44:36 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:44:36 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201479C8>
+2020-01-17 12:44:36 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A2C6B00>
+2020-01-17 12:44:36 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:44:36 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201479C8> is well defined
+2020-01-17 12:44:36 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A2C6B00> is well defined
+2020-01-17 12:44:36 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201479C8>
+2020-01-17 12:44:36 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:44:36 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:44:36 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A2C6B00>
+2020-01-17 12:44:36 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:48:01 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 12:50:24 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 12:50:24 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 12:50:24 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 12:50:24 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 12:50:24 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020AD1108>
+2020-01-17 12:50:24 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AFC8B00>
+2020-01-17 12:50:24 - run.py - <module> - INFO - checking module definition
+2020-01-17 12:50:24 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020AD1108> is well defined
+2020-01-17 12:50:24 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AFC8B00> is well defined
+2020-01-17 12:50:24 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020AD1108>
+2020-01-17 12:50:24 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 12:50:24 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 12:50:24 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001AFC8B00>
+2020-01-17 12:50:24 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 12:53:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:09:23 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 13:09:23 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 13:09:23 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 13:09:23 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 13:09:23 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020208D88>
+2020-01-17 13:09:23 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A8D6C88>
+2020-01-17 13:09:23 - run.py - <module> - INFO - checking module definition
+2020-01-17 13:09:23 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020208D88> is well defined
+2020-01-17 13:09:23 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A8D6C88> is well defined
+2020-01-17 13:09:23 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020208D88>
+2020-01-17 13:09:23 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 13:09:23 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 13:09:23 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A8D6C88>
+2020-01-17 13:09:23 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 13:16:54 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 13:16:54 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 13:16:54 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 13:16:54 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 13:16:54 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000200C1488>
+2020-01-17 13:16:54 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A632C50>
+2020-01-17 13:16:54 - run.py - <module> - INFO - checking module definition
+2020-01-17 13:16:54 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000200C1488> is well defined
+2020-01-17 13:16:54 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A632C50> is well defined
+2020-01-17 13:16:54 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000200C1488>
+2020-01-17 13:16:54 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 13:16:54 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 13:16:54 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A632C50>
+2020-01-17 13:16:54 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 13:27:14 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 13:27:14 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 13:27:14 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 13:27:14 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 13:27:14 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000002011C588>
+2020-01-17 13:27:14 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A36FE48>
+2020-01-17 13:27:14 - run.py - <module> - INFO - checking module definition
+2020-01-17 13:27:14 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000002011C588> is well defined
+2020-01-17 13:27:14 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A36FE48> is well defined
+2020-01-17 13:27:14 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000002011C588>
+2020-01-17 13:27:14 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 13:27:14 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 13:27:14 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A36FE48>
+2020-01-17 13:27:14 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 13:30:43 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:36:12 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:36:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:38:35 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:40:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:41:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:41:56 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:43:23 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:43:31 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 13:43:39 - method_executor.py - execute - ERROR - Error: 'User' object has no attribute 'profile_banner_url'
+2020-01-17 13:43:41 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 13:47:51 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 13:47:51 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 13:47:51 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 13:47:51 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 13:47:51 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201599C8>
+2020-01-17 13:47:51 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A416E48>
+2020-01-17 13:47:51 - run.py - <module> - INFO - checking module definition
+2020-01-17 13:47:51 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201599C8> is well defined
+2020-01-17 13:47:51 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A416E48> is well defined
+2020-01-17 13:47:51 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201599C8>
+2020-01-17 13:47:51 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 13:47:51 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 13:47:51 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000001A416E48>
+2020-01-17 13:47:51 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 14:02:14 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:02:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:02:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:02:38 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:02:47 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:02:55 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:03 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:11 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:19 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:27 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:35 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:43 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:50 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:03:58 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:04:06 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:04:14 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:05:02 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:06:40 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:16:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:17:10 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:19:29 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:22:35 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:25:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:30:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:32:47 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:35:02 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:39:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:40:11 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:40:55 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:41:37 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:42:19 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:43:01 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:44:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:47:07 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:47:52 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:57:21 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 14:59:56 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 15:02:03 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 15:12:53 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 15:19:04 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 15:37:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-17 15:44:50 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:44:50 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:44:50 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:44:50 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:44:50 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000002011D488>
+2020-01-17 15:44:50 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002029BEF0>
+2020-01-17 15:44:50 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:44:50 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000002011D488> is well defined
+2020-01-17 15:44:50 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002029BEF0> is well defined
+2020-01-17 15:44:50 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000002011D488>
+2020-01-17 15:44:50 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:44:50 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:44:50 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002029BEF0>
+2020-01-17 15:44:50 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:46:50 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:46:50 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:46:50 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:46:50 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:46:50 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000200F9D48>
+2020-01-17 15:46:50 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000202BAF60>
+2020-01-17 15:46:50 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:46:50 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000200F9D48> is well defined
+2020-01-17 15:46:50 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000202BAF60> is well defined
+2020-01-17 15:46:50 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000200F9D48>
+2020-01-17 15:46:50 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:46:50 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:46:50 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000202BAF60>
+2020-01-17 15:46:50 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:47:55 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:47:55 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:47:55 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:47:55 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:47:55 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A60808>
+2020-01-17 15:47:55 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C2DEF0>
+2020-01-17 15:47:55 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:47:55 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A60808> is well defined
+2020-01-17 15:47:55 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C2DEF0> is well defined
+2020-01-17 15:47:55 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A60808>
+2020-01-17 15:47:55 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:47:55 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:47:55 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C2DEF0>
+2020-01-17 15:47:55 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:47:56 - method_executor.py - execute - ERROR - Error: type object 'datetime.time' has no attribute 'sleep'
+2020-01-17 15:47:56 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 15:51:48 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:51:48 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:51:48 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:51:48 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:51:48 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020B1C348>
+2020-01-17 15:51:48 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020CCFEB8>
+2020-01-17 15:51:48 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:51:48 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020B1C348> is well defined
+2020-01-17 15:51:48 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020CCFEB8> is well defined
+2020-01-17 15:51:48 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020B1C348>
+2020-01-17 15:51:48 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:51:48 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:51:48 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020CCFEB8>
+2020-01-17 15:51:48 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:51:48 - method_executor.py - execute - ERROR - Error: type object 'datetime.time' has no attribute 'sleep'
+2020-01-17 15:51:48 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 15:52:37 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:52:37 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:52:37 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:52:37 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:52:37 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000002010D088>
+2020-01-17 15:52:37 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002025BEB8>
+2020-01-17 15:52:37 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:52:37 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000002010D088> is well defined
+2020-01-17 15:52:37 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002025BEB8> is well defined
+2020-01-17 15:52:37 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000002010D088>
+2020-01-17 15:52:37 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:52:37 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:52:37 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002025BEB8>
+2020-01-17 15:52:37 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:53:22 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:53:22 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:53:22 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:53:22 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:53:22 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020137908>
+2020-01-17 15:53:22 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020304EF0>
+2020-01-17 15:53:22 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:53:22 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020137908> is well defined
+2020-01-17 15:53:22 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020304EF0> is well defined
+2020-01-17 15:53:22 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020137908>
+2020-01-17 15:53:22 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:53:22 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:53:22 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020304EF0>
+2020-01-17 15:53:22 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:54:15 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:54:15 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:54:15 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:54:15 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:54:15 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020131C08>
+2020-01-17 15:54:15 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002029CF60>
+2020-01-17 15:54:15 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:54:15 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020131C08> is well defined
+2020-01-17 15:54:15 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002029CF60> is well defined
+2020-01-17 15:54:15 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020131C08>
+2020-01-17 15:54:15 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:54:15 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:54:15 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002029CF60>
+2020-01-17 15:54:15 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:56:21 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:56:21 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:56:21 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:56:21 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:56:21 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020118908>
+2020-01-17 15:56:21 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020302F60>
+2020-01-17 15:56:21 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:56:21 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020118908> is well defined
+2020-01-17 15:56:21 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020302F60> is well defined
+2020-01-17 15:56:21 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020118908>
+2020-01-17 15:56:21 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:56:21 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:56:21 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020302F60>
+2020-01-17 15:56:21 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:57:01 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:57:01 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:57:01 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:57:01 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:57:01 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201231C8>
+2020-01-17 15:57:01 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002027FF98>
+2020-01-17 15:57:01 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:57:01 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201231C8> is well defined
+2020-01-17 15:57:01 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002027FF98> is well defined
+2020-01-17 15:57:01 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201231C8>
+2020-01-17 15:57:01 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:57:01 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:57:01 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002027FF98>
+2020-01-17 15:57:01 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:57:25 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:57:25 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:57:25 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:57:25 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:57:25 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201A4A88>
+2020-01-17 15:57:25 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002032FF98>
+2020-01-17 15:57:25 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:57:25 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201A4A88> is well defined
+2020-01-17 15:57:25 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002032FF98> is well defined
+2020-01-17 15:57:25 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201A4A88>
+2020-01-17 15:57:25 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:57:25 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:57:25 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002032FF98>
+2020-01-17 15:57:25 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:58:19 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:58:19 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:58:19 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:58:19 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:58:19 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201A2D48>
+2020-01-17 15:58:19 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020352F28>
+2020-01-17 15:58:19 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:58:19 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201A2D48> is well defined
+2020-01-17 15:58:19 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020352F28> is well defined
+2020-01-17 15:58:19 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201A2D48>
+2020-01-17 15:58:19 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:58:19 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:58:19 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020352F28>
+2020-01-17 15:58:19 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:58:37 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:58:37 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:58:37 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:58:37 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:58:37 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201D0748>
+2020-01-17 15:58:37 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002038FF98>
+2020-01-17 15:58:37 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:58:37 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201D0748> is well defined
+2020-01-17 15:58:37 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002038FF98> is well defined
+2020-01-17 15:58:37 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201D0748>
+2020-01-17 15:58:37 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:58:37 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:58:37 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x000000002038FF98>
+2020-01-17 15:58:37 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:59:14 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:59:14 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:59:14 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:59:14 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:59:14 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000200F9488>
+2020-01-17 15:59:14 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000202B7FD0>
+2020-01-17 15:59:14 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:59:14 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000200F9488> is well defined
+2020-01-17 15:59:14 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000202B7FD0> is well defined
+2020-01-17 15:59:14 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000200F9488>
+2020-01-17 15:59:14 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:59:14 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:59:14 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000202B7FD0>
+2020-01-17 15:59:14 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 15:59:34 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 15:59:34 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 15:59:34 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 15:59:34 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 15:59:34 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000209B5848>
+2020-01-17 15:59:34 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C81978>
+2020-01-17 15:59:34 - run.py - <module> - INFO - checking module definition
+2020-01-17 15:59:34 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000209B5848> is well defined
+2020-01-17 15:59:34 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C81978> is well defined
+2020-01-17 15:59:34 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000209B5848>
+2020-01-17 15:59:34 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 15:59:34 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 15:59:34 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C81978>
+2020-01-17 15:59:34 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 16:00:10 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 16:00:10 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 16:00:10 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 16:00:10 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 16:00:10 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000002007AFC8>
+2020-01-17 16:00:10 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020287F28>
+2020-01-17 16:00:10 - run.py - <module> - INFO - checking module definition
+2020-01-17 16:00:10 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000002007AFC8> is well defined
+2020-01-17 16:00:10 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020287F28> is well defined
+2020-01-17 16:00:10 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000002007AFC8>
+2020-01-17 16:00:10 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 16:00:10 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 16:00:10 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020287F28>
+2020-01-17 16:00:10 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 16:17:03 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 16:17:03 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 16:17:03 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 16:17:03 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 16:17:03 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020AA7808>
+2020-01-17 16:17:03 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C55EF0>
+2020-01-17 16:17:03 - run.py - <module> - INFO - checking module definition
+2020-01-17 16:17:03 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020AA7808> is well defined
+2020-01-17 16:17:03 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C55EF0> is well defined
+2020-01-17 16:17:03 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020AA7808>
+2020-01-17 16:17:03 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 16:17:03 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 16:17:03 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C55EF0>
+2020-01-17 16:17:03 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 16:53:45 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 16:53:45 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 16:53:45 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 16:53:45 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 16:53:45 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020118088>
+2020-01-17 16:53:45 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020359EB8>
+2020-01-17 16:53:45 - run.py - <module> - INFO - checking module definition
+2020-01-17 16:53:45 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020118088> is well defined
+2020-01-17 16:53:45 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020359EB8> is well defined
+2020-01-17 16:53:45 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020118088>
+2020-01-17 16:53:45 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 16:53:45 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 16:53:45 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020359EB8>
+2020-01-17 16:53:45 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 17:17:27 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 17:17:27 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 17:17:27 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 17:17:27 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 17:17:27 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A94508>
+2020-01-17 17:17:27 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020D1BE80>
+2020-01-17 17:17:27 - run.py - <module> - INFO - checking module definition
+2020-01-17 17:17:27 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A94508> is well defined
+2020-01-17 17:17:27 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020D1BE80> is well defined
+2020-01-17 17:17:27 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A94508>
+2020-01-17 17:17:27 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 17:17:27 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 17:17:27 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020D1BE80>
+2020-01-17 17:17:27 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 18:08:01 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-17 18:13:49 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 18:13:49 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 18:13:49 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 18:13:49 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 18:13:49 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000201F0988>
+2020-01-17 18:13:49 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000203E4E48>
+2020-01-17 18:13:49 - run.py - <module> - INFO - checking module definition
+2020-01-17 18:13:49 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000201F0988> is well defined
+2020-01-17 18:13:49 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000203E4E48> is well defined
+2020-01-17 18:13:49 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000201F0988>
+2020-01-17 18:13:49 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 18:13:49 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 18:13:49 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x00000000203E4E48>
+2020-01-17 18:13:49 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 18:34:03 - run.py - <module> - INFO - Start Execution ... 
+2020-01-17 18:34:03 - run.py - <module> - INFO - SETUP global variables
+2020-01-17 18:34:03 - run.py - <module> - INFO - CREATE pipeline
+2020-01-17 18:34:03 - run.py - <module> - INFO - SETUP pipeline
+2020-01-17 18:34:03 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x00000000202BC288>
+2020-01-17 18:34:03 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020265E80>
+2020-01-17 18:34:03 - run.py - <module> - INFO - checking module definition
+2020-01-17 18:34:03 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x00000000202BC288> is well defined
+2020-01-17 18:34:03 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020265E80> is well defined
+2020-01-17 18:34:03 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x00000000202BC288>
+2020-01-17 18:34:03 - run.py - <module> - INFO - *********Started executing DB
+2020-01-17 18:34:03 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-17 18:34:03 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020265E80>
+2020-01-17 18:34:03 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-17 19:17:38 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-18 16:12:20 - run.py - <module> - INFO - Start Execution ... 
+2020-01-18 16:12:20 - run.py - <module> - INFO - SETUP global variables
+2020-01-18 16:12:20 - run.py - <module> - INFO - CREATE pipeline
+2020-01-18 16:12:20 - run.py - <module> - INFO - SETUP pipeline
+2020-01-18 16:12:20 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020AB7208>
+2020-01-18 16:12:20 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020B78E48>
+2020-01-18 16:12:20 - run.py - <module> - INFO - checking module definition
+2020-01-18 16:12:20 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020AB7208> is well defined
+2020-01-18 16:12:20 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020B78E48> is well defined
+2020-01-18 16:12:20 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020AB7208>
+2020-01-18 16:12:20 - run.py - <module> - INFO - *********Started executing DB
+2020-01-18 16:12:20 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-18 16:12:20 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020B78E48>
+2020-01-18 16:12:20 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-18 16:21:12 - run.py - <module> - INFO - Start Execution ... 
+2020-01-18 16:21:12 - run.py - <module> - INFO - SETUP global variables
+2020-01-18 16:21:12 - run.py - <module> - INFO - CREATE pipeline
+2020-01-18 16:21:12 - run.py - <module> - INFO - SETUP pipeline
+2020-01-18 16:21:12 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x0000000020A89BC8>
+2020-01-18 16:21:12 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C59EB8>
+2020-01-18 16:21:12 - run.py - <module> - INFO - checking module definition
+2020-01-18 16:21:12 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x0000000020A89BC8> is well defined
+2020-01-18 16:21:12 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C59EB8> is well defined
+2020-01-18 16:21:12 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x0000000020A89BC8>
+2020-01-18 16:21:12 - run.py - <module> - INFO - *********Started executing DB
+2020-01-18 16:21:12 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-18 16:21:12 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000020C59EB8>
+2020-01-18 16:21:12 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-18 16:22:33 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:22:45 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:24:00 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:26:55 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:29:40 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:32:24 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:35:14 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:40:45 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:46:13 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:48:59 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 16:57:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:01:48 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:06:20 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:08:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:10:13 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:11:02 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:12:31 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:13:56 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:15:21 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:16:45 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:18:09 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:19:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:25:07 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:26:33 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:29:19 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:33:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:34:42 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:35:56 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:38:23 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:39:37 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:40:57 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:44:21 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:44:48 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:45:29 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:47:58 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:49:24 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:49:35 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:50:17 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:51:00 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:51:42 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:52:23 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:53:09 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:54:29 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 17:59:47 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:01:06 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:02:58 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:06:36 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:08:52 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:08:58 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:09:10 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:09:23 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:09:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:09:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:11:20 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:13:01 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:16:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:18:04 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:25:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:25:59 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:26:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:26:49 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:27:01 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:27:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:30:42 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:31:56 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:32:11 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:33:31 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:35:52 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:41:50 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:41:59 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:42:05 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:42:11 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:44:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:46:29 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:48:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:50:33 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 18:56:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:00:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:02:36 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:04:37 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:06:38 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:08:44 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:10:41 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:16:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:18:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:19:46 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:20:58 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:22:09 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:23:20 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:23:41 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:28:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:29:48 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:32:02 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:32:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:33:17 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:33:54 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:38:17 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:38:26 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:38:36 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:38:44 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:38:52 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:39:00 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:39:07 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:39:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:39:31 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:39:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:39:49 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:40:07 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:41:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:43:06 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:43:31 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:45:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:47:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:47:42 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:48:12 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:49:12 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:49:29 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:49:43 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:51:10 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:51:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:51:47 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:51:57 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:52:06 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:52:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:52:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:52:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:52:50 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:54:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:55:18 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:55:40 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:56:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:56:44 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:57:05 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:57:44 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 19:58:36 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:00:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:01:50 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:03:09 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:04:32 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:06:36 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:08:38 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:08:55 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:12:09 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:14:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:15:57 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:20:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:22:15 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:23:02 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:25:33 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:27:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:28:59 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:30:41 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:32:24 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:35:24 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:40:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:41:31 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:43:57 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:46:25 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:47:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:49:47 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:51:05 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:52:21 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:53:36 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:54:51 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:56:04 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:57:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:58:30 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 20:59:43 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 21:00:56 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 21:05:41 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 21:06:54 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-18 21:08:10 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 06:42:43 - run.py - <module> - INFO - Start Execution ... 
+2020-01-19 06:42:43 - run.py - <module> - INFO - SETUP global variables
+2020-01-19 06:42:43 - run.py - <module> - INFO - CREATE pipeline
+2020-01-19 06:42:43 - run.py - <module> - INFO - SETUP pipeline
+2020-01-19 06:42:43 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001E985748>
+2020-01-19 06:42:43 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018D5CE10>
+2020-01-19 06:42:43 - run.py - <module> - INFO - checking module definition
+2020-01-19 06:42:43 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001E985748> is well defined
+2020-01-19 06:42:43 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018D5CE10> is well defined
+2020-01-19 06:42:43 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001E985748>
+2020-01-19 06:42:43 - run.py - <module> - INFO - *********Started executing DB
+2020-01-19 06:42:43 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-19 06:42:43 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000018D5CE10>
+2020-01-19 06:42:43 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-19 07:57:25 - run.py - <module> - INFO - *********Finished executing CommentManager
+2020-01-19 08:09:38 - run.py - <module> - INFO - Start Execution ... 
+2020-01-19 08:09:38 - run.py - <module> - INFO - SETUP global variables
+2020-01-19 08:09:38 - run.py - <module> - INFO - CREATE pipeline
+2020-01-19 08:09:38 - run.py - <module> - INFO - SETUP pipeline
+2020-01-19 08:09:38 - run.py - <module> - INFO - setup module: <DB.schema_definition.DB instance at 0x000000001F26ADC8>
+2020-01-19 08:09:38 - run.py - <module> - INFO - setup module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000019945E48>
+2020-01-19 08:09:38 - run.py - <module> - INFO - checking module definition
+2020-01-19 08:09:38 - run.py - <module> - INFO - module <DB.schema_definition.DB instance at 0x000000001F26ADC8> is well defined
+2020-01-19 08:09:38 - run.py - <module> - INFO - module <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000019945E48> is well defined
+2020-01-19 08:09:38 - run.py - <module> - INFO - execute module: <DB.schema_definition.DB instance at 0x000000001F26ADC8>
+2020-01-19 08:09:38 - run.py - <module> - INFO - *********Started executing DB
+2020-01-19 08:09:38 - run.py - <module> - INFO - *********Finished executing DB
+2020-01-19 08:09:38 - run.py - <module> - INFO - execute module: <dataset_builder.activity_manager.comment_manager.CommentManager object at 0x0000000019945E48>
+2020-01-19 08:09:38 - run.py - <module> - INFO - *********Started executing CommentManager
+2020-01-19 11:29:07 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:30:11 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:33:16 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:34:18 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:35:21 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:38:25 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:39:27 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:41:31 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:42:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:43:36 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:44:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:48:44 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:49:47 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:50:50 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:51:53 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:52:59 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:54:01 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:55:04 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:57:08 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 11:58:11 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:00:15 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:02:19 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:04:22 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:05:25 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:07:28 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:11:23 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:19:02 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:20:23 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:22:59 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:24:25 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:25:07 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:25:25 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:28:07 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:31:20 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:33:34 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:34:39 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:35:23 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:36:05 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:38:10 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:39:55 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:41:37 - schema_definition.py - add_new_author - INFO - -- add_author --
+2020-01-19 12:42:20 - schema_definition.py - add_new_author - INFO - -- add_author --
