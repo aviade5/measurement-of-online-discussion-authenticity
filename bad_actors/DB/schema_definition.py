@@ -19,6 +19,7 @@ from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from commons.commons import *
+from commons.commons import generate_random_guid
 from commons.consts import DB_Insertion_Type, Author_Type, Author_Connection_Type
 import re
 import itertools
@@ -149,6 +150,19 @@ class TempAuthorConnection(Base):
         return "<TempAuthorConnection(source_author_osn_id='%s', destination_author_osn_id='%s', connection_type='%s', " \
                "weight='%s', insertion_date='%s')>" % (self.source_author_osn_id, self.destination_author_osn_id,
                                                        self.connection_type, self.weight, self.insertion_date)
+class Activity(Base):
+    __tablename__ = 'activities'
+
+    activity_id = Column(Unicode, index=True)
+    activity_guid = Column(Unicode, primary_key=True, index=True)
+    author_id = Column(Unicode, default=None)
+    source = Column(Unicode, default=None)
+    destination = Column(Unicode, default=None)
+    type = Column(Unicode, default=None)
+    domain = Column(Unicode, default=None)
+    social_network_name = Column(Unicode, default=None)
+    description = Column(Unicode, default=None)
+    date = Column(dt, default=None)
 
 
 class PostRetweeterConnection(Base):
@@ -4528,3 +4542,51 @@ class DB():
         posts = self.session.execute(query, params=dict(id=id))
         posts = [i[0] for i in posts]
         return posts
+
+    def get_author_guid_by_screen_name(self,author_screen_name):
+        query = 'SELECT  author_guid from authors where author_screen_name = :author_screen_name'
+        posts = self.session.execute(query, params=dict(author_screen_name=author_screen_name))
+        posts = [p[0] for p in posts]
+        if(len(posts)==1):
+           return posts[0]
+        else:
+            return posts
+
+    def create_activity(self,author_id, source, destination, _type, domain, description, date,network_name,activity_id=None,
+                         activity_guid=None):
+        if activity_guid is None:
+            activity_guid = generate_random_guid()
+            return Activity(activity_id=activity_id, activity_guid=activity_guid,author_id=author_id,source=source,
+                            description=description,
+                            destination=destination, type=_type, domain=domain, date=date,
+                            social_network_name=network_name)
+
+
+    def get_published_posts_from_activity(self,user_id):
+        query = 'SELECT  destination from activities where author_id = :user_id'
+        posts = self.session.execute(query, params=dict(user_id=user_id))
+        posts = ["http://twitter.com/ohenmanchOfir/status/"+str(p[0]) for p in posts]
+        return posts
+
+    def get_post_source_from_activity(self,user_id,destination):
+        query = 'SELECT  source from activities where author_id = :user_id and destination = :destination'
+        posts = self.session.execute(query, params=dict(user_id=user_id, destination=destination))
+        posts = [p[0] for p in posts]
+        return posts
+
+    def check_if_post_sent(self,post,user_id):
+        source = post.post_osn_id
+        query = 'SELECT  activity_guid from activities where author_id = :user_id and source=:source'
+        posts = self.session.execute(query, params=dict(user_id=user_id,source=source))
+        posts = [p[0] for p in posts]
+        if (len(posts) >= 1):
+            return True
+        else:
+            return False
+
+    def get_username(self,post_osn_id):
+
+        query = 'SELECT author from posts where post_osn_id = :post_osn_id'
+        posts = self.session.execute(query, params=dict(post_osn_id=post_osn_id))
+        username = [p[0] for p in posts][0]
+        return username

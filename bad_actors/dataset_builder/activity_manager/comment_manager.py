@@ -142,7 +142,7 @@ class CommentManager(Method_Executor):
         posts = []
         for post in all_posts:
             past = post.date + timedelta(days=7)
-            if past > datetime.now():
+            if past > datetime.now()and post.author=="LFCUSA":
                 posts.append(post)
         self._insert_replies(posts)
 
@@ -167,8 +167,8 @@ class CommentManager(Method_Executor):
     #
     #             for page in tweepy.Cursor(self.api.followers_ids, screen_name=author_screen_name).pages():
     #               ids.extend(page)
-    #
-    #             for id in ids:
+    #; CXC
+    #             for id in idsN:
     #                      connections = []
     #                      if(self._db.is_author_exist(id)==True):
     #                             author_conn = self._db.create_connections(author_guid, self._db.get_author_id(id)[0] , "follower")
