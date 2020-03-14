@@ -18,7 +18,7 @@ from data_exporter.data_exporter import DataExporter
 from dataset_builder.activity_manager.comment_manager import CommentManager
 from data_exporter.data_exporter import DataExporter
 from dataset_builder.activity_manager.post_manager import PostManager
-
+from dataset_builder.activity_manager.influence_manager import InfluenceManager
 from dataset_builder.graph_builders.bag_of_words_graph_builders.bag_of_words_graph_builder_all_combinations import \
     Bag_Of_Words_Graph_Builder_All_Combinations
 from dataset_builder.graph_builders.bag_of_words_graph_builders.bag_of_words_graph_builder_k_best import \
@@ -100,6 +100,7 @@ modules_dict["OCR_Extractor"] = OCR_Extractor
 modules_dict["TopicDistributionBuilder"] = TopicDistributionBuilder
 modules_dict["PostCitationCreator"] = PostCitationCreator
 modules_dict["CommentManager"] = CommentManager
+modules_dict["InfluenceManager"] = InfluenceManager
 modules_dict["PostManager"] = PostManager
 modules_dict["GraphBuilder_Citation"] = GraphBuilder_Citation
 modules_dict["GraphBuilder_CoCitation"] = GraphBuilder_CoCitation

@@ -4544,7 +4544,8 @@ class DB():
         return posts
 
     def get_author_guid_by_screen_name(self,author_screen_name):
-        query = 'SELECT  author_guid from authors where author_screen_name = :author_screen_name'
+        author_screen_name = ', '.join('"' + n + '"' for n in author_screen_name)
+        query = 'SELECT  author_guid from authors  where author_screen_name IN (' + author_screen_name +')'
         posts = self.session.execute(query, params=dict(author_screen_name=author_screen_name))
         posts = [p[0] for p in posts]
         if(len(posts)==1):
@@ -4552,6 +4553,7 @@ class DB():
         else:
             return posts
 
+        
     def create_activity(self,author_id, source, destination, _type, domain, description, date,network_name,activity_id=None,
                          activity_guid=None):
         if activity_guid is None:
@@ -4561,11 +4563,17 @@ class DB():
                             destination=destination, type=_type, domain=domain, date=date,
                             social_network_name=network_name)
 
-
-    def get_published_posts_from_activity(self,user_id):
+    def get_published_posts_from_activity(self, user_id):
         query = 'SELECT  destination from activities where author_id = :user_id'
+        username = self.get_author_screen_name(user_id)
         posts = self.session.execute(query, params=dict(user_id=user_id))
-        posts = ["http://twitter.com/ohenmanchOfir/status/"+str(p[0]) for p in posts]
+        posts = ["http://twitter.com/" + username + "/status/" + str(p[0]) for p in posts]
+        return posts
+
+    def get_author_screen_name(self, author_osn_id):
+        query = 'SELECT  author_screen_name from authors where author_osn_id=author_osn_id'
+        posts = self.session.execute(query, params=dict(author_osn_id=author_osn_id))
+        posts = [p[0] for p in posts][0]
         return posts
 
     def get_post_source_from_activity(self,user_id,destination):
@@ -4590,3 +4598,152 @@ class DB():
         posts = self.session.execute(query, params=dict(post_osn_id=post_osn_id))
         username = [p[0] for p in posts][0]
         return username
+
+    def get_author_posts_by_guid(self,author_guid):
+
+       res = ('select post_id,date from posts where author_guid=:author_guid and domain!="comment"')
+       posts = self.session.execute(res, params=dict(author_guid=author_guid))
+       posts = [i[0:2] for i in posts]
+       return posts
+
+    def get_content(self,posts_id):
+
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+       # res = ('select count(*) from posts where posts.content like :username and post_id IN (' + posts_ids + ')')
+        res = ('select post_id,content from posts where post_id IN (' + posts_ids + ')')
+        posts = self.session.execute(res, params=dict(posts_ids=posts_ids))
+        posts = [i for i in posts]
+        posts_keys=defaultdict(dict)
+        for x in posts:
+
+             l=x[1].split(" ")
+             j=set(l)
+             posts_keys[x[0]]=j
+        return posts_keys
+
+    def authors_data(self, authors):
+        authors = ', '.join('"' + n + '"' for n in authors)
+        query = 'SELECT author_guid,friends_count,followers_count, statuses_count,created_at,favourites_count from authors where author_guid IN ('+ authors +')'
+        posts = self.session.execute(query, params=dict(authors=authors))
+        posts = [p for p in posts]
+        res = {}
+        for post in posts:
+            try:
+                date = datetime.datetime.strptime(str(post[4]), "%a %b %d %H:%M:%S +0000 %Y")
+            except Exception as e:
+                date = datetime.datetime.strptime(str(post[4]), "%Y-%m-%d %H:%M:%S")
+
+            res[post[0]] = ( post[3], date, post[5], post[1], post[2])
+        return res
+
+    def get_screen_names(self):
+            query = 'SELECT author_guid,author_screen_name from authors'
+            posts = self.session.execute(query)
+            posts = {p[0]:p[1] for p in posts}
+            # if (len(posts) == 1):
+            #     return posts[0]
+
+            return posts
+
+    def get_authors_comments_counts(self,posts_id):
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+        query =  'SELECT posts.author_guid, author_connections.source_author_guid, count(author_connections.destination_author_guid) from author_connections INNER JOIN posts ON author_connections.source_author_guid= posts.guid where author_connections.connection_type="post_comment_connection" and  author_connections.source_author_guid IN (' + posts_ids + ') GROUP BY posts.author_guid,author_connections.source_author_guid'
+        posts = self.session.execute(query, params=dict(posts_id=posts_id))
+        posts = [(p[0],p[1],p[2]) for p in posts]
+
+
+        return posts
+
+    def get_comments(self, posts_id):
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+        query = 'SELECT posts.author_guid , author_connections.destination_author_guid, posts.retweet_count,posts.favorite_count from author_connections INNER JOIN posts ON author_connections.destination_author_guid= posts.guid  where  author_connections.connection_type="post_comment_connection" and author_connections.source_author_guid IN (' + posts_ids + ')'
+        posts = self.session.execute(query, params=dict(posts_id=posts_id))
+        comments = [i for i in posts]
+        # for p in posts:
+        #     guid = str(p[0])
+        #     a = guid[0:8]+'-'+guid[8:12]+'-'+guid[12:16]+'-'+guid[16:20]+'-'+guid[20:]
+        #     comments.append((a,p[1],p[2],p[3]))
+        return comments
+
+    def get_authors_comments(self, posts_id):
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+        query = 'SELECT * from posts where  post_id IN (' + posts_ids + ') and  domain= "comment"'
+        posts = self.session.execute(query, params=dict(posts_id=posts_id))
+        posts = [i for i in posts]
+        return posts
+
+    def get_posts(self, post_osn_id):
+       post_osn_id = ', '.join('"' + n + '"' for n in post_osn_id)
+       res = ('select author_guid,post_id,retweet_count,favorite_count,title,content from posts where post_id IN (' + post_osn_id +') and domain!="comment"')
+       posts = self.session.execute(res, params=dict(post_osn_id = post_osn_id))
+       res = []
+       for author_guid, post_id, retweet_count,favorite_count,title,content in posts:
+
+           prefix = str(content[0:2])
+           if prefix=="RT":
+               res.append((author_guid, post_id, 0, favorite_count,1))
+
+           else:
+               res.append((author_guid, post_id, retweet_count,favorite_count,0))
+       return res
+
+    def get_all_authors_guid(self):
+        res = ('select author_guid from authors')
+        posts = self.session.execute(res)
+        posts = [i[0] for i in posts]
+        return posts
+
+    def is_comment_exist(self,author_id,source,message):
+        query = 'SELECT  activity_guid from activities where author_id=author_id and source = :source and description=:message'
+        posts = self.session.execute(query, params=dict(author_id=author_id, message=message,source=source))
+        posts = [p[0] for p in posts]
+        if (len(posts) >= 1):
+            return True
+        else:
+            return False
+
+    def posts_statics(self, author_guid):
+            query = 'SELECT  author_guid,count(post_id), SUM(posts.retweet_count),SUM(posts.favorite_count),AVG(posts.retweet_count),AVG(posts.favorite_count) from posts where author_guid=:author_guid and content not like "RT @%"'
+            posts = self.session.execute(query, params=dict(author_guid=author_guid))
+            posts_without_retweet= []
+            for p in posts:
+                   posts_without_retweet.append([p[0],p[1],p[2],p[3],p[4],p[5]])
+            return posts_without_retweet
+
+
+    def posts_statics_from_date(self, author_guid,certain_date):
+              query = 'SELECT  author_guid,count(post_id), SUM(posts.retweet_count),SUM(posts.favorite_count),AVG(posts.retweet_count),AVG(posts.favorite_count) from posts where author_guid=:author_guid and content not like "RT @%" and  :certain_date<=date'
+              posts = self.session.execute(query, params=dict(author_guid=author_guid,certain_date=certain_date))
+              posts_without_retweet= []
+              for p in posts:
+                  posts_without_retweet.append([p[0],p[1],p[2],p[3],p[4],p[5]])
+              return posts_without_retweet
+
+
+    def source_destination(self):
+              query = 'SELECT  source, destination from activities'
+              posts = self.session.execute(query)
+              ids= {}
+              for p in posts:
+                 ids[p[1]]= p[0]
+              return ids
+
+
+    def posts_statics_from_date_for_specific_posts(self,post_ids):
+                post_ids = ', '.join('"' + str(n) + '"' for n in post_ids)
+
+
+                query = 'SELECT  count(post_id), SUM(posts.retweet_count),SUM(posts.favorite_count),AVG(posts.retweet_count),AVG(posts.favorite_count) from posts where content not like "RT @%" and post_osn_id IN (' + post_ids +')'
+                posts = self.session.execute(query)
+                posts_without_retweet= []
+                for p in posts:
+                    posts_without_retweet.append(["influencers",p[0],p[1],p[2],p[3],p[4]])
+                return posts_without_retweet
+
+    def posts_statics_guids(self, author_guid,certain_date):
+             query = 'SELECT  post_osn_id from posts where author_guid=:author_guid and content not like "RT @%" and  :certain_date<=date'
+             posts = self.session.execute(query, params=dict(author_guid=author_guid,certain_date=certain_date))
+             posts_without_retweet= []
+             for p in posts:
+                posts_without_retweet.append(str(p[0]))
+             return posts_without_retweet
