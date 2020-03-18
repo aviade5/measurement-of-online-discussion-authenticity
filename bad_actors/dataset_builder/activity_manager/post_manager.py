@@ -3,6 +3,7 @@ import schedule
 from datetime import timedelta, time
 from datetime import datetime
 import time
+from commons.commons import *
 from Twitter_API.twitter_api_requester import TwitterApiRequester
 from commons.method_executor import Method_Executor
 from selenium import webdriver
@@ -10,7 +11,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 from win32api import Sleep
 import math
 import pandas as pd
+from twitter.error import TwitterError
 import random
+import requests
+from social_network_crawler.social_network_crawler import SocialNetworkCrawler
+from twitter_rest_api.twitter_rest_api import Twitter_Rest_Api
+from commons.consts import DB_Insertion_Type
 
 
 
@@ -18,6 +24,8 @@ class PostManager(Method_Executor):
     def __init__(self, db):
         Method_Executor.__init__(self, db)
         self._twitter_api = TwitterApiRequester()
+        self._social_network_crawler = Twitter_Rest_Api(db)
+
         self._influence_strategy = self._config_parser.eval(self.__class__.__name__, "post_strategy")
         self._source_group = self._config_parser.eval(self.__class__.__name__, "source_group")
         self._target_group = self._config_parser.eval(self.__class__.__name__, "target_group")
@@ -84,17 +92,17 @@ class PostManager(Method_Executor):
             message = message + '\n' + "@" + self._target_group + '\n' + "#" + self._target_group +" "+ self.related_hashtags
             #message = message + '\n' + "#" + self._target_group + " #" + self._team + '\n' + "@" + self._target_group
             print(message)
-            print("test = ", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #print("test = ", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             if (coin >= self.retweet_precent):
                 try:
-                    self.publish_post(post, message, media)
+                    #self.publish_post(post, message, media)
                     flag = True
                 except:
                     flag = False
                     continue
             else:
                 try:
-                    self.retweet_post(post)
+                   # self.retweet_post(post)
                     flag = True
                 except:
                     flag = False
@@ -143,7 +151,11 @@ class PostManager(Method_Executor):
             post_exist = True
 
             while post_exist == True:
-                ans = team_posts_with_retweet[0]
+                if (len(team_posts_with_retweet) >= 1):
+                    ans = team_posts_with_retweet[0]
+                else:
+                    print("End of tweets")
+                    break
                 message = ans.content
                 while "@" + self._target_group in message:
                     if (len(team_posts_with_retweet) >= 1):
@@ -168,17 +180,22 @@ class PostManager(Method_Executor):
         minute_window = float(hours_in_a_day) / self.number_of_posts
         posts_num = 1
         coin = random.uniform(0, 1)
-        without_retweet, with_retweet = self.get_posts()
-        self.execute_post_process(without_retweet, with_retweet, coin)
 
-        while (self.number_of_posts > posts_num):
-            coin = random.uniform(0, 1)
-            posts_num = posts_num + 1
-            schedule.every(minute_window).minutes.do(self.execute_post_process, without_retweet, with_retweet, coin)
 
-            while True:
-                schedule.run_pending()
-                time.sleep(1)
+        while True:
+
+            self._convert_timeline_tweets_to_posts_for_author_screen_names(self._source_group)
+            without_retweet, with_retweet = self.get_posts()
+            self.execute_post_process(without_retweet, with_retweet, coin)
+
+            while (self.number_of_posts > posts_num):
+                coin = random.uniform(0, 1)
+                posts_num = posts_num + 1
+                schedule.every(minute_window).minutes.do(self.execute_post_process, without_retweet, with_retweet, coin)
+
+                while True:
+                    schedule.run_pending()
+                    time.sleep(1)
 
     def get_echo_comment(self, post_urls):
         options = webdriver.FirefoxOptions()
@@ -255,8 +272,67 @@ class PostManager(Method_Executor):
 
         result.to_csv(author_guid+".csv")
 
-    def check_if_post_is_sport_related(self, post):
+    def _convert_timeline_tweets_to_posts_for_author_screen_names(self, author_screen_names):
+        posts = []
+        for i, account_screen_name in enumerate(author_screen_names):
+            try:
+
+                timeline_tweets = self._social_network_crawler.get_timeline(account_screen_name, 3200)
+                if timeline_tweets is not None:
+                    print("\rSearching timeline tweets for author_guid: {0} {1}/{2} retrieved:{3}".format(
+                        account_screen_name, i,
+                        len(author_screen_names), len(timeline_tweets)),
+                          end='')
+                    for timeline_tweet in timeline_tweets:
+                        post = self._db.create_post_from_tweet_data_api(timeline_tweet, self._domain)
+                        posts.append(post)
+            except requests.exceptions.ConnectionError as errc:
+                x = 3
 
 
-        i=0
+            except TwitterError as e:
+                if e.message == "Not authorized.":
+                    logging.info("Not authorized for user id: {0}".format(account_screen_name))
+                    continue
+
+        self._db.addPosts(posts)
+        self.fill_data_for_sources()
+
+    def fill_author_guid_to_posts(self):
+        posts = self._db.get_all_posts()
+        num_of_posts = len(posts)
+        for i, post in enumerate(posts):
+            msg = "\rPosts to fill: [{0}/{1}]".format(i, num_of_posts)
+            print(msg, end="")
+            post.author_guid = compute_author_guid_by_author_name(post.author)
+        self._db.addPosts(posts)
+        self._db.insert_or_update_authors_from_posts(self._domain, {}, {})
+
+    def fill_data_for_sources(self):
+        print("---complete_missing_information_for_authors_by_screen_names ---")
+
+        twitter_author_screen_names = self._db.get_missing_data_twitter_screen_names_by_posts()
+        author_type = None
+        are_user_ids = False
+        inseration_type = DB_Insertion_Type.MISSING_DATA_COMPLEMENTOR
+        # retrieve_full_data_for_missing_users
+        i = 1
+        for author_screen_names in self._split_into_equal_chunks(twitter_author_screen_names, 10000):
+            twitter_users = self._social_network_crawler.handle_get_users_request(
+                author_screen_names, are_user_ids, author_type, inseration_type)
+
+            print('retrieve authors {}/{}'.format(i * 10000,
+                                                  len(twitter_author_screen_names)))
+            i += 1
+            self._social_network_crawler.save_authors_and_connections(twitter_users, author_type, inseration_type)
+
+        self.fill_author_guid_to_posts()
+
+        print("---complete_missing_information_for_authors_by_screen_names was completed!!!!---")
+        #logging.info("---complete_missing_information_for_authors_by_screen_names was completed!!!!---")
+
+    def _split_into_equal_chunks(self,elements, num_of_chunks):
+        """Yield successive n-sized chunks from l."""
+        for i in range(0, len(elements), num_of_chunks):
+            yield elements[i:i + num_of_chunks]
 

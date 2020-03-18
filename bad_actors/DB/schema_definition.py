@@ -905,6 +905,12 @@ class DB():
         entries = self.session.query(Post).all()
         return entries
 
+    def get_all_posts(self):
+        entries = self.session.query(Post).all()
+        return entries
+
+
+
     def get_claims(self):
         return self.session.query(Claim).all()
 
@@ -3553,6 +3559,28 @@ class DB():
                     timeline_importer_insertion_date=unicode(get_current_time_as_string()))
         return post
 
+    def create_post_from_tweet_data_api(self, tweet_data, domain):
+        author_name = tweet_data.user.screen_name
+        tweet_author_guid = compute_author_guid_by_author_name(author_name)
+        tweet_author_guid = tweet_author_guid
+        tweet_post_twitter_id = str(tweet_data.id)
+        tweet_url = generate_tweet_url(tweet_post_twitter_id, author_name)
+        tweet_creation_time = tweet_data.created_at
+        tweet_str_publication_date = extract_tweet_publiction_date(str(tweet_creation_time))
+        tweet_guid = compute_post_guid(post_url=tweet_url, author_name=author_name,
+                                       str_publication_date=tweet_str_publication_date)
+
+        post = Post(guid=tweet_guid, post_id=tweet_guid, url=unicode(tweet_url),
+                    date=str_to_date(tweet_str_publication_date),
+                    title=unicode(tweet_data.text), content=unicode(tweet_data.text),
+                    post_osn_id=tweet_post_twitter_id,
+                    author=unicode(author_name), author_guid=unicode(tweet_author_guid),
+                    domain=unicode(domain),
+                    retweet_count=unicode(tweet_data.retweet_count),
+                    favorite_count=unicode(tweet_data.favorite_count),
+                    timeline_importer_insertion_date=unicode(get_current_time_as_string()))
+        return post
+
     def create_connections(self, source_author_guid, destination_author_guid, connection_type):
 
         rec = AuthorConnection()
@@ -4475,16 +4503,16 @@ class DB():
         #self._db.save_author_connections(self._total_author_connections)
         #self._total_author_connections = []
 
-    def convert_twitter_users_to_authors(self, total_twitter_users, author_type, inseration_type):
-        print("---Converting Twitter users to authors---")
-        convert_twitter_users_to_authors_start_time = time.time()
-        authors = self.convert_twitter_user_to_author(total_twitter_users, "Microblog", author_type,
-                                                            inseration_type)
-        convert_twitter_users_to_authors_end_time = time.time()
-        convert_twitter_users_to_authors_time = convert_twitter_users_to_authors_end_time - convert_twitter_users_to_authors_start_time
-        print("Convert Twitter users to authors took in seconds: " + str(convert_twitter_users_to_authors_time))
-
-        return authors
+    # def convert_twitter_users_to_authors(self, total_twitter_users, author_type, inseration_type):
+    #     print("---Converting Twitter users to authors---")
+    #     convert_twitter_users_to_authors_start_time = time.time()
+    #     authors = self.convert_twitter_user_to_author(total_twitter_users, "Microblog", author_type,
+    #                                                         inseration_type)
+    #     convert_twitter_users_to_authors_end_time = time.time()
+    #     convert_twitter_users_to_authors_time = convert_twitter_users_to_authors_end_time - convert_twitter_users_to_authors_start_time
+    #     print("Convert Twitter users to authors took in seconds: " + str(convert_twitter_users_to_authors_time))
+    #
+    #     return authors
 
     def save_authors(self, authors):
         print("---Saving authors in DB---")

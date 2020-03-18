@@ -312,6 +312,10 @@ class InfluenceManager(Method_Executor):
         if (self._group_guid in authors_guid):  # guid of the group
             authors_guid.remove(self._group_guid)
 
+        team_posts = [a.post_id for a in self._db.get_posts_by_author_guid(self._group_guid)]
+        full_team_comments = self._db.get_comments(team_posts)
+        team_comments = [item[1] for item in full_team_comments]
+
         authors = self._db.authors_data(authors_guid)
         followers_data = self._db.get_author_connections_by_type("follower")
         usernames = self._db.get_screen_names()
@@ -353,9 +357,7 @@ class InfluenceManager(Method_Executor):
         print("Finished calculating created_at feature")
 
 
-        team_posts = [a.post_id for a in self._db.get_posts_by_author_guid(self._group_guid)]
-        full_team_comments = self._db.get_comments(team_posts)
-        team_comments = [item[1] for item in full_team_comments]
+
 
         if 'team_sum_of_mentions' in self._features:
             dfs.append(self._calculate_team_mentions(authors_guid, team_comments, usernames))

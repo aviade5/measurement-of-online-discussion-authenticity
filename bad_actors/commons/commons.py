@@ -602,3 +602,17 @@ def calculate_correctly_and_not_correctly_instances(confusion_matrix):
                 num_of_incorrect_instances += confusion_matrix[i][j]
 
     return num_of_correct_instances, num_of_incorrect_instances
+
+
+def extract_tweet_publiction_date(tweet_creation_time):
+    '''
+    :param tweet_creation_time: the time in which the tweet was published
+    :return: the publication date of the tweet as a string.
+    The time is CEST time.
+    the structure of the time signature: YYYY-MM-DD HH:MM:SS
+    '''
+    utc_repr = datetime.datetime.strptime(tweet_creation_time, '%a %b %d %H:%M:%S +0000 %Y')
+    cest_repr = utc_repr + timedelta(hours=2)
+    return str(cest_repr)
+
+

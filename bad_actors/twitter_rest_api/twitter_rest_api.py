@@ -291,8 +291,7 @@ class Twitter_Rest_Api(AbstractController):
     def convert_twitter_users_to_authors(self, total_twitter_users, author_type, inseration_type):
         print("---Converting Twitter users to authors---")
         convert_twitter_users_to_authors_start_time = time.time()
-        authors = self._db.convert_twitter_users_to_authors(total_twitter_users, self._domain, author_type,
-                                                            inseration_type)
+        authors = self._db.convert_twitter_users_to_authors(total_twitter_users, self._domain, author_type,inseration_type)
         convert_twitter_users_to_authors_end_time = time.time()
         convert_twitter_users_to_authors_time = convert_twitter_users_to_authors_end_time - convert_twitter_users_to_authors_start_time
         print("Convert Twitter users to authors took in seconds: " + str(convert_twitter_users_to_authors_time))
@@ -579,3 +578,7 @@ class Twitter_Rest_Api(AbstractController):
             author.author_type = author_type
         self._db.addPosts(posts)
         self._db.addPosts(authors)
+
+    def get_timeline(self, author_name, maximal_tweets_count_in_timeline):
+        timeline = self._twitter_api_requester.get_timeline(author_name, maximal_tweets_count_in_timeline)
+        return timeline
