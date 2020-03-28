@@ -4576,10 +4576,7 @@ class DB():
         query = 'SELECT  author_guid from authors  where author_screen_name IN (' + author_screen_name +')'
         posts = self.session.execute(query, params=dict(author_screen_name=author_screen_name))
         posts = [p[0] for p in posts]
-        if(len(posts)==1):
-           return posts[0]
-        else:
-            return posts
+        return posts
 
         
     def create_activity(self,author_id, source, destination, _type, domain, description, date,network_name,activity_id=None,

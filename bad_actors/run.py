@@ -16,6 +16,7 @@ from bad_actors_collector.bad_actors_collector import BadActorsCollector
 from configuration.config_class import getConfig
 from data_exporter.data_exporter import DataExporter
 from dataset_builder.activity_manager.comment_manager import CommentManager
+from dataset_builder.activity_manager.echo_comment_manager import EchoManager
 from data_exporter.data_exporter import DataExporter
 from dataset_builder.activity_manager.post_manager import PostManager
 from dataset_builder.activity_manager.influence_manager import InfluenceManager
@@ -100,6 +101,7 @@ modules_dict["OCR_Extractor"] = OCR_Extractor
 modules_dict["TopicDistributionBuilder"] = TopicDistributionBuilder
 modules_dict["PostCitationCreator"] = PostCitationCreator
 modules_dict["CommentManager"] = CommentManager
+modules_dict["EchoManager"] = EchoManager
 modules_dict["InfluenceManager"] = InfluenceManager
 modules_dict["PostManager"] = PostManager
 modules_dict["GraphBuilder_Citation"] = GraphBuilder_Citation

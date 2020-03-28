@@ -157,27 +157,7 @@ class CommentManager(Method_Executor):
         self._db.addPost(rec)
         self._db.save_author_connections(connections)
 
-    # def insert_followers(self):
-    #     try:
-    #         connect = self._connect_tweepy()
-    #         authors = self._db.get_all_authors_names_and_ids()
-    #         for author_guid,author_screen_name in authors:
-    #             print(author_guid)
-    #             ids = []
-    #
-    #             for page in tweepy.Cursor(self.api.followers_ids, screen_name=author_screen_name).pages():
-    #               ids.extend(page)
-    #; CXC
-    #             for id in idsN:
-    #                      connections = []
-    #                      if(self._db.is_author_exist(id)==True):
-    #                             author_conn = self._db.create_connections(author_guid, self._db.get_author_id(id)[0] , "follower")
-    #                             connections.append(author_conn)
-    #                             self._db.save_author_connections(connections)
-    #
-    #     except:
-    #         print("An exception occurred")
-    #         time.sleep(60)
+
 
     def _insert_replies(self, posts):
 
@@ -202,8 +182,6 @@ class CommentManager(Method_Executor):
             except Exception as e:
                 print("failed")
                 continue
-                # replies_by_api = self._get_replies_by_api(tweet)
-                # for reply in replies_by_api:
-                #     self._insert_replies_to_db(reply,tweet_data)
+
 
         p = 0
