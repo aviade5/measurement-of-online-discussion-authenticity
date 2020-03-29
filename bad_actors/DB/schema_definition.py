@@ -4588,9 +4588,8 @@ class DB():
                             destination=destination, type=_type, domain=domain, date=date,
                             social_network_name=network_name)
 
-    def get_published_posts_from_activity(self, user_id):
+    def get_published_posts_from_activity(self, user_id,username):
         query = 'SELECT  destination from activities where author_id = :user_id'
-        username = self.get_author_screen_name(user_id)
         posts = self.session.execute(query, params=dict(user_id=user_id))
         posts = ["http://twitter.com/" + username + "/status/" + str(p[0]) for p in posts]
         return posts
