@@ -62,7 +62,6 @@ class EchoManager(Method_Executor):
     def comment_echo(self):
 
         while True:
-
             posts_links = self._db.get_published_posts_from_activity(self._source_id,self.source_username)
             while(len(posts_links)==0):
                 posts_links = self._db.get_published_posts_from_activity(self._source_id,self.source_username)
