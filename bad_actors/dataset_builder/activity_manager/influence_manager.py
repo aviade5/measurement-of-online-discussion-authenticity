@@ -97,14 +97,17 @@ class InfluenceManager(Method_Executor):
         full_df_hours_posts.set_index('author_guid',inplace = True,drop=True)
         return full_df_hours_posts
 
-    def _get_wall_posts(self,authors_guid):
+    def _get_wall_posts(self, authors_guid):
+            # wall_posts_guid_ = []
+            # for author in authors_guid:
+            #     author_post = self._db.get_author_posts_by_guid(author)
+            #     wall_posts_guid_.append(author_post)
 
-        wall_posts_guid_ = []
-        for author in authors_guid:
-            author_post = self._db.get_author_posts_by_guid(author)
-            wall_posts_guid_.append(author_post)
+            #d = [item[0] for sublist in wall_posts_guid_ for item in sublist]
+            wall_posts_guid_ = self._db.get_authors_posts_by_guid(authors_guid)
+            return [item[0] for item in wall_posts_guid_]
 
-        return [item[0] for sublist in wall_posts_guid_ for item in sublist]
+        #return [item[0] for sublist in wall_posts_guid_ for item in sublist]
 
 
 
@@ -423,7 +426,7 @@ class InfluenceManager(Method_Executor):
     def influencer_calculation(self):
 
         authors_guid = self._db.get_all_authors_guid()
-        #authors_guid = authors_guid[:100]
+        #authors_guid = authors_guid[:3]
 
         df = self._create_df_from_scratch(authors_guid)
         df = self._create_features(df)

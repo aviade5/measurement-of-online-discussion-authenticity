@@ -4623,6 +4623,13 @@ class DB():
         username = [p[0] for p in posts][0]
         return username
 
+    def get_authors_posts_by_guid(self,author_guids):
+       authors_guids = ', '.join('"' + n + '"' for n in author_guids)
+       res = ('select post_id,date from posts where  domain!="comment" and author_guid  IN (' + authors_guids + ')')
+       posts = self.session.execute(res, params=dict(authors_guids=authors_guids))
+       posts = [i[0:2] for i in posts]
+       return posts
+
     def get_author_posts_by_guid(self,author_guid):
 
        res = ('select post_id,date from posts where author_guid=:author_guid and domain!="comment"')
