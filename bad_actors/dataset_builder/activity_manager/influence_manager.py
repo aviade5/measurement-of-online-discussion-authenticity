@@ -149,6 +149,7 @@ class InfluenceManager(Method_Executor):
 
         return  pd.DataFrame.from_dict(wall_mentions_count, orient='index', columns=['wall_sum_of_mentions'])
 
+
     def _calculate_team_sum_of_comments(self,full_team_comments):
         team_sum_of_comments = [(i[0],i[1])  for i in full_team_comments]
         df_team_comment = pd.DataFrame(team_sum_of_comments,columns=['author_guid','team_sum_of_comments'])
