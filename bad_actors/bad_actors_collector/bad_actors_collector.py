@@ -23,6 +23,8 @@ class BadActorsCollector(Method_Executor):
         self._targeted_twitter_author_names = self._config_parser.eval(self.__class__.__name__, "targeted_twitter_author_names")
 
         self._social_network_crawler = Twitter_Rest_Api(db)
+		
+		
 
     def setUp(self):
         pass
