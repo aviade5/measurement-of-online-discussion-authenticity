@@ -19,6 +19,7 @@ from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from commons.commons import *
+from commons.commons import generate_random_guid
 from commons.consts import DB_Insertion_Type, Author_Type, Author_Connection_Type
 import re
 import itertools
@@ -94,15 +95,15 @@ class Author(Base):
     media_path = Column(Unicode, default=None)
 
     # Facebook fields
-    work = Column(Unicode, default=None)
-    education = Column(Unicode, default=None)
-    professional_skills = Column(Unicode, default=None)
-    current_residence = Column(Unicode, default=None)
-    past_residence = Column(Unicode, default=None)
-    birth_day = Column(Unicode, default=None)
-    gender = Column(Unicode, default=None)
-    email = Column(Unicode, default=None)
-    relationship_status = Column(Unicode, default=None)
+    # work = Column(Unicode, default=None)
+    # education = Column(Unicode, default=None)
+    # professional_skills = Column(Unicode, default=None)
+    # current_residence = Column(Unicode, default=None)
+    # past_residence = Column(Unicode, default=None)
+    # birth_day = Column(Unicode, default=None)
+    # gender = Column(Unicode, default=None)
+    # email = Column(Unicode, default=None)
+    # relationship_status = Column(Unicode, default=None)
     # family_members = Column(Unicode, default=None)
 
     author_type = Column(Unicode, default=None)
@@ -149,6 +150,19 @@ class TempAuthorConnection(Base):
         return "<TempAuthorConnection(source_author_osn_id='%s', destination_author_osn_id='%s', connection_type='%s', " \
                "weight='%s', insertion_date='%s')>" % (self.source_author_osn_id, self.destination_author_osn_id,
                                                        self.connection_type, self.weight, self.insertion_date)
+class Activity(Base):
+    __tablename__ = 'activities'
+
+    activity_id = Column(Unicode, index=True)
+    activity_guid = Column(Unicode, primary_key=True, index=True)
+    author_id = Column(Unicode, default=None)
+    source = Column(Unicode, default=None)
+    destination = Column(Unicode, default=None)
+    type = Column(Unicode, default=None)
+    domain = Column(Unicode, default=None)
+    social_network_name = Column(Unicode, default=None)
+    description = Column(Unicode, default=None)
+    date = Column(dt, default=None)
 
 
 class PostRetweeterConnection(Base):
@@ -690,9 +704,9 @@ class DB():
             if (getConfig().eval("OperatingSystem", "linux")):
                 dbapi_connection.execute(
                     'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.so'))
-            if (getConfig().eval("OperatingSystem", "mac")):
-                dbapi_connection.execute(
-                    'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.dylib'))
+            # if (getConfig().eval("OperatingSystem", "mac")):
+            #     dbapi_connection.execute(
+            #         'SELECT load_extension("%s%s")' % (configInst.get("DB", "DB_path_to_extension"), '.dylib'))
 
             dbapi_connection.enable_load_extension(False)
 
@@ -890,6 +904,12 @@ class DB():
     def get_posts(self):
         entries = self.session.query(Post).all()
         return entries
+
+    def get_all_posts(self):
+        entries = self.session.query(Post).all()
+        return entries
+
+
 
     def get_claims(self):
         return self.session.query(Claim).all()
@@ -1293,6 +1313,13 @@ class DB():
             i += 1
             self.addAuthor(author)
         self.commit()
+
+    def get_all_authors_id(self):
+        res = ('select author_osn_id from authors')
+        posts = self.session.execute(res)
+        posts = [i[0] for i in posts]
+        return posts
+
 
     def insert_authors(self):
         query = text(
@@ -1802,7 +1829,7 @@ class DB():
 
     def add_authors(self, authors):
         logging.info("-- add_authors --")
-        logging.info("Number of authors is: " + str(len(authors)))
+        #logging.info("Number of authors is: " + str(len(authors)))
         i = 1
         for author in authors:
             msg = "\r Add author to DB: [{}".format(i) + "/" + str(len(authors)) + ']'
@@ -1811,6 +1838,15 @@ class DB():
             self.add_author(author)
         self.commit()
         if len(authors) != 0: print("")
+
+    def add_new_author(self, author):
+            logging.info("-- add_author --")
+            # logging.info("Number of authors is: " + str(len(authors)))
+            i = 1
+
+            self.add_author(author)
+            self.commit()
+
 
     def get_author_by_author_guid(self, author_guid):
         result = self.session.query(Author).filter(Author.author_guid == author_guid).all()
@@ -2170,7 +2206,7 @@ class DB():
         author.language = unicode(osn_user.lang)
         author.profile_background_color = osn_user.profile_background_color
         author.profile_background_tile = osn_user.profile_background_tile
-        author.profile_banner_url = osn_user.profile_banner_url
+        #author.profile_banner_url = osn_user.profile_banner_url
         author.profile_image_url = osn_user.profile_image_url
         author.profile_link_color = osn_user.profile_link_color
         author.profile_sidebar_fill_color = osn_user.profile_sidebar_fill_color
@@ -3306,7 +3342,8 @@ class DB():
         cursor = result.cursor
         return cursor
 
-    def create_author_feature(self, author_guid, attribute_name, attribute_value):
+    def  create_author_feature(self, author_guid, attribute_name, attribute_value):
+
         author_feature = AuthorFeatures()
 
         author_feature.author_guid = author_guid
@@ -3503,11 +3540,33 @@ class DB():
     def create_post_from_tweet_data(self, tweet_data, domain):
         author_name = tweet_data.user.screen_name
         tweet_author_guid = compute_author_guid_by_author_name(author_name)
-        tweet_author_guid = cleanForAuthor(tweet_author_guid)
+        tweet_author_guid = tweet_author_guid
         tweet_post_twitter_id = str(tweet_data.id)
         tweet_url = generate_tweet_url(tweet_post_twitter_id, author_name)
         tweet_creation_time = tweet_data.created_at
-        tweet_str_publication_date = extract_tweet_publiction_date(tweet_creation_time)
+        tweet_str_publication_date = extract_tweet_publiction_date_from_tweepy(str(tweet_creation_time))
+        tweet_guid = compute_post_guid(post_url=tweet_url, author_name=author_name,
+                                       str_publication_date=tweet_str_publication_date)
+
+        post = Post(guid=tweet_guid, post_id=tweet_guid, url=unicode(tweet_url),
+                    date=str_to_date(tweet_str_publication_date),
+                    title=unicode(tweet_data.full_text), content=unicode(tweet_data.full_text),
+                    post_osn_id=tweet_post_twitter_id,
+                    author=unicode(author_name), author_guid=unicode(tweet_author_guid),
+                    domain=unicode(domain),
+                    retweet_count=unicode(tweet_data.retweet_count),
+                    favorite_count=unicode(tweet_data.favorite_count),
+                    timeline_importer_insertion_date=unicode(get_current_time_as_string()))
+        return post
+
+    def create_post_from_tweet_data_api(self, tweet_data, domain):
+        author_name = tweet_data.user.screen_name
+        tweet_author_guid = compute_author_guid_by_author_name(author_name)
+        tweet_author_guid = tweet_author_guid
+        tweet_post_twitter_id = str(tweet_data.id)
+        tweet_url = generate_tweet_url(tweet_post_twitter_id, author_name)
+        tweet_creation_time = tweet_data.created_at
+        tweet_str_publication_date = extract_tweet_publiction_date(str(tweet_creation_time))
         tweet_guid = compute_post_guid(post_url=tweet_url, author_name=author_name,
                                        str_publication_date=tweet_str_publication_date)
 
@@ -3521,6 +3580,14 @@ class DB():
                     favorite_count=unicode(tweet_data.favorite_count),
                     timeline_importer_insertion_date=unicode(get_current_time_as_string()))
         return post
+
+    def create_connections(self, source_author_guid, destination_author_guid, connection_type):
+
+        rec = AuthorConnection()
+        rec.source_author_guid = source_author_guid
+        rec.destination_author_guid = destination_author_guid
+        rec.connection_type = connection_type
+        return rec
 
     def get_max_topic(self):
         query = """
@@ -4426,3 +4493,288 @@ class DB():
         result = self.session.query(Author).filter(and_(Author.domain == unicode(domain), Author.author_guid == author_guid, Author.author_type == 'User'),
             ).all()
         return result
+
+
+    def convert_twitter_users_to_authors_and_save(self, total_twitter_users, author_type, inseration_type):
+        author = self.convert_twitter_users_to_authors(total_twitter_users, author_type, inseration_type)
+        #print("Total converted Twitter users into authors is: " + str(len(authors)))
+        self.save_author(author)
+
+        #self._db.save_author_connections(self._total_author_connections)
+        #self._total_author_connections = []
+
+    # def convert_twitter_users_to_authors(self, total_twitter_users, author_type, inseration_type):
+    #     print("---Converting Twitter users to authors---")
+    #     convert_twitter_users_to_authors_start_time = time.time()
+    #     authors = self.convert_twitter_user_to_author(total_twitter_users, "Microblog", author_type,
+    #                                                         inseration_type)
+    #     convert_twitter_users_to_authors_end_time = time.time()
+    #     convert_twitter_users_to_authors_time = convert_twitter_users_to_authors_end_time - convert_twitter_users_to_authors_start_time
+    #     print("Convert Twitter users to authors took in seconds: " + str(convert_twitter_users_to_authors_time))
+    #
+    #     return authors
+
+    def save_authors(self, authors):
+        print("---Saving authors in DB---")
+        #print("Number of authors to save is: " + str(len(authors)))
+        save_authors_start_time = time.time()
+        self.add_authors(authors)
+        save_authors_end_time = time.time()
+        save_authors_time = save_authors_end_time - save_authors_start_time
+        print("Saving authors in DB took in seconds: " + str(save_authors_time))
+
+    def save_author(self, authors):
+        print("---Saving author in DB---")
+        #print("Number of authors to save is: " + str(len(authors)))
+        save_authors_start_time = time.time()
+        self.add_new_author(authors)
+        save_authors_end_time = time.time()
+        save_authors_time = save_authors_end_time - save_authors_start_time
+        print("Saving authors in DB took in seconds: " + str(save_authors_time))
+
+    # def save_author_connections(self):
+    #     print("---Saving author connections in DB---")
+    #     save_author_connections_start_time = time.time()
+    #     self._db.add_author_connections(self._total_author_connections)
+    #     save_author_connections_end_time = time.time()
+    #     save_author_connections_time = save_author_connections_end_time - save_author_connections_start_time
+    #     print("Saving author connections in DB took in seconds: " + str(save_author_connections_time))
+    #     self._total_author_connections = []
+
+
+    def get_authors_comments(self):
+        query =  'SELECT authors.author_osn_id from posts INNER JOIN authors ON authors.author_guid= posts.author_guid where posts.domain= "comment"'
+        posts = self.session.execute(query)
+        posts = [i for i in posts]
+        return posts
+
+    def is_author_exist(self,id):
+        query =  'SELECT authors.author_guid from authors where authors.author_osn_id=:id'
+        posts = self.session.execute(query, params=dict(id=id))
+        posts = len([i for i in posts])
+        if posts>0:
+            return True
+        else:
+            return False
+
+    def get_all_authors_names_and_ids(self):
+            res = ('select author_guid,author_screen_name from authors')
+            posts = self.session.execute(res)
+            posts = [i for i in posts]
+            return posts[1:]
+
+
+
+    def get_author_id(self,id):
+        query = 'SELECT authors.author_guid from authors where authors.author_osn_id=:id'
+        posts = self.session.execute(query, params=dict(id=id))
+        posts = [i[0] for i in posts]
+        return posts
+
+    def get_author_guid_by_screen_name(self,author_screen_name):
+        author_screen_name = ', '.join('"' + n + '"' for n in author_screen_name)
+        query = 'SELECT  author_guid from authors  where author_screen_name IN (' + author_screen_name +')'
+        posts = self.session.execute(query, params=dict(author_screen_name=author_screen_name))
+        posts = [p[0] for p in posts]
+        return posts
+
+        
+    def create_activity(self,author_id, source, destination, _type, domain, description, date,network_name,activity_id=None,
+                         activity_guid=None):
+        if activity_guid is None:
+            activity_guid = generate_random_guid()
+            return Activity(activity_id=activity_id, activity_guid=activity_guid,author_id=author_id,source=source,
+                            description=description,
+                            destination=destination, type=_type, domain=domain, date=date,
+                            social_network_name=network_name)
+
+    def get_published_posts_from_activity(self, user_id,username):
+        query = 'SELECT  destination from activities where author_id = :user_id'
+        posts = self.session.execute(query, params=dict(user_id=user_id))
+        posts = ["http://twitter.com/" + username + "/status/" + str(p[0]) for p in posts]
+        return posts
+
+    def get_author_screen_name(self, author_osn_id):
+        query = 'SELECT  author_screen_name from authors where author_osn_id=author_osn_id'
+        posts = self.session.execute(query, params=dict(author_osn_id=author_osn_id))
+        posts = [p[0] for p in posts][0]
+        return posts
+
+    def get_post_source_from_activity(self,user_id,destination):
+        query = 'SELECT  source from activities where author_id = :user_id and destination = :destination'
+        posts = self.session.execute(query, params=dict(user_id=user_id, destination=destination))
+        posts = [p[0] for p in posts]
+        return posts
+
+    def check_if_post_sent(self,post,user_id):
+        source = post.post_osn_id
+        query = 'SELECT  activity_guid from activities where author_id = :user_id and source=:source'
+        posts = self.session.execute(query, params=dict(user_id=user_id,source=source))
+        posts = [p[0] for p in posts]
+        if (len(posts) >= 1):
+            return True
+        else:
+            return False
+
+    def get_username(self,post_osn_id):
+
+        query = 'SELECT author from posts where post_osn_id = :post_osn_id'
+        posts = self.session.execute(query, params=dict(post_osn_id=post_osn_id))
+        username = [p[0] for p in posts][0]
+        return username
+
+    def get_authors_posts_by_guid(self,author_guids):
+       authors_guids = ', '.join('"' + n + '"' for n in author_guids)
+       res = ('select post_id,date from posts where  domain!="comment" and author_guid  IN (' + authors_guids + ')')
+       posts = self.session.execute(res, params=dict(authors_guids=authors_guids))
+       posts = [i[0:2] for i in posts]
+       return posts
+
+    def get_author_posts_by_guid(self,author_guid):
+
+       res = ('select post_id,date from posts where author_guid=:author_guid and domain!="comment"')
+       posts = self.session.execute(res, params=dict(author_guid=author_guid))
+       posts = [i[0:2] for i in posts]
+       return posts
+
+    def get_content(self,posts_id):
+
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+       # res = ('select count(*) from posts where posts.content like :username and post_id IN (' + posts_ids + ')')
+        res = ('select post_id,content from posts where post_id IN (' + posts_ids + ')')
+        posts = self.session.execute(res, params=dict(posts_ids=posts_ids))
+        posts = [i for i in posts]
+        posts_keys=defaultdict(dict)
+        for x in posts:
+
+             l=x[1].split(" ")
+             j=set(l)
+             posts_keys[x[0]]=j
+        return posts_keys
+
+    def authors_data(self, authors):
+        authors = ', '.join('"' + n + '"' for n in authors)
+        query = 'SELECT author_guid,friends_count,followers_count, statuses_count,created_at,favourites_count from authors where author_guid IN ('+ authors +')'
+        posts = self.session.execute(query, params=dict(authors=authors))
+        posts = [p for p in posts]
+        res = {}
+        for post in posts:
+            try:
+                date = datetime.datetime.strptime(str(post[4]), "%a %b %d %H:%M:%S +0000 %Y")
+            except Exception as e:
+                date = datetime.datetime.strptime(str(post[4]), "%Y-%m-%d %H:%M:%S")
+
+            res[post[0]] = ( post[3], date, post[5], post[1], post[2])
+        return res
+
+    def get_screen_names(self):
+            query = 'SELECT author_guid,author_screen_name from authors'
+            posts = self.session.execute(query)
+            posts = {p[0]:p[1] for p in posts}
+            # if (len(posts) == 1):
+            #     return posts[0]
+
+            return posts
+
+    def get_authors_comments_counts(self,posts_id):
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+        query =  'SELECT posts.author_guid, author_connections.source_author_guid, count(author_connections.destination_author_guid) from author_connections INNER JOIN posts ON author_connections.source_author_guid= posts.guid where author_connections.connection_type="post_comment_connection" and  author_connections.source_author_guid IN (' + posts_ids + ') GROUP BY posts.author_guid,author_connections.source_author_guid'
+        posts = self.session.execute(query, params=dict(posts_id=posts_id))
+        posts = [(p[0],p[1],p[2]) for p in posts]
+
+
+        return posts
+
+    def get_comments(self, posts_id):
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+        query = 'SELECT posts.author_guid , author_connections.destination_author_guid, posts.retweet_count,posts.favorite_count from author_connections INNER JOIN posts ON author_connections.destination_author_guid= posts.guid  where  author_connections.connection_type="post_comment_connection" and author_connections.source_author_guid IN (' + posts_ids + ')'
+        posts = self.session.execute(query, params=dict(posts_id=posts_id))
+        comments = [i for i in posts]
+        # for p in posts:
+        #     guid = str(p[0])
+        #     a = guid[0:8]+'-'+guid[8:12]+'-'+guid[12:16]+'-'+guid[16:20]+'-'+guid[20:]
+        #     comments.append((a,p[1],p[2],p[3]))
+        return comments
+
+    def get_authors_comments(self, posts_id):
+        posts_ids = ', '.join('"' + n + '"' for n in posts_id)
+        query = 'SELECT * from posts where  post_id IN (' + posts_ids + ') and  domain= "comment"'
+        posts = self.session.execute(query, params=dict(posts_id=posts_id))
+        posts = [i for i in posts]
+        return posts
+
+    def get_posts(self, post_osn_id):
+       post_osn_id = ', '.join('"' + n + '"' for n in post_osn_id)
+       res = ('select author_guid,post_id,retweet_count,favorite_count,title,content from posts where post_id IN (' + post_osn_id +') and domain!="comment"')
+       posts = self.session.execute(res, params=dict(post_osn_id = post_osn_id))
+       res = []
+       for author_guid, post_id, retweet_count,favorite_count,title,content in posts:
+
+           prefix = str(content[0:2])
+           if prefix=="RT":
+               res.append((author_guid, post_id, 0, favorite_count,1))
+
+           else:
+               res.append((author_guid, post_id, retweet_count,favorite_count,0))
+       return res
+
+    def get_all_authors_guid(self):
+        res = ('select author_guid from authors')
+        posts = self.session.execute(res)
+        posts = [i[0] for i in posts]
+        return posts
+
+    def is_comment_exist(self,author_id,source,message):
+        query = 'SELECT  activity_guid from activities where author_id=author_id and source = :source and description=:message'
+        posts = self.session.execute(query, params=dict(author_id=author_id, message=message,source=source))
+        posts = [p[0] for p in posts]
+        if (len(posts) >= 1):
+            return True
+        else:
+            return False
+
+    def posts_statics(self, author_guid):
+            query = 'SELECT  author_guid,count(post_id), SUM(posts.retweet_count),SUM(posts.favorite_count),AVG(posts.retweet_count),AVG(posts.favorite_count) from posts where author_guid=:author_guid and content not like "RT @%"'
+            posts = self.session.execute(query, params=dict(author_guid=author_guid))
+            posts_without_retweet= []
+            for p in posts:
+                   posts_without_retweet.append([p[0],p[1],p[2],p[3],p[4],p[5]])
+            return posts_without_retweet
+
+
+    def posts_statics_from_date(self, author_guid,certain_date):
+              query = 'SELECT  author_guid,count(post_id), SUM(posts.retweet_count),SUM(posts.favorite_count),AVG(posts.retweet_count),AVG(posts.favorite_count) from posts where author_guid=:author_guid and content not like "RT @%" and  :certain_date<=date'
+              posts = self.session.execute(query, params=dict(author_guid=author_guid,certain_date=certain_date))
+              posts_without_retweet= []
+              for p in posts:
+                  posts_without_retweet.append([p[0],p[1],p[2],p[3],p[4],p[5]])
+              return posts_without_retweet
+
+
+    def source_destination(self):
+              query = 'SELECT  source, destination from activities'
+              posts = self.session.execute(query)
+              ids= {}
+              for p in posts:
+                 ids[p[1]]= p[0]
+              return ids
+
+
+    def posts_statics_from_date_for_specific_posts(self,post_ids):
+                post_ids = ', '.join('"' + str(n) + '"' for n in post_ids)
+
+
+                query = 'SELECT  count(post_id), SUM(posts.retweet_count),SUM(posts.favorite_count),AVG(posts.retweet_count),AVG(posts.favorite_count) from posts where content not like "RT @%" and post_osn_id IN (' + post_ids +')'
+                posts = self.session.execute(query)
+                posts_without_retweet= []
+                for p in posts:
+                    posts_without_retweet.append(["influencers",p[0],p[1],p[2],p[3],p[4]])
+                return posts_without_retweet
+
+    def posts_statics_guids(self, author_guid,certain_date):
+             query = 'SELECT  post_osn_id from posts where author_guid=:author_guid and content not like "RT @%" and  :certain_date<=date'
+             posts = self.session.execute(query, params=dict(author_guid=author_guid,certain_date=certain_date))
+             posts_without_retweet= []
+             for p in posts:
+                posts_without_retweet.append(str(p[0]))
+             return posts_without_retweet

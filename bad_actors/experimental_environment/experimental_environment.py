@@ -23,7 +23,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score, precision_score, recall_score,confusion_matrix, precision_recall_fscore_support
-from sklearn.cross_validation import StratifiedKFold
+#from sklearn.cross_validation import StratifiedKFold
 from sklearn.externals import joblib
 
 from commons.commons import *

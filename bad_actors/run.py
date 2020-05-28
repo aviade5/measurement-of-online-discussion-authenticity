@@ -15,6 +15,11 @@ from preprocessing_tools.fake_news_snopes_importer.fake_news_snopes_importer imp
 from bad_actors_collector.bad_actors_collector import BadActorsCollector
 from configuration.config_class import getConfig
 from data_exporter.data_exporter import DataExporter
+from dataset_builder.activity_manager.comment_manager import CommentManager
+from dataset_builder.activity_manager.echo_comment_manager import EchoManager
+from data_exporter.data_exporter import DataExporter
+from dataset_builder.activity_manager.post_manager import PostManager
+from dataset_builder.activity_manager.influence_manager import InfluenceManager
 from dataset_builder.graph_builders.bag_of_words_graph_builders.bag_of_words_graph_builder_all_combinations import \
     Bag_Of_Words_Graph_Builder_All_Combinations
 from dataset_builder.graph_builders.bag_of_words_graph_builders.bag_of_words_graph_builder_k_best import \
@@ -62,8 +67,8 @@ from topic_distribution_visualization.claim_to_topic_converter import ClaimToTop
 from topic_distribution_visualization.topic_distribution_visualization_generator import \
     TopicDistrobutionVisualizationGenerator
 from twitter_crawler.twitter_crawler import Twitter_Crawler
-from preprocessing_tools.google_link_by_keyword_importer.google_link_importer import GoogleLinksByKeywords
-from preprocessing_tools.instagram_crawler.instagram_crawler import InstagramCrawler
+#from preprocessing_tools.google_link_by_keyword_importer.google_link_importer import GoogleLinksByKeywords
+#rom preprocessing_tools.instagram_crawler.instagram_crawler import InstagramCrawler
 
 
 ###############################################################
@@ -80,8 +85,8 @@ modules_dict["CsvImporter"] = CsvImporter
 modules_dict["FakeNewsSnopesImporter"] = FakeNewsSnopesImporter
 modules_dict["GDLET_News_Importer"] = GDLET_News_Importer
 modules_dict["Twitter_Crawler"] = Twitter_Crawler
-modules_dict["GoogleLinksByKeywords"] = GoogleLinksByKeywords
-modules_dict["InstagramCrawler"] = InstagramCrawler
+#modules_dict["GoogleLinksByKeywords"] = GoogleLinksByKeywords
+#modules_dict["InstagramCrawler"] = InstagramCrawler
 modules_dict["OldTweetsCrawler"] = OldTweetsCrawler
 modules_dict["MissingDataComplementor"] = MissingDataComplementor
 modules_dict["Load_Datasets"] = Load_Datasets
@@ -95,7 +100,10 @@ modules_dict["GensimWordEmbeddingsModelTrainer"] = GensimWordEmbeddingsModelTrai
 modules_dict["OCR_Extractor"] = OCR_Extractor
 modules_dict["TopicDistributionBuilder"] = TopicDistributionBuilder
 modules_dict["PostCitationCreator"] = PostCitationCreator
-
+modules_dict["CommentManager"] = CommentManager
+modules_dict["EchoManager"] = EchoManager
+modules_dict["InfluenceManager"] = InfluenceManager
+modules_dict["PostManager"] = PostManager
 modules_dict["GraphBuilder_Citation"] = GraphBuilder_Citation
 modules_dict["GraphBuilder_CoCitation"] = GraphBuilder_CoCitation
 modules_dict["Randomizer"] = Randomizer
