@@ -48,11 +48,11 @@ class OldTweetsCrawler(Method_Executor):
         num_of_claims = len(claims)
         threads = []
         for i, claim in enumerate(claims):
-            t = threading.Thread(target=self._get_tweets_for_claim_by_keywords, args=(claim, i, num_of_claims,))
-            threads.append(t)
-            t.start()
-            # self._get_tweets_for_claim_by_keywords(claim, i, num_of_claims)
-        [t.join() for t in threads]
+            # t = threading.Thread(target=self._get_tweets_for_claim_by_keywords, args=(claim, i, num_of_claims,))
+            # threads.append(t)
+            # t.start()
+            self._get_tweets_for_claim_by_keywords(claim, i, num_of_claims)
+        # [t.join() for t in threads]
 
     def _get_tweets_for_claim_by_keywords(self, claim, i, num_of_claims):
         keywords_str = claim.keywords
