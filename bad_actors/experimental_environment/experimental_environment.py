@@ -9,6 +9,7 @@ import csv
 
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import StratifiedKFold
 from sklearn.neighbors import NearestNeighbors
 from scipy.spatial import distance
 import pickle
@@ -171,6 +172,7 @@ class ExperimentalEnvironment(Method_Executor):
         self._max_classifier_dictionary = self._init_max_classifier_dict()
 
         author_features_dataframe = self._get_author_features_dataframe()
+        author_features_dataframe.reset_index().to_csv(self._path + 'features_table.csv')
 
         unlabeled_features_dataframe = self._retreive_unlabeled_authors_dataframe(author_features_dataframe)
         unlabeled_features_dataframe, unlabeled_targeted_class_series, unlabeled_index_field_series = \
@@ -196,11 +198,12 @@ class ExperimentalEnvironment(Method_Executor):
 
                 if selected_classifier is not None:
 
-                    k_folds, valid_k = self._select_valid_k(targeted_class_series)
-
+                    # k_folds, valid_k = self._select_valid_k(targeted_class_series)
+                    valid_k = retreive_valid_k(self._k_for_fold, targeted_class_series)
+                    #
                     print("Valid k is: " + str(valid_k))
                     i = 0
-                    for train_indexes, test_indexes in k_folds:
+                    for train_indexes, test_indexes in StratifiedKFold(self._k_for_fold).split(targeted_class_series,targeted_class_series):
                         i += 1
                         print("i = " + str(i))
 
@@ -870,7 +873,10 @@ class ExperimentalEnvironment(Method_Executor):
         # dataframe = dataframe.replace(to_replace=Author_Subtype.CROWDTURFER, value=5)
         # dataframe = dataframe.replace(to_replace=Author_Subtype.ACQUIRED, value=6)
 
-        index_field_series = dataframe.pop(self._index_field)
+        if self._index_field in dataframe.columns:
+            index_field_series = dataframe.pop(self._index_field)
+        else:
+            index_field_series = pd.Series()
         targeted_class_series = dataframe.pop(self._targeted_class_name)
 
         # Remove unnecessary features
@@ -1412,7 +1418,7 @@ class ExperimentalEnvironment(Method_Executor):
                 features_to_remove = self._calculate_features_to_remove(combination, feature_names)
 
                 k_folds, valid_k = self._select_valid_k(targeted_class_series)
-                for train_indexes, test_indexes in k_folds:
+                for train_indexes, test_indexes in StratifiedKFold(self._k_for_fold).split(targeted_class_series,targeted_class_series):
                     train_set_dataframe, test_set_dataframe, train_class, test_class = self._create_train_and_test_dataframes_and_classes(
                         labeled_features_dataframe,
                         train_indexes, test_indexes,

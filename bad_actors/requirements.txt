@@ -1,0 +1,6 @@
+numpay
+pandas
+scikit-learn
+gensim
+nltk
+schedule

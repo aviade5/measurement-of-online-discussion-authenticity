@@ -88,7 +88,6 @@ class FeatureExtractor(AbstractController):
 
         module_names["Word_Embedding_Differential_Feature_Generator"] = Word_Embedding_Differential_Feature_Generator
         module_names["Known_Words_Number_Feature_generator"] = Known_Words_Number_Feature_generator
-        module_names["Liar_Dataset_Feature_Generator"] = Liar_Dataset_Feature_Generator
         module_names["ClaimTopicFeatureGenerator"] = ClaimTopicFeatureGenerator
         module_names["ClaimFeatureGenerator"] = ClaimFeatureGenerator
         module_names["RedditPostByClaimFeatureGenerator"] = RedditPostByClaimFeatureGenerator

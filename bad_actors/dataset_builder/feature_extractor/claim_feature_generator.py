@@ -33,11 +33,7 @@ class ClaimFeatureGenerator(AbstractController):
         self._db.add_author_features(author_features)
 
     def claim_type(self, claim):
-        if claim.verdict in self._good_claim_type:
-            return 'True'
-        elif claim.verdict in self._bad_claim_type:
-            return 'False'
-        return None
+        return claim.verdict
 
     def claim_id(self, claim):
         claim_id = claim.claim_id
