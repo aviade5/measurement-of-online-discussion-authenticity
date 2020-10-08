@@ -39,19 +39,22 @@ class AbstractWordEmbaddingTrainer(BaseFeatureGenerator):
         return word_embeddings
 
     def _add_word_embeddings_to_db(self, word_embeddings):
-        print("Add word embedding to DB")
-        self._results_dataframe = pd.DataFrame()
-        self._add_word_embeddings_to_df(word_embeddings)
-        # if result is None: #added by Lior, need to check for if no author_id
-        #     self._fill_zeros(results_dataframe, author_id, table_name, id_field, targeted_field_name)
-        column_names = ["author_id", "table_name", "id_field", "targeted_field_name", "word_embedding_type"]
-        dimensions = np.arange(self._num_of_dimensions)
-        column_names.extend(dimensions)
-        self._results_dataframe.columns = column_names
-        engine = self._db.engine
-        self._results_dataframe.to_sql(name="author_word_embeddings_{0}_{1}_dim".format(self._table_name,
-                                                                                        self._num_of_dimensions),
-                                       con=engine, index=False, if_exists='append')
+        if len(word_embeddings) > 0:
+            print("Add word embedding to DB")
+            self._results_dataframe = pd.DataFrame()
+            self._add_word_embeddings_to_df(word_embeddings)
+            # if result is None: #added by Lior, need to check for if no author_id
+            #     self._fill_zeros(results_dataframe, author_id, table_name, id_field, targeted_field_name)
+            column_names = ["author_id", "table_name", "id_field", "targeted_field_name", "word_embedding_type"]
+            dimensions = np.arange(self._num_of_dimensions)
+            column_names.extend(dimensions)
+            self._results_dataframe.columns = column_names
+            engine = self._db.engine
+            self._results_dataframe.to_sql(name="author_word_embeddings_{0}_{1}_dim".format(self._table_name,
+                                                                                            self._num_of_dimensions),
+                                           con=engine, index=False, if_exists='append')
+        else:
+            print('Empty word embeddings')
 
     def _add_word_embeddings_to_df(self, word_embeddings):
         rows = []
