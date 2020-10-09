@@ -89,7 +89,8 @@ class CooperationTopicFeatureGenerator(BaseFeatureGenerator):
     def calculate_author_cooperation(self, post_id_to_words, jaccard_threshold=0.9):
         author_cooperation_counter_dict = defaultdict(set)
         # Iterates over all post_id and words pairs combinations only once.
-        for post_id1, post_id2 in itertools.combinations(post_id_to_words, 2):
+        post_ids = list(post_id_to_words.keys())[:500]
+        for post_id1, post_id2 in itertools.combinations(post_ids, 2):
             first_author_id = self._post_dict[post_id1].author_guid
             second_author_id = self._post_dict[post_id2].author_guid
             j_score = jaccard_index(post_id_to_words[post_id1], post_id_to_words[post_id2])

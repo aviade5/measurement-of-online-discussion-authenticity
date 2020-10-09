@@ -6,7 +6,7 @@ from preprocessing_tools.fake_news_word_classifier.fake_news_base import FakeNew
 
 
 class FakeNewsFeatureGenerator(FakeNewsBase):
-    def __init__(self, db):
+    def __init__(self, db, **kwargs):
         super(FakeNewsFeatureGenerator, self).__init__(db, **{'authors': {}, 'posts': []})
 
     def extract_word_count(self):

@@ -34,6 +34,7 @@ from graph_feature_generator import GraphFeatureGenerator
 from key_author_score_feature_generator import KeyAuthorScoreFeatureGenerator
 from link_prediction_feature_extractor import LinkPredictionFeatureExtractor
 from preprocessing_tools.abstract_controller import AbstractController
+from preprocessing_tools.fake_news_word_classifier.fake_news_feature_generator import FakeNewsFeatureGenerator
 from syntax_feature_generator import SyntaxFeatureGenerator
 from topic_feature_generator import TopicFeatureGenerator
 from sentiment_feature_generator import Sentiment_Feature_Generator
@@ -65,6 +66,7 @@ class FeatureExtractor(AbstractController):
         module_names["SyntaxFeatureGenerator"] = SyntaxFeatureGenerator
         module_names["BehaviorFeatureGenerator"] = BehaviorFeatureGenerator
         module_names["KeyAuthorScoreFeatureGenerator"] = KeyAuthorScoreFeatureGenerator
+        module_names["FakeNewsFeatureGenerator"] = FakeNewsFeatureGenerator
         module_names["BoostScoresFeatureGenerator"] = BoostScoresFeatureGenerator
         module_names["GraphFeatureGenerator_1"] = GraphFeatureGenerator
         module_names["AccountPropertiesFeatureGenerator"] = AccountPropertiesFeatureGenerator

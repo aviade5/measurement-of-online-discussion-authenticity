@@ -1004,7 +1004,7 @@ class ExperimentalEnvironment(Method_Executor):
         selected_classifier = None
 
         if classifier_type_name == Classifiers.RandomForest:
-            selected_classifier = RandomForestClassifier(n_estimators=100)
+            selected_classifier = RandomForestClassifier(n_estimators=300, max_depth=6)
 
         elif classifier_type_name == Classifiers.DecisionTree:
             selected_classifier = tree.DecisionTreeClassifier()
@@ -1013,7 +1013,7 @@ class ExperimentalEnvironment(Method_Executor):
             selected_classifier = AdaBoostClassifier(n_estimators=30)
 
         elif classifier_type_name == Classifiers.XGBoost:
-            selected_classifier = xgb.XGBClassifier()
+            selected_classifier = xgb.XGBClassifier(max_depth=6, learning_rate=0.1, n_estimators=200, reg_lambda=0.2)
 
         return selected_classifier
 
