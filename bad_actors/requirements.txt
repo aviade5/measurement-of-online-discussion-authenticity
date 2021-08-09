@@ -10,7 +10,7 @@ pyquery==1.4.0
 python-twitter==3.4.2
 tweepy==3.6.0
 selenium==3.14.1
-pywin32==223
+pywin32==301
 clarifai==2.4.0
 Pillow==3.0.0
 pytesseract==0.2.5
